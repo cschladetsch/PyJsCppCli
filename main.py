@@ -33,7 +33,7 @@ class Spinner:
             "?", "?", "?", "?", "?", "?", "?", "?", "?", "?"
         ]
         self.loading_messages = [
-            "Thinking", "Processing", "Contemplating", 
+            "Thinking", "Processing", "Contemplating",
             "Analyzing", "Computing", "Pondering"
         ]
         self.spinner_idx = 0
@@ -46,24 +46,24 @@ class Spinner:
             if self.message_update_counter % 20 == 0:
                 self.message_idx = (self.message_idx + 1) % len(self.loading_messages)
                 self.dots = 0
-            
+
             if self.message_update_counter % 5 == 0:
                 self.dots = (self.dots + 1) % 4
-            
+
             message = self.loading_messages[self.message_idx]
             dots = "." * self.dots
             spaces = " " * (3 - self.dots)
-            
+
             spinner = self.frames[self.spinner_idx]
             line = f"\r{Colors.ORANGE}{spinner} {message}{dots}{spaces}{Colors.RESET}"
-            
+
             sys.stdout.write(line)
             sys.stdout.flush()
-            
+
             self.spinner_idx = (self.spinner_idx + 1) % len(self.frames)
             self.message_update_counter += 1
             time.sleep(0.1)
-        
+
         sys.stdout.write("\r" + " " * 50 + "\r")
         sys.stdout.flush()
 
@@ -99,25 +99,35 @@ def get_prompt_message():
     """Return simple prompt"""
     return ANSI(f'{Colors.GREEN}>{Colors.RESET} ')
 
-def generate_response(client, prompt, system_prompt="You are a helpful assistant."):
-    """Generates a response using Claude."""
+def generate_response(client, prompt, system_prompt="You are a helpful assistant.", message_history=None):
+    """Generates a response using Claude, maintaining conversation history."""
+    if message_history is None:
+        message_history = []
+        
+    messages = message_history + [{"role": "user", "content": prompt}]
+    
     try:
         response = client.messages.create(
             model="claude-3-5-sonnet-20241022",
             system=system_prompt,
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
+            messages=messages,
             max_tokens=1024
         )
-        return response.content[0].text if response.content else "No response generated."
+        current_response = response.content[0].text
+        # Add this exchange to history
+        message_history.extend([
+            {"role": "user", "content": prompt},
+            {"role": "assistant", "content": current_response}
+        ])
+        return current_response, message_history
     except Exception as e:
-        return f"Error while generating response: {e}"
+        return f"Error while generating response: {e}", message_history
 
 class InteractiveMode:
     def __init__(self):
         self.system_prompt = "You are a helpful assistant."
         self.client = Anthropic(api_key=read_token())
+        self.message_history = []
         self.session = PromptSession(
             history=FileHistory(HISTORY_FILE),
             key_bindings=setup_key_bindings(),
@@ -160,7 +170,12 @@ class InteractiveMode:
         else:
             spinner = Spinner()
             spinner.start()
-            response = generate_response(self.client, user_prompt, self.system_prompt)
+            response, self.message_history = generate_response(
+                self.client, 
+                user_prompt, 
+                self.system_prompt,
+                self.message_history
+            )
             spinner.stop()
             print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{response}{Colors.RESET}")
             return True
@@ -178,10 +193,16 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         client = Anthropic(api_key=read_token())
         query = " ".join(sys.argv[1:])
+        message_history = []  # Initialize message history for command line mode
+        
+        # Add command to history
+        with open(os.path.expanduser(HISTORY_FILE), 'a') as f:
+            f.write(query + '\n')
+            
         spinner = Spinner()
         try:
             spinner.start()
-            reply = generate_response(client, query)
+            reply, _ = generate_response(client, query, message_history=message_history)
             spinner.stop()
             print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{reply}{Colors.RESET}")
         except (KeyboardInterrupt, EOFError):
