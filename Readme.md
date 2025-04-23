@@ -1,4 +1,4 @@
-# Python Cluade Interactive Console
+# Python Claude Interactive Console
 
 ## Demo
 
