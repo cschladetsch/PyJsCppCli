@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ask () {
+ai () {
         if [[ -d "$HOME/local/PythonClaudeCli/.venv" ]]
         then
                 source "$HOME/local/PythonClaudeCli/.venv/bin/activate"
