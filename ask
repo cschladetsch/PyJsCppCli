@@ -1,0 +1,15 @@
+#!/bin/bash
+
+ask () {
+        if [[ -d "$HOME/local/PythonClaudeCli/.venv" ]]
+        then
+                source "$HOME/local/PythonClaudeCli/.venv/bin/activate"
+                python "$HOME/local/PythonClaudeCli/main.py" "$@"
+                deactivate
+        else
+                echo "Virtual environment not found. Please set up PythonClaudeCli first."
+        fi
+}
+
+
+

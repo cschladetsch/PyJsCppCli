@@ -9,6 +9,8 @@ This project provides an interactive command-line interface (CLI) to communicate
 
 The script includes a loading spinner for a smooth user experience and customizable settings for improved usability.
 
+Also provided is a script called 'ask' that provides a `bash` function to make it easier to use.
+
 ---
 
 ## Features
@@ -42,13 +44,13 @@ pip install anthropic prompt_toolkit
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/interactive-ai-cli.git
-   cd interactive-ai-cli
+   $ git clone https://github.com/cschladetsch/PythonClaudeCli
+   $ cd PythonClaudeCli
    ```
 
 2. Install required dependencies:
    ```bash
-   pip install -r requirements.txt
+   $ pip install -r requirements.txt
    ```
 
 3. Set up your API token:
@@ -57,7 +59,9 @@ pip install anthropic prompt_toolkit
 ---
 
 ## Usage
+
 ### Interactive Mode
+
 Run the script without arguments to enter the interactive mode:
 ```bash
 python main.py
