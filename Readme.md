@@ -2,7 +2,7 @@
 
 ## Demo
 
-(Demo)[resources/Demo.gif]
+[Demo](resources/Demo.gif)
 
 ## Overview
 This project provides an interactive command-line interface (CLI) to communicate with an AI assistant powered by Anthropic's Claude. Users can input prompts, receive responses, and leverage helpful tools like command history and vim-style editing. 
