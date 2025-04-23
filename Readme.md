@@ -64,7 +64,9 @@ pip install anthropic prompt_toolkit
 
 Run the script without arguments to enter the interactive mode:
 ```bash
-python main.py
+$ python main.py
+$ # or, just:
+$ ask what is the factorial of 7
 ```
 
 ### Direct Query Mode
