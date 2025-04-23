@@ -83,6 +83,8 @@ python main.py "Your query here"
   - `h`: Show complete command history.
   - `h N`: Show the last N entries from history.
 
+Or, just type 'ask' or 'python main.py' to enter a REPL.
+
 ---
 
 ## Spinner Animation
