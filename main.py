@@ -15,6 +15,7 @@ import time
 
 # File paths
 HISTORY_FILE = os.path.expanduser("~/.claude_history")
+CONVERSATION_STATE_FILE = os.path.expanduser("~/.claude_conversation_state.json")
 
 # ANSI color codes
 class Colors:
@@ -99,6 +100,22 @@ def get_prompt_message():
     """Return simple prompt"""
     return ANSI(f'{Colors.GREEN}>{Colors.RESET} ')
 
+def load_conversation_state():
+    """Load conversation history from state file"""
+    if os.path.exists(CONVERSATION_STATE_FILE):
+        try:
+            with open(CONVERSATION_STATE_FILE, 'r') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            print(f"{Colors.RED}Warning: Could not parse conversation state file. Starting fresh.{Colors.RESET}")
+            return []
+    return []
+
+def save_conversation_state(message_history):
+    """Save conversation history to state file"""
+    with open(CONVERSATION_STATE_FILE, 'w') as f:
+        json.dump(message_history, f, indent=2)
+
 def generate_response(client, prompt, system_prompt="You are a helpful assistant.", message_history=None):
     """Generates a response using Claude, maintaining conversation history."""
     if message_history is None:
@@ -127,7 +144,7 @@ class InteractiveMode:
     def __init__(self):
         self.system_prompt = "You are a helpful assistant."
         self.client = Anthropic(api_key=read_token())
-        self.message_history = []
+        self.message_history = load_conversation_state()
         self.session = PromptSession(
             history=FileHistory(HISTORY_FILE),
             key_bindings=setup_key_bindings(),
@@ -147,8 +164,36 @@ class InteractiveMode:
         except FileNotFoundError:
             print("No history found.")
 
+    def show_conversation(self, n=None):
+        """Display conversation history, optionally limited to last n exchanges"""
+        if not self.message_history:
+            print("No conversation history found.")
+            return
+            
+        exchanges = []
+        for i in range(0, len(self.message_history), 2):
+            if i+1 < len(self.message_history):
+                exchanges.append((self.message_history[i]["content"], self.message_history[i+1]["content"]))
+        
+        if n is not None:
+            exchanges = exchanges[-n:]
+            
+        for i, (user, assistant) in enumerate(exchanges, 1):
+            user_short = user[:50] + "..." if len(user) > 50 else user
+            print(f"{i}. User: {user_short}")
+            assistant_short = assistant[:50] + "..." if len(assistant) > 50 else assistant
+            print(f"   Claude: {assistant_short}")
+            print()
+
+    def clear_conversation(self):
+        """Clear the conversation history"""
+        self.message_history = []
+        save_conversation_state(self.message_history)
+        print("Conversation history cleared.")
+
     def process_input(self, user_prompt):
         if user_prompt.lower() in ["exit", "quit"]:
+            save_conversation_state(self.message_history)
             return False
         elif user_prompt.lower() == "h":
             self.show_history()
@@ -160,11 +205,27 @@ class InteractiveMode:
             except (IndexError, ValueError):
                 print("Usage: h <number> - shows last N entries from history")
             return True
+        elif user_prompt.lower() == "c":
+            self.show_conversation()
+            return True
+        elif user_prompt.lower().startswith("c "):
+            try:
+                n = int(user_prompt.split()[1])
+                self.show_conversation(n)
+            except (IndexError, ValueError):
+                print("Usage: c <number> - shows last N conversation exchanges")
+            return True
+        elif user_prompt.lower() == "clear":
+            self.clear_conversation()
+            return True
         elif user_prompt.lower() in ["help", "?"]:
             print("Available commands:")
             print("  help, ? - Show this help")
-            print("  h      - Show full history")
-            print("  h N    - Show last N history entries")
+            print("  h      - Show full command history")
+            print("  h N    - Show last N command history entries")
+            print("  c      - Show full conversation history")
+            print("  c N    - Show last N conversation exchanges")
+            print("  clear  - Clear conversation history")
             print("  exit   - Exit the program")
             return True
         else:
@@ -178,6 +239,7 @@ class InteractiveMode:
             )
             spinner.stop()
             print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{response}{Colors.RESET}")
+            save_conversation_state(self.message_history)
             return True
 
     def run(self):
@@ -187,30 +249,66 @@ class InteractiveMode:
                 if not self.process_input(user_input):
                     break
             except (KeyboardInterrupt, EOFError):
+                save_conversation_state(self.message_history)
                 break
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         client = Anthropic(api_key=read_token())
         query = " ".join(sys.argv[1:])
-        message_history = []  # Initialize message history for command line mode
         
         # Add command to history
         with open(os.path.expanduser(HISTORY_FILE), 'a') as f:
             f.write(query + '\n')
+        
+        # Load existing conversation state
+        message_history = load_conversation_state()
+        
+        # Check for special commands
+        if query.lower() == "clear":
+            message_history = []
+            save_conversation_state(message_history)
+            print("Conversation history cleared.")
+            sys.exit(0)
+        elif query.lower() == "c" or query.lower() == "conversation":
+            if not message_history:
+                print("No conversation history found.")
+                sys.exit(0)
+                
+            exchanges = []
+            for i in range(0, len(message_history), 2):
+                if i+1 < len(message_history):
+                    exchanges.append((message_history[i]["content"], message_history[i+1]["content"]))
+                    
+            for i, (user, assistant) in enumerate(exchanges, 1):
+                user_short = user[:50] + "..." if len(user) > 50 else user
+                print(f"{i}. User: {user_short}")
+                assistant_short = assistant[:50] + "..." if len(assistant) > 50 else assistant
+                print(f"   Claude: {assistant_short}")
+                print()
+            sys.exit(0)
             
         spinner = Spinner()
         try:
             spinner.start()
-            reply, _ = generate_response(client, query, message_history=message_history)
+            reply, updated_history = generate_response(
+                client, 
+                query, 
+                "You are a helpful assistant.",
+                message_history
+            )
             spinner.stop()
             print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{reply}{Colors.RESET}")
+            
+            # Save updated conversation state
+            save_conversation_state(updated_history)
+            
         except (KeyboardInterrupt, EOFError):
             spinner.stop()
             sys.exit(1)
-        except Exception:
+        except Exception as e:
             spinner.stop()
-            print(f"{Colors.RED}An error occurred while processing your request. Please try again.{Colors.RESET}")
+            print(f"{Colors.RED}An error occurred while processing your request: {str(e)}{Colors.RESET}")
     else:
         interactive = InteractiveMode()
         interactive.run()

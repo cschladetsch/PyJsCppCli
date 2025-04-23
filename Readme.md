@@ -15,6 +15,7 @@ Also provided is a script called 'ask' that provides a `bash` function to make i
 
 ## Features
 - **Interactive Mode**: Chat with the AI in real-time.
+- **Conversation Memory**: The CLI remembers conversation context between command invocations.
 - **Command History**: Access past commands and responses.
 - **ANSI Colors**: User-friendly and visually appealing interface.
 - **Vim Key Bindings**: Navigate and edit prompts using vim-style shortcuts.
@@ -38,6 +39,7 @@ pip install anthropic prompt_toolkit
 - **main.py**: The primary script for running the interactive CLI.
 - **`~/.claude_token`**: File to store the Anthropic API token.
 - **`~/.claude_history`**: File to store the history of user commands.
+- **`~/.claude_conversation_state.json`**: File to store conversation context between invocations.
 
 ---
 
@@ -66,13 +68,25 @@ Run the script without arguments to enter the interactive mode:
 ```bash
 $ python main.py
 $ # or, just:
-$ ask what is the factorial of 7
+$ ask
 ```
 
 ### Direct Query Mode
 Run the script with a query to get an immediate response:
 ```bash
-python main.py "Your query here"
+$ python main.py "Your query here"
+$ # or:
+$ ask "Your query here"
+```
+
+### Memory Management
+The CLI now maintains conversation memory between invocations:
+```bash
+$ ask "What is the capital of France?"
+< Paris is the capital of France.
+
+$ ask "What is its population?"
+< The population of Paris is approximately 2.1 million people in the city proper.
 ```
 
 ### Key Commands
@@ -82,8 +96,10 @@ python main.py "Your query here"
 - **History**:
   - `h`: Show complete command history.
   - `h N`: Show the last N entries from history.
-
-Or, just type 'ask' or 'python main.py' to enter a REPL.
+- **Conversation**:
+  - `c` or `conversation`: Show conversation history.
+  - `c N`: Show the last N conversation exchanges.
+  - `clear`: Clear the conversation memory.
 
 ---
 
@@ -129,4 +145,3 @@ Edit the `self.loading_messages` list in the `Spinner` class to include personal
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
-
