@@ -1,1 +1,1 @@
-"""AI CLI package"""
+"""AI CLI utilities"""
