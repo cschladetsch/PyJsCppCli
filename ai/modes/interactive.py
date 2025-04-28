@@ -1,5 +1,5 @@
 """
-Interactive command mode for AI CLI
+Interactive command mode for AI CLI with improved text file handling
 """
 
 import os
@@ -10,9 +10,9 @@ from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.formatted_text import ANSI
 from prompt_toolkit.history import FileHistory
 
-from .colors import Colors
-from .spinner import Spinner
-from .io import (
+from ..utils.colors import Colors
+from ..utils.spinner import Spinner
+from ..utils.io import (
     load_conversation_state, 
     save_conversation_state, 
     prepare_files_for_upload, 
@@ -107,13 +107,23 @@ class InteractiveMode:
         
         # Prepare files for upload
         print(f"{Colors.BLUE}Processing {len(file_paths)} files for upload...{Colors.RESET}")
-        uploaded_files = prepare_files_for_upload(file_paths)
+        uploaded_files, text_files_content = prepare_files_for_upload(file_paths)
         
         # Display summary
-        total_size = sum(f["size"] for f in uploaded_files)
-        print(f"{Colors.GREEN}Ready to send {len(uploaded_files)} files ({total_size/1024:.1f} KB):{Colors.RESET}")
-        for i, f in enumerate(uploaded_files, 1):
-            print(f"  {i}. {f['file_name']} ({f['size']/1024:.1f} KB, {f['mime_type']})")
+        image_files_count = len(uploaded_files)
+        if image_files_count > 0:
+            total_size = sum(f["size"] for f in uploaded_files)
+            print(f"{Colors.GREEN}Ready to send {image_files_count} image files ({total_size/1024:.1f} KB):{Colors.RESET}")
+            for i, f in enumerate(uploaded_files, 1):
+                print(f"  {i}. {f['file_name']} ({f['size']/1024:.1f} KB, {f['mime_type']})")
+        
+        has_text_content = bool(text_files_content.strip())
+        if has_text_content:
+            print(f"{Colors.GREEN}Text files will be included in your message.{Colors.RESET}")
+        
+        if not image_files_count and not has_text_content:
+            print(f"{Colors.RED}No supported files found to upload.{Colors.RESET}")
+            return True
         
         # Prompt for a message to send with the files
         print(f"\n{Colors.CYAN}Enter a message to send with these files (or press Enter to just upload):{Colors.RESET}")
@@ -126,7 +136,8 @@ class InteractiveMode:
             message, 
             self.system_prompt,
             self.message_history,
-            uploaded_files
+            uploaded_files,
+            text_files_content
         )
         spinner.stop()
         print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{response}{Colors.RESET}")

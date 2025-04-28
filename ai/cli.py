@@ -7,7 +7,7 @@ import sys
 from .utils.colors import Colors
 from .utils.spinner import Spinner
 from .utils.io import load_conversation_state, save_conversation_state
-from .utils.interactive import InteractiveMode
+from .modes.interactive import InteractiveMode
 from .api.client import ClaudeClient
 from .constants import HISTORY_FILE
 

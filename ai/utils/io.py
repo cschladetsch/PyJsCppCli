@@ -1,5 +1,5 @@
 """
-File I/O utilities for AI CLI
+File I/O utilities for AI CLI with improved text file handling
 """
 
 import os
@@ -103,6 +103,40 @@ def resolve_file_paths(patterns, allow_directories=False):
                 
     return resolved_paths
 
+def is_text_file(mime_type, file_path):
+    """
+    Determine if a file is a text file based on MIME type and content
+    
+    Args:
+        mime_type (str): MIME type of the file
+        file_path (str): Path to the file
+        
+    Returns:
+        bool: True if it's a text file, False otherwise
+    """
+    # Common text MIME types
+    text_mime_types = [
+        'text/', 'application/json', 'application/xml', 'application/javascript',
+        'application/x-javascript', 'application/csv', 'text/csv', 'text/markdown',
+        'text/plain', 'text/html', 'text/css', 'application/x-python'
+    ]
+    
+    # Check if any text MIME type prefix matches
+    if any(mime_type.startswith(prefix) for prefix in text_mime_types):
+        return True
+    
+    # For uncertain cases, try to open as text
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            # Try to read a few lines to see if it's text
+            f.read(1024)
+        return True
+    except UnicodeDecodeError:
+        # If we get a decode error, it's probably binary
+        return False
+    
+    return False
+
 def prepare_files_for_upload(file_paths):
     """
     Prepares files for upload to Claude API
@@ -111,12 +145,15 @@ def prepare_files_for_upload(file_paths):
         file_paths (list): List of file paths to prepare
         
     Returns:
-        list: List of prepared file objects
+        tuple: (prepared_files, text_files_content)
+            - prepared_files: List of prepared file objects for API upload
+            - text_files_content: String with content of text files to include in the message
     """
     # Ensure upload cache directory exists
     os.makedirs(UPLOAD_CACHE_DIR, exist_ok=True)
     
     prepared_files = []
+    text_files_content = ""
     
     for file_path in file_paths:
         try:
@@ -131,23 +168,36 @@ def prepare_files_for_upload(file_paths):
             # Get just the filename without path
             file_name = os.path.basename(file_path)
             
-            # Read file content
-            with open(file_path, "rb") as f:
-                file_content = f.read()
-            
-            prepared_files.append({
-                "file_path": file_path,
-                "file_name": file_name,
-                "mime_type": mime_type,
-                "size": file_size,
-                "content": file_content
-            })
+            # Check if this is a text file
+            if is_text_file(mime_type, file_path):
+                # For text files, read content and add to text_files_content
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                
+                text_files_content += f"\n\n# File: {file_name}\n```{file_name.split('.')[-1]}\n{content}\n```\n\n"
+                print(f"  Added text file: {file_name} ({file_size/1024:.1f} KB, {mime_type})")
+            else:
+                # For binary/image files that Claude API can handle
+                if mime_type in ['image/jpeg', 'image/png', 'image/gif', 'image/webp']:
+                    # Read file content
+                    with open(file_path, "rb") as f:
+                        file_content = f.read()
+                    
+                    prepared_files.append({
+                        "file_path": file_path,
+                        "file_name": file_name,
+                        "mime_type": mime_type,
+                        "size": file_size,
+                        "content": file_content
+                    })
+                else:
+                    print(f"  Warning: File type not supported by Claude API: {file_name} ({mime_type})")
             
         except Exception as e:
             print(f"Error processing file {file_path}: {e}")
             continue
             
-    return prepared_files
+    return prepared_files, text_files_content
 
 def format_file_for_upload(file_obj):
     """
