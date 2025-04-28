@@ -5,6 +5,7 @@ A Python utility for processing and analyzing data with built-in AI capabilities
 ## Demo
 
 [Demo](resources/Demo.gif)
+[DemoImage](resources/Image.gif)
 
 ## Installation
 
