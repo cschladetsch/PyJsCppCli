@@ -30,7 +30,7 @@ def setup_key_bindings():
 
 def get_prompt_message():
     """Return simple prompt"""
-    return ANSI(f'{Colors.GREEN}>>{Colors.RESET} ')
+    return ANSI(f'{Colors.GREEN}>{Colors.RESET} ')
 
 class InteractiveMode:
     """Interactive command mode for Claude AI"""
@@ -204,7 +204,7 @@ class InteractiveMode:
     def run(self):
         """Run the interactive mode main loop"""
         print(f"{Colors.GREEN}Claude{Colors.RESET}")
-        print(f"Type {Colors.CYAN}help{Colors.RESET} to see available commands")
+        #print(f"Type {Colors.CYAN}help{Colors.RESET} to see available commands")
         
         while True:
             try:
