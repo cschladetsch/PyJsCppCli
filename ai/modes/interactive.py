@@ -30,7 +30,7 @@ def setup_key_bindings():
 
 def get_prompt_message():
     """Return simple prompt"""
-    return ANSI(f'{Colors.GREEN}>{Colors.RESET} ')
+    return ANSI(f'{Colors.GREEN}>>{Colors.RESET} ')
 
 class InteractiveMode:
     """Interactive command mode for Claude AI"""
