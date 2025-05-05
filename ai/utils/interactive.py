@@ -192,7 +192,7 @@ class InteractiveMode:
 
     def run(self):
         """Run the interactive mode main loop"""
-        print(f"{Colors.GREEN}AI CLI Interactive Mode{Colors.RESET}")
+        print(f"{Colors.GREEN}Claude{Colors.RESET}")
         print(f"Type {Colors.CYAN}help{Colors.RESET} to see available commands")
         
         while True:

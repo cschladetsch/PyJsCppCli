@@ -1,5 +1,5 @@
 """
-Interactive command mode for AI CLI with improved text file handling
+Interactive command mode for Claude CLI with improved text file handling
 """
 
 import os
@@ -33,7 +33,7 @@ def get_prompt_message():
     return ANSI(f'{Colors.GREEN}>{Colors.RESET} ')
 
 class InteractiveMode:
-    """Interactive command mode for the AI CLI"""
+    """Interactive command mode for Claude AI"""
     
     def __init__(self):
         self.system_prompt = DEFAULT_SYSTEM_PROMPT
@@ -203,7 +203,7 @@ class InteractiveMode:
 
     def run(self):
         """Run the interactive mode main loop"""
-        print(f"{Colors.GREEN}AI CLI Interactive Mode{Colors.RESET}")
+        print(f"{Colors.GREEN}Claude{Colors.RESET}")
         print(f"Type {Colors.CYAN}help{Colors.RESET} to see available commands")
         
         while True:
