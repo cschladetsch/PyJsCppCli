@@ -4,12 +4,14 @@ Command-line interface handling for AI CLI
 
 import os
 import sys
+import random
 from .utils.colors import Colors
 from .utils.spinner import Spinner
 from .utils.io import load_conversation_state, save_conversation_state
 from .modes.interactive import InteractiveMode
 from .api.client import ClaudeClient
-from .constants import HISTORY_FILE
+from .constants import HISTORY_FILE, RESPONSE_INTROS
+from .models import Interaction
 
 def handle_command_line_query(query):
     """Handle a command line query without entering interactive mode"""
@@ -20,28 +22,23 @@ def handle_command_line_query(query):
         f.write(query + '\n')
     
     # Load existing conversation state
-    message_history = load_conversation_state()
+    interactions = load_conversation_state()
     
     # Check for special commands
     if query.lower() == "clear":
-        message_history = []
-        save_conversation_state(message_history)
+        interactions = []
+        save_conversation_state(interactions)
         print("Conversation history cleared.")
         return 0
     elif query.lower() == "c" or query.lower() == "conversation":
-        if not message_history:
+        if not interactions:
             print("No conversation history found.")
             return 0
             
-        exchanges = []
-        for i in range(0, len(message_history), 2):
-            if i+1 < len(message_history):
-                exchanges.append((message_history[i]["content"], message_history[i+1]["content"]))
-                
-        for i, (user, assistant) in enumerate(exchanges, 1):
-            user_short = user[:50] + "..." if len(user) > 50 else user
+        for i, interaction in enumerate(interactions, 1):
+            user_short = interaction.query[:50] + "..." if len(interaction.query) > 50 else interaction.query
             print(f"{i}. User: {user_short}")
-            assistant_short = assistant[:50] + "..." if len(assistant) > 50 else assistant
+            assistant_short = interaction.response[:50] + "..." if len(interaction.response) > 50 else interaction.response
             print(f"   Claude: {assistant_short}")
             print()
         return 0
@@ -71,12 +68,13 @@ def handle_command_line_query(query):
     spinner = Spinner()
     try:
         spinner.start()
-        reply, updated_history = client.generate_response(query)
+        reply, updated_interactions = client.generate_response(query, interactions=interactions)
         spinner.stop()
-        print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{reply}{Colors.RESET}")
+        intro = random.choice(RESPONSE_INTROS)
+        print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{intro}\n\n{reply}{Colors.RESET}")
         
         # Save updated conversation state
-        save_conversation_state(updated_history)
+        save_conversation_state(updated_interactions)
         return 0
         
     except (KeyboardInterrupt, EOFError):

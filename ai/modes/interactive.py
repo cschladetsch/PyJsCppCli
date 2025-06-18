@@ -4,6 +4,7 @@ Interactive command mode for Claude CLI with improved text file handling
 
 import os
 import sys
+import random
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.enums import EditingMode
@@ -18,8 +19,10 @@ from ..utils.io import (
     prepare_files_for_upload, 
     resolve_file_paths
 )
+from ..constants import RESPONSE_INTROS
 from ..api.client import ClaudeClient
 from ..constants import HISTORY_FILE, DEFAULT_SYSTEM_PROMPT, UPLOAD_CACHE_DIR
+from ..models import Interaction
 
 def setup_key_bindings():
     """Set up vim-style key bindings"""
@@ -38,7 +41,7 @@ class InteractiveMode:
     def __init__(self):
         self.system_prompt = DEFAULT_SYSTEM_PROMPT
         self.client = ClaudeClient()
-        self.message_history = load_conversation_state()
+        self.interactions = load_conversation_state()
         self.session = PromptSession(
             history=FileHistory(HISTORY_FILE),
             key_bindings=setup_key_bindings(),
@@ -62,29 +65,25 @@ class InteractiveMode:
 
     def show_conversation(self, n=None):
         """Display conversation history, optionally limited to last n exchanges"""
-        if not self.message_history:
+        if not self.interactions:
             print("No conversation history found.")
             return
             
-        exchanges = []
-        for i in range(0, len(self.message_history), 2):
-            if i+1 < len(self.message_history):
-                exchanges.append((self.message_history[i]["content"], self.message_history[i+1]["content"]))
-        
+        interactions_to_show = self.interactions
         if n is not None:
-            exchanges = exchanges[-n:]
+            interactions_to_show = self.interactions[-n:]
             
-        for i, (user, assistant) in enumerate(exchanges, 1):
-            user_short = user[:50] + "..." if len(user) > 50 else user
+        for i, interaction in enumerate(interactions_to_show, 1):
+            user_short = interaction.query[:50] + "..." if len(interaction.query) > 50 else interaction.query
             print(f"{i}. User: {user_short}")
-            assistant_short = assistant[:50] + "..." if len(assistant) > 50 else assistant
+            assistant_short = interaction.response[:50] + "..." if len(interaction.response) > 50 else interaction.response
             print(f"   Claude: {assistant_short}")
             print()
 
     def clear_conversation(self):
         """Clear the conversation history"""
-        self.message_history = []
-        save_conversation_state(self.message_history)
+        self.interactions = []
+        save_conversation_state(self.interactions)
         print("Conversation history cleared.")
 
     def handle_upload_command(self, args):
@@ -132,22 +131,23 @@ class InteractiveMode:
         # Generate response with the uploaded files
         spinner = Spinner()
         spinner.start()
-        response, self.message_history = self.client.generate_response(
+        response, self.interactions = self.client.generate_response(
             message, 
             self.system_prompt,
-            self.message_history,
+            self.interactions,
             uploaded_files,
             text_files_content
         )
         spinner.stop()
-        print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{response}{Colors.RESET}")
-        save_conversation_state(self.message_history)
+        intro = random.choice(RESPONSE_INTROS)
+        print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{intro}\n\n{response}{Colors.RESET}")
+        save_conversation_state(self.interactions)
         return True
 
     def process_input(self, user_prompt):
         """Process user input and execute appropriate action"""
         if user_prompt.lower() in ["exit", "quit"]:
-            save_conversation_state(self.message_history)
+            save_conversation_state(self.interactions)
             return False
         elif user_prompt.lower() == "h":
             self.show_history()
@@ -191,14 +191,15 @@ class InteractiveMode:
         else:
             spinner = Spinner()
             spinner.start()
-            response, self.message_history = self.client.generate_response(
+            response, self.interactions = self.client.generate_response(
                 user_prompt, 
                 self.system_prompt,
-                self.message_history
+                self.interactions
             )
             spinner.stop()
-            print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{response}{Colors.RESET}")
-            save_conversation_state(self.message_history)
+            intro = random.choice(RESPONSE_INTROS)
+            print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{intro}\n\n{response}{Colors.RESET}")
+            save_conversation_state(self.interactions)
             return True
 
     def run(self):
@@ -212,6 +213,6 @@ class InteractiveMode:
                 if not self.process_input(user_input):
                     break
             except (KeyboardInterrupt, EOFError):
-                save_conversation_state(self.message_history)
+                save_conversation_state(self.interactions)
                 print("\nExiting...")
                 break

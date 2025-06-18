@@ -5,6 +5,7 @@ Anthropic API client wrapper with improved text file handling
 from anthropic import Anthropic
 from ..constants import DEFAULT_MODEL, DEFAULT_MAX_TOKENS, DEFAULT_SYSTEM_PROMPT
 from ..utils.io import read_token, format_file_for_upload
+from ..models import Interaction
 
 class ClaudeClient:
     """Wrapper for Anthropic's API client"""
@@ -16,7 +17,7 @@ class ClaudeClient:
         self.model = model
         
     def generate_response(self, prompt, system_prompt=DEFAULT_SYSTEM_PROMPT, 
-                          message_history=None, files=None, text_files_content=None, 
+                          interactions=None, files=None, text_files_content=None, 
                           max_tokens=DEFAULT_MAX_TOKENS):
         """
         Generates a response using Claude, maintaining conversation history.
@@ -24,16 +25,16 @@ class ClaudeClient:
         Args:
             prompt (str): The user's input prompt
             system_prompt (str): System prompt for Claude
-            message_history (list): Previous message history
+            interactions (list[Interaction]): Previous interactions
             files (list): List of file objects to include
             text_files_content (str): Content of text files to include in the message
             max_tokens (int): Maximum tokens in response
             
         Returns:
-            tuple: (response_text, updated_message_history)
+            tuple: (response_text, updated_interactions)
         """
-        if message_history is None:
-            message_history = []
+        if interactions is None:
+            interactions = []
         
         # Combine text files content with the prompt if present
         combined_prompt = prompt
@@ -52,8 +53,11 @@ class ClaudeClient:
                 file_content = format_file_for_upload(file_obj)
                 user_message["content"].append(file_content)
         
-        # Build the messages array
-        messages = message_history.copy()
+        # Build the messages array from interactions
+        messages = []
+        for interaction in interactions:
+            messages.append({"role": "user", "content": interaction.query})
+            messages.append({"role": "assistant", "content": interaction.response})
         
         # Add the new user message
         if files and len(files) > 0:
@@ -72,20 +76,22 @@ class ClaudeClient:
             )
             current_response = response.content[0].text
             
-            # Add this exchange to history
+            # Create the query string for the interaction
             if files and len(files) > 0:
                 # For messages with files, store a simplified version in history
                 file_names = [file_obj["file_name"] for file_obj in files]
                 file_list = ", ".join(file_names)
                 if text_files_content:
-                    history_prompt = f"{prompt}\n[Files: {file_list} and text files]"
+                    query_for_history = f"{prompt}\n[Files: {file_list} and text files]"
                 else:
-                    history_prompt = f"{prompt}\n[Files: {file_list}]"
-                message_history.append({"role": "user", "content": history_prompt})
+                    query_for_history = f"{prompt}\n[Files: {file_list}]"
             else:
-                message_history.append({"role": "user", "content": combined_prompt})
-                
-            message_history.append({"role": "assistant", "content": current_response})
-            return current_response, message_history
+                query_for_history = combined_prompt
+            
+            # Create new interaction and add to history
+            new_interaction = Interaction(query_for_history, current_response)
+            interactions.append(new_interaction)
+            
+            return current_response, interactions
         except Exception as e:
-            return f"Error while generating response: {e}", message_history
+            return f"Error while generating response: {e}", interactions

@@ -1,5 +1,8 @@
 """
 Constants and configuration for AI CLI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Where magic numbers become meaningful names,
+and configuration dreams come true!
 """
 
 import os
@@ -20,9 +23,58 @@ DEFAULT_MODEL = "claude-3-5-sonnet-20241022"
 DEFAULT_MAX_TOKENS = 1024
 DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant."
 
-# UI Configuration
-SPINNER_FRAMES = ["?", "?", "?", "?", "?", "?", "?", "?", "?", "?"]
+# UI Configuration - The Spinner Symphony!
+SPINNER_FRAMES = [
+    "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"  # Classic dots
+]
+
+# Alternative spinner collections for future fun!
+FANCY_SPINNERS = {
+    "dots": ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
+    "bouncing": ["⠁", "⠂", "⠄", "⠂"],
+    "growing": ["▏", "▎", "▍", "▌", "▋", "▊", "▉", "▊", "▋", "▌", "▍", "▎"],
+    "moon": ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"],
+    "clock": ["🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"],
+    "earth": ["🌍", "🌎", "🌏"],
+    "hearts": ["💛", "💙", "💜", "💚", "❤️"],
+    "weather": ["☀️", "🌤️", "⛅", "🌥️", "☁️", "🌧️", "⛈️", "🌧️", "🌥️", "⛅", "🌤️"],
+}
+
+# Spinner messages that make waiting fun!
 SPINNER_MESSAGES = [
-    "Thinking", "Processing", "Contemplating",
-    "Analyzing", "Computing", "Pondering"
+    "Thinking ",
+    "Processing ",
+    "Contemplating ",
+    "Analyzing ",
+    "Computing ",
+    "Pondering ",
+    "Consulting ",
+    "Brewing ",
+    "Synthesizing "
+    "Channeling ",
+    "Quantum ",
+    "Reading ",
+    "Decoding ",
+    "Assembling ",
+    "Calibrating ",
+]
+
+# Fun response intros (currently unused, but ready for action!)
+RESPONSE_INTROS = [
+    "Ah, interesting question!",
+    "Let me think about that...",
+    "Great question!",
+    "Here's what I found:",
+    "After careful consideration:",
+    "I've analyzed your request:",
+]
+
+# Terminal color sequences (for future enhancements)
+RAINBOW_COLORS = [
+    "\033[91m",  # Red
+    "\033[93m",  # Yellow
+    "\033[92m",  # Green
+    "\033[96m",  # Cyan
+    "\033[94m",  # Blue
+    "\033[95m",  # Magenta
 ]

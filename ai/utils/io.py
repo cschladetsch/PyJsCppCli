@@ -12,6 +12,7 @@ from ..constants import (
     CONVERSATION_STATE_FILE, LEGACY_CONVERSATION_STATE_FILE,
     UPLOAD_CACHE_DIR
 )
+from ..models import Interaction
 
 def read_token():
     """
@@ -37,13 +38,26 @@ def load_conversation_state():
     """
     Load conversation history from state file.
     Checks both new and legacy file paths.
+    Returns a list of Interaction objects.
     """
     # Check new location first
     if os.path.exists(CONVERSATION_STATE_FILE):
         try:
             with open(CONVERSATION_STATE_FILE, 'r') as f:
-                return json.load(f)
-        except json.JSONDecodeError:
+                data = json.load(f)
+                # Handle new format (list of interaction dicts)
+                if data and isinstance(data[0], dict) and 'query' in data[0]:
+                    return [Interaction.from_dict(item) for item in data]
+                # Handle legacy format (alternating messages)
+                else:
+                    interactions = []
+                    for i in range(0, len(data), 2):
+                        if i+1 < len(data):
+                            query = data[i].get("content", "") if isinstance(data[i], dict) else str(data[i])
+                            response = data[i+1].get("content", "") if isinstance(data[i+1], dict) else str(data[i+1])
+                            interactions.append(Interaction(query, response))
+                    return interactions
+        except (json.JSONDecodeError, KeyError, IndexError) as e:
             print(f"Warning: Could not parse conversation state file. Starting fresh.")
             return []
     
@@ -51,17 +65,27 @@ def load_conversation_state():
     if os.path.exists(LEGACY_CONVERSATION_STATE_FILE):
         try:
             with open(LEGACY_CONVERSATION_STATE_FILE, 'r') as f:
-                return json.load(f)
-        except json.JSONDecodeError:
+                data = json.load(f)
+                # Convert legacy format to Interaction objects
+                interactions = []
+                for i in range(0, len(data), 2):
+                    if i+1 < len(data):
+                        query = data[i].get("content", "") if isinstance(data[i], dict) else str(data[i])
+                        response = data[i+1].get("content", "") if isinstance(data[i+1], dict) else str(data[i+1])
+                        interactions.append(Interaction(query, response))
+                return interactions
+        except (json.JSONDecodeError, KeyError, IndexError):
             return []
     
     return []
 
-def save_conversation_state(message_history):
+def save_conversation_state(interactions):
     """Save conversation history to state file"""
+    # Convert Interaction objects to dictionaries
+    data = [interaction.to_dict() for interaction in interactions]
     # Save to new location
     with open(CONVERSATION_STATE_FILE, 'w') as f:
-        json.dump(message_history, f, indent=2)
+        json.dump(data, f, indent=2)
 
 def resolve_file_paths(patterns, allow_directories=False):
     """
