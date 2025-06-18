@@ -1,1 +1,3 @@
-int
+anthropic>=0.44.0
+prompt_toolkit>=3.0.39
+pyperclip>=1.8.2
