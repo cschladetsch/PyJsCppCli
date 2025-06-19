@@ -15,6 +15,7 @@ PythonClaudeCli/
 │   │   └── client.py        # Claude API wrapper
 │   ├── cli.py               # Main CLI handling logic
 │   ├── constants.py         # Configuration constants
+│   ├── models.py            # Data models (Interaction class)
 │   ├── modes/               # CLI modes
 │   │   ├── __init__.py
 │   │   └── interactive.py   # Interactive mode implementation
@@ -63,8 +64,14 @@ PythonClaudeCli/
 - Manages file uploads and special commands
 - Maintains session state
 
-### 5. **Utilities**
-- **`io.py`**: File operations, token management, conversation persistence
+### 5. **Data Models** (`ai/models.py`)
+- **`Interaction`**: Structured class representing a user-AI interaction
+  - Stores query, response, and timestamp
+  - Provides serialization methods for JSON persistence
+  - Ensures consistent data structure across the application
+
+### 6. **Utilities**
+- **`io.py`**: File operations, token management, conversation persistence, markdown logging
 - **`colors.py`**: ANSI color codes for terminal formatting
 - **`spinner.py`**: Animated progress indicator during API calls
 - **`interactive.py`**: Helper functions for interactive mode
@@ -108,7 +115,8 @@ CLI Handler (cli.py)
 Located in home directory:
 - `~/.ai_token` - Primary API key storage
 - `~/.ai_history` - Command history
-- `~/.ai_conversation_state.json` - Conversation persistence
+- `~/.ai_conversation_state.json` - Conversation persistence (JSON format)
+- `~/.ai_conversation.md` - Human-readable conversation log (Markdown format)
 - `~/.ai_uploads/` - Temporary cache for uploaded files
 
 ### Legacy Support
@@ -153,6 +161,10 @@ ai  # Launch interactive prompt
 # Quick query
 ai "What is the capital of France?"
 
+# Show help
+ai --help
+ai -h
+
 # Clear conversation
 ai clear
 
@@ -175,7 +187,10 @@ ai upload --recursive ./docs/
 
 ### Conversation Management
 - Persistent conversation history across sessions
-- JSON-based state persistence
+- Dual persistence format:
+  - JSON-based state persistence for programmatic access
+  - Markdown-based log for human-readable history
+- Structured message history using `Interaction` class
 - History viewing and navigation
 - Clear command for fresh starts
 
@@ -204,3 +219,19 @@ ai upload --recursive ./docs/
 - MIT License for open-source distribution
 
 The project demonstrates clean architecture with separation of concerns, robust error handling, and a user-friendly interface for AI interactions through the terminal.
+
+## 📝 Recent Updates
+
+### Structured Message History (Latest)
+- Introduced `Interaction` class in `models.py` for structured conversation data
+- Refactored conversation history to use consistent data structures
+- Improved serialization and deserialization of conversation state
+
+### Markdown Conversation Logging
+- Added automatic markdown logging of all conversations to `~/.ai_conversation.md`
+- Provides human-readable conversation history with timestamps
+- Complements the JSON state file for dual-format persistence
+
+### Enhanced CLI Flags
+- Added `--help` and `-h` flags for command-line help access
+- Improved help message formatting and accessibility

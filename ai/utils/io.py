@@ -10,6 +10,7 @@ import base64
 from ..constants import (
     TOKEN_FILE, LEGACY_TOKEN_FILE,
     CONVERSATION_STATE_FILE, LEGACY_CONVERSATION_STATE_FILE,
+    CONVERSATION_LOG_FILE,
     UPLOAD_CACHE_DIR
 )
 from ..models import Interaction
@@ -86,6 +87,30 @@ def save_conversation_state(interactions):
     # Save to new location
     with open(CONVERSATION_STATE_FILE, 'w') as f:
         json.dump(data, f, indent=2)
+
+def append_to_conversation_log(interaction):
+    """
+    Append a single interaction to the markdown conversation log
+    
+    Args:
+        interaction (Interaction): The interaction to log
+    """
+    # Create file if it doesn't exist
+    file_exists = os.path.exists(CONVERSATION_LOG_FILE)
+    
+    with open(CONVERSATION_LOG_FILE, 'a', encoding='utf-8') as f:
+        # Add header if new file
+        if not file_exists:
+            f.write("# AI Conversation Log\n\n")
+        
+        # Format timestamp
+        timestamp = interaction.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Write interaction in markdown format
+        f.write(f"## {timestamp}\n\n")
+        f.write(f"**User**: {interaction.query}\n\n")
+        f.write(f"**Claude**: {interaction.response}\n\n")
+        f.write("---\n\n")
 
 def resolve_file_paths(patterns, allow_directories=False):
     """

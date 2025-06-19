@@ -7,7 +7,7 @@ import sys
 import random
 from .utils.colors import Colors
 from .utils.spinner import Spinner
-from .utils.io import load_conversation_state, save_conversation_state
+from .utils.io import load_conversation_state, save_conversation_state, append_to_conversation_log
 from .modes.interactive import InteractiveMode
 from .api.client import ClaudeClient
 from .constants import HISTORY_FILE, RESPONSE_INTROS
@@ -55,6 +55,7 @@ def handle_command_line_query(query):
         print("AI CLI - Command Line Interface for Claude AI")
         print("\nUsage:")
         print("  ai [command or query]")
+        print("  ai --help, -h                - Show this help")
         print("\nAvailable commands:")
         print("  help, ?                      - Show this help")
         print("  clear                        - Clear conversation history")
@@ -75,6 +76,9 @@ def handle_command_line_query(query):
         
         # Save updated conversation state
         save_conversation_state(updated_interactions)
+        # Log the latest interaction to markdown file
+        if updated_interactions:
+            append_to_conversation_log(updated_interactions[-1])
         return 0
         
     except (KeyboardInterrupt, EOFError):
@@ -88,6 +92,10 @@ def handle_command_line_query(query):
 
 def main():
     """Main entry point for the CLI"""
+    # Check for --help flag
+    if len(sys.argv) > 1 and sys.argv[1] in ["--help", "-h"]:
+        return handle_command_line_query("help")
+    
     # Check for command line arguments
     if len(sys.argv) > 1:
         query = " ".join(sys.argv[1:])

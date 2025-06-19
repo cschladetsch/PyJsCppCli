@@ -17,7 +17,8 @@ from ..utils.io import (
     load_conversation_state, 
     save_conversation_state, 
     prepare_files_for_upload, 
-    resolve_file_paths
+    resolve_file_paths,
+    append_to_conversation_log
 )
 from ..constants import RESPONSE_INTROS
 from ..api.client import ClaudeClient
@@ -142,6 +143,9 @@ class InteractiveMode:
         intro = random.choice(RESPONSE_INTROS)
         print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{intro}\n\n{response}{Colors.RESET}")
         save_conversation_state(self.interactions)
+        # Log the latest interaction to markdown file
+        if self.interactions:
+            append_to_conversation_log(self.interactions[-1])
         return True
 
     def process_input(self, user_prompt):
@@ -200,6 +204,9 @@ class InteractiveMode:
             intro = random.choice(RESPONSE_INTROS)
             print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{intro}\n\n{response}{Colors.RESET}")
             save_conversation_state(self.interactions)
+            # Log the latest interaction to markdown file
+            if self.interactions:
+                append_to_conversation_log(self.interactions[-1])
             return True
 
     def run(self):
