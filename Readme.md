@@ -154,7 +154,7 @@ Claude CLI works well with Unix pipes, allowing integration into complex workflo
 
 ```bash
 # Analyze the output of a command
-ls -la | ai "Analyze this directory listing and identify large files"
+ls -lh | ai "Analyze this directory listing and identify large files"
 
 # Analyze a file's content
 cat complex_code.py | ai "Explain what this code does"
@@ -178,23 +178,23 @@ explain complex_algorithm.py
 
 ```
 claude-cli/
-ÃÄÄ ai/
-³   ÃÄÄ __init__.py
-³   ÃÄÄ __main__.py
-³   ÃÄÄ cli.py            # Main CLI handling
-³   ÃÄÄ constants.py      # Configuration constants
-³   ÃÄÄ api/
-³   ³   ÀÄÄ client.py     # Claude API wrapper
-³   ÃÄÄ modes/
-³   ³   ÀÄÄ interactive.py # Interactive mode
-³   ÀÄÄ utils/
-³       ÃÄÄ colors.py     # Terminal color utilities
-³       ÃÄÄ io.py         # File I/O operations
-³       ÀÄÄ spinner.py    # Progress animation
-ÃÄÄ requirements.txt
-ÃÄÄ setup.py
-ÀÄÄ resources/
-    ÀÄÄ Demo.gif
+ÃƒÃ„Ã„ ai/
+Â³   ÃƒÃ„Ã„ __init__.py
+Â³   ÃƒÃ„Ã„ __main__.py
+Â³   ÃƒÃ„Ã„ cli.py            # Main CLI handling
+Â³   ÃƒÃ„Ã„ constants.py      # Configuration constants
+Â³   ÃƒÃ„Ã„ api/
+Â³   Â³   Ã€Ã„Ã„ client.py     # Claude API wrapper
+Â³   ÃƒÃ„Ã„ modes/
+Â³   Â³   Ã€Ã„Ã„ interactive.py # Interactive mode
+Â³   Ã€Ã„Ã„ utils/
+Â³       ÃƒÃ„Ã„ colors.py     # Terminal color utilities
+Â³       ÃƒÃ„Ã„ io.py         # File I/O operations
+Â³       Ã€Ã„Ã„ spinner.py    # Progress animation
+ÃƒÃ„Ã„ requirements.txt
+ÃƒÃ„Ã„ setup.py
+Ã€Ã„Ã„ resources/
+    Ã€Ã„Ã„ Demo.gif
 ```
 
 ## Troubleshooting
