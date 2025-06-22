@@ -13,6 +13,10 @@ from prompt_toolkit.history import FileHistory
 
 from ..utils.colors import Colors
 from ..utils.spinner import Spinner
+from ..utils.output_formatter import (
+    OutputFormatter, print_error, print_warning, 
+    print_success, print_info, print_response
+)
 from ..utils.io import (
     load_conversation_state, 
     save_conversation_state, 
@@ -34,7 +38,7 @@ def setup_key_bindings():
 
 def get_prompt_message():
     """Return simple prompt"""
-    return ANSI(f'{Colors.GREEN}>{Colors.RESET} ')
+    return ANSI(OutputFormatter.format_prompt('> '))
 
 class InteractiveMode:
     """Interactive command mode for Claude AI"""
@@ -90,7 +94,7 @@ class InteractiveMode:
     def handle_upload_command(self, args):
         """Process the upload command with arguments"""
         if not args:
-            print(f"{Colors.RED}Error: No files specified. Usage: upload <file1> [file2] ...{Colors.RESET}")
+            print_error("No files specified. Usage: upload <file1> [file2] ...")
             return True
             
         # Parse flags
@@ -119,10 +123,10 @@ class InteractiveMode:
         
         has_text_content = bool(text_files_content.strip())
         if has_text_content:
-            print(f"{Colors.GREEN}Text files will be included in your message.{Colors.RESET}")
+            print_info("Text files will be included in your message.")
         
         if not image_files_count and not has_text_content:
-            print(f"{Colors.RED}No supported files found to upload.{Colors.RESET}")
+            print_error("No supported files found to upload.")
             return True
         
         # Prompt for a message to send with the files
@@ -141,7 +145,7 @@ class InteractiveMode:
         )
         spinner.stop()
         intro = random.choice(RESPONSE_INTROS)
-        print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{intro}\n\n{response}{Colors.RESET}")
+        print_response(intro, response)
         save_conversation_state(self.interactions)
         # Log the latest interaction to markdown file
         if self.interactions:
@@ -202,7 +206,7 @@ class InteractiveMode:
             )
             spinner.stop()
             intro = random.choice(RESPONSE_INTROS)
-            print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{intro}\n\n{response}{Colors.RESET}")
+            print_response(intro, response)
             save_conversation_state(self.interactions)
             # Log the latest interaction to markdown file
             if self.interactions:
@@ -211,7 +215,7 @@ class InteractiveMode:
 
     def run(self):
         """Run the interactive mode main loop"""
-        print(f"{Colors.GREEN}Claude{Colors.RESET}")
+        print(OutputFormatter.format_header("Claude", level=1))
         #print(f"Type {Colors.CYAN}help{Colors.RESET} to see available commands")
         
         while True:

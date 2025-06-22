@@ -7,6 +7,10 @@ import sys
 import random
 from .utils.colors import Colors
 from .utils.spinner import Spinner
+from .utils.output_formatter import (
+    OutputFormatter, print_error, print_warning, 
+    print_success, print_info, print_response
+)
 from .utils.io import load_conversation_state, save_conversation_state, append_to_conversation_log
 from .modes.interactive import InteractiveMode
 from .api.client import ClaudeClient
@@ -72,7 +76,7 @@ def handle_command_line_query(query):
         reply, updated_interactions = client.generate_response(query, interactions=interactions)
         spinner.stop()
         intro = random.choice(RESPONSE_INTROS)
-        print(f"{Colors.BLUE}<{Colors.RESET} {Colors.CYAN}{intro}\n\n{reply}{Colors.RESET}")
+        print_response(intro, reply)
         
         # Save updated conversation state
         save_conversation_state(updated_interactions)
@@ -87,7 +91,7 @@ def handle_command_line_query(query):
         return 1
     except Exception as e:
         spinner.stop()
-        print(f"{Colors.RED}An error occurred while processing your request: {str(e)}{Colors.RESET}")
+        print_error(f"An error occurred while processing your request: {str(e)}")
         return 1
 
 def main():
