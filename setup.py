@@ -34,15 +34,15 @@ def print_step(message):
 
 def print_success(message):
     """Print a success message"""
-    print(f"{Colors.GREEN}� {message}{Colors.RESET}")
+    print(f"{Colors.GREEN}✓ {message}{Colors.RESET}")
 
 def print_error(message):
     """Print an error message"""
-    print(f"{Colors.RED}? {message}{Colors.RESET}")
+    print(f"{Colors.RED}✗ {message}{Colors.RESET}")
 
 def print_info(message):
     """Print an info message"""
-    print(f"{Colors.BLUE}i {message}{Colors.RESET}")
+    print(f"{Colors.BLUE}ℹ {message}{Colors.RESET}")
 
 def run_command(command, cwd=None, env=None):
     """Run a shell command and return the result"""

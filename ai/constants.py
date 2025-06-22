@@ -51,7 +51,7 @@ SPINNER_MESSAGES = [
     "Pondering ",
     "Consulting ",
     "Brewing ",
-    "Synthesizing "
+    "Synthesizing ",
     "Channeling ",
     "Quantum ",
     "Reading ",
