@@ -8,11 +8,11 @@ and configuration dreams come true!
 import os
 
 # File paths - Primary (new standard)
-HISTORY_FILE = os.path.expanduser("~/.ai_history")
-CONVERSATION_STATE_FILE = os.path.expanduser("~/.ai_conversation_state.json")
-CONVERSATION_LOG_FILE = os.path.expanduser("~/.ai_conversation.md")
-UPLOAD_CACHE_DIR = os.path.expanduser("~/.ai_uploads")
-TOKEN_FILE = os.path.expanduser("~/.ai_token")
+HISTORY_FILE = os.path.expanduser("~/.ask_history")
+CONVERSATION_STATE_FILE = os.path.expanduser("~/.ask_conversation_state.json")
+CONVERSATION_LOG_FILE = os.path.expanduser("~/.ask_conversation.md")
+UPLOAD_CACHE_DIR = os.path.expanduser("~/.ask_uploads")
+TOKEN_FILE = os.path.expanduser("~/.ask_token")
 
 # File paths - Legacy (for backward compatibility)
 LEGACY_HISTORY_FILE = os.path.expanduser("~/.claude_history")

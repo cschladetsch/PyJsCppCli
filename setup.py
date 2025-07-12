@@ -254,10 +254,10 @@ Constants and configuration for AI CLI
 import os
 
 # File paths
-HISTORY_FILE = os.path.expanduser("~/.ai_history")
-CONVERSATION_STATE_FILE = os.path.expanduser("~/.ai_conversation_state.json")
-UPLOAD_CACHE_DIR = os.path.expanduser("~/.ai_uploads")
-TOKEN_FILE = os.path.expanduser("~/.ai_token")
+HISTORY_FILE = os.path.expanduser("~/.ask_history")
+CONVERSATION_STATE_FILE = os.path.expanduser("~/.ask_conversation_state.json")
+UPLOAD_CACHE_DIR = os.path.expanduser("~/.ask_uploads")
+TOKEN_FILE = os.path.expanduser("~/.ask_token")
 
 # API configuration
 #DEFAULT_MODEL = "claude-3-5-sonnet-20241022"
@@ -293,7 +293,7 @@ def setup_shell_integration(install_dir):
     print_step("Setting up shell integration...")
     
     home_dir = str(Path.home())
-    shell_script_path = os.path.join(home_dir, ".ai_shell_integration")
+    shell_script_path = os.path.join(home_dir, ".ask_shell_integration")
     
     # Create the shell integration script
     with open(shell_script_path, "w") as f:
@@ -327,7 +327,7 @@ ask () {{
     if os.path.exists(shell_config):
         with open(shell_config, "r") as f:
             content = f.read()
-            if "source ~/.ai_shell_integration" in content:
+            if "source ~/.ask_shell_integration" in content:
                 print_info("Shell integration already set up")
                 return True
     
@@ -352,7 +352,7 @@ def setup_api_token():
         print_info("Using CLAUDE_API_KEY from environment variable")
         return True
     
-    token_file = os.path.expanduser("~/.ai_token")
+    token_file = os.path.expanduser("~/.ask_token")
     
     # Check if token file already exists
     if os.path.exists(token_file):

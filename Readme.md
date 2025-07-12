@@ -140,10 +140,10 @@ The CLI maintains several files:
 
 | File | Purpose |
 |------|---------|
-| `~/.ai_history` | Command history |
-| `~/.ai_conversation_state.json` | Conversation state |
-| `~/.ai_uploads` | Temporary cache for uploaded files |
-| `~/.ai_token` | API token (if not using environment variable) |
+| `~/.ask_history` | Command history |
+| `~/.ask_conversation_state.json` | Conversation state |
+| `~/.ask_uploads` | Temporary cache for uploaded files |
+| `~/.ask_token` | API token (if not using environment variable) |
 
 Legacy paths with `.claude_` prefix are also supported for backward compatibility.
 

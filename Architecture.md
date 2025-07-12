@@ -113,11 +113,11 @@ CLI Handler (cli.py)
 
 ### User Configuration Files
 Located in home directory:
-- `~/.ai_token` - Primary API key storage
-- `~/.ai_history` - Command history
-- `~/.ai_conversation_state.json` - Conversation persistence (JSON format)
-- `~/.ai_conversation.md` - Human-readable conversation log (Markdown format)
-- `~/.ai_uploads/` - Temporary cache for uploaded files
+- `~/.ask_token` - Primary API key storage
+- `~/.ask_history` - Command history
+- `~/.ask_conversation_state.json` - Conversation persistence (JSON format)
+- `~/.ask_conversation.md` - Human-readable conversation log (Markdown format)
+- `~/.ask_uploads/` - Temporary cache for uploaded files
 
 ### Legacy Support
 For backward compatibility:
@@ -228,7 +228,7 @@ The project demonstrates clean architecture with separation of concerns, robust 
 - Improved serialization and deserialization of conversation state
 
 ### Markdown Conversation Logging
-- Added automatic markdown logging of all conversations to `~/.ai_conversation.md`
+- Added automatic markdown logging of all conversations to `~/.ask_conversation.md`
 - Provides human-readable conversation history with timestamps
 - Complements the JSON state file for dual-format persistence
 
