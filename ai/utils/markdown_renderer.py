@@ -108,9 +108,13 @@ class MarkdownRenderer:
             if line.strip().startswith('```'):
                 in_code_block = not in_code_block
                 if in_code_block:
-                    rendered_lines.append(f"{Colors.CODE}{line}")
+                    lang = line.strip()[3:].strip()
+                    if lang:
+                        rendered_lines.append(f"{Colors.MUTED}╭─ {lang} ─────{Colors.RESET}")
+                    else:
+                        rendered_lines.append(f"{Colors.MUTED}╭──────────────{Colors.RESET}")
                 else:
-                    rendered_lines.append(f"{line}{Colors.RESET}")
+                    rendered_lines.append(f"{Colors.MUTED}╰──────────────{Colors.RESET}")
                 continue
             
             if in_code_block:
@@ -120,12 +124,15 @@ class MarkdownRenderer:
             # Headers
             if line.startswith('#'):
                 level = len(line) - len(line.lstrip('#'))
+                header_text = line.lstrip('#').strip()
                 if level == 1:
-                    rendered_lines.append(f"{Colors.HEADER}{line}{Colors.RESET}")
+                    rendered_lines.append(f"\n{Colors.BOLD}{Colors.HEADER}━━━ {header_text} ━━━{Colors.RESET}")
                 elif level == 2:
-                    rendered_lines.append(f"{Colors.BRIGHT_BLUE}{line}{Colors.RESET}")
+                    rendered_lines.append(f"\n{Colors.BOLD}{Colors.BRIGHT_BLUE}─── {header_text} ───{Colors.RESET}")
+                elif level == 3:
+                    rendered_lines.append(f"{Colors.BOLD}{Colors.BLUE}▸ {header_text}{Colors.RESET}")
                 else:
-                    rendered_lines.append(f"{Colors.BLUE}{line}{Colors.RESET}")
+                    rendered_lines.append(f"{Colors.BLUE}  • {header_text}{Colors.RESET}")
                 continue
             
             # Bold text (simple pattern)
@@ -151,13 +158,20 @@ class MarkdownRenderer:
             
             # Lists
             if line.strip().startswith(('-', '*', '+')) and not in_code_block:
-                rendered_lines.append(f"{Colors.BRIGHT_CYAN}{line}{Colors.RESET}")
+                list_content = line.strip()[1:].strip()
+                indent = len(line) - len(line.lstrip())
+                rendered_lines.append(f"{' ' * indent}{Colors.BRIGHT_CYAN}• {list_content}{Colors.RESET}")
                 continue
             
             # Numbered lists
             if line.strip() and line.strip()[0].isdigit() and '.' in line:
-                rendered_lines.append(f"{Colors.BRIGHT_CYAN}{line}{Colors.RESET}")
-                continue
+                parts = line.strip().split('.', 1)
+                if len(parts) == 2:
+                    number = parts[0]
+                    content = parts[1].strip()
+                    indent = len(line) - len(line.lstrip())
+                    rendered_lines.append(f"{' ' * indent}{Colors.BRIGHT_CYAN}{number}. {content}{Colors.RESET}")
+                    continue
             
             # Links
             if '[' in line and ']' in line and '(' in line:
