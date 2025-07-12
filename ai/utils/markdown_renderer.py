@@ -25,6 +25,8 @@ class MarkdownRenderer:
     
     def _check_glow(self) -> bool:
         """Check if glow is available in the system"""
+        # Temporarily disable glow due to excessive padding issues
+        return False
         try:
             subprocess.run(['glow', '--version'], 
                          capture_output=True, 
