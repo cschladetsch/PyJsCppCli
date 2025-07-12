@@ -56,18 +56,18 @@ def handle_command_line_query(query):
     
     # Handle help command
     if query.lower() in ["help", "?"]:
-        print("AI CLI - Command Line Interface for Claude AI")
+        print("Ask CLI - Command Line Interface for Claude AI")
         print("\nUsage:")
-        print("  ai [command or query]")
-        print("  ai --help, -h                - Show this help")
+        print("  ask [command or query]")
+        print("  ask --help, -h                - Show this help")
         print("\nAvailable commands:")
         print("  help, ?                      - Show this help")
         print("  clear                        - Clear conversation history")
         print("  c, conversation              - Show conversation history")
-        print("  upload <file1> [file2] ...   - Upload files to AI")
+        print("  upload <file1> [file2] ...   - Upload files for analysis")
         print("    Options:")
         print("      --recursive, -r          - Include all files in directories")
-        print("\nWith no arguments, AI CLI enters interactive mode.")
+        print("\nWith no arguments, Ask CLI enters interactive mode.")
         return 0
         
     spinner = Spinner()

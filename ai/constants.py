@@ -1,5 +1,5 @@
 """
-Constants and configuration for AI CLI
+Constants and configuration for Ask CLI
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Where magic numbers become meaningful names,
 and configuration dreams come true!

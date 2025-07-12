@@ -56,7 +56,7 @@ pip install -e .
 Launch the interactive mode by running the command without arguments:
 
 ```bash
-ai
+ask
 ```
 
 This opens a prompt where you can chat with Claude continuously.
@@ -96,18 +96,18 @@ For quick, one-off queries without entering interactive mode:
 
 ```bash
 # Ask a question
-ai "What is the capital of France?"
+ask "What is the capital of France?"
 
 # Clear conversation history
-ai clear
+ask clear
 
 # Show conversation history
-ai c
+ask c
 # or
-ai conversation
+ask conversation
 
 # Upload files for analysis
-ai upload document.md image.png
+ask upload document.md image.png
 ```
 
 ## File Handling
@@ -155,10 +155,10 @@ Claude CLI works well with Unix pipes, allowing integration into complex workflo
 
 ```bash
 # Analyze the output of a command
-ls -lh | ai "Analyze this directory listing and identify large files"
+ls -lh | ask "Analyze this directory listing and identify large files"
 
 # Analyze a file's content
-cat complex_code.py | ai "Explain what this code does"
+cat complex_code.py | ask "Explain what this code does"
 ```
 
 ### Shell Function Integration
@@ -168,7 +168,7 @@ You can create shell functions for common operations:
 ```bash
 # Add to your .bashrc or .zshrc
 function explain() {
-  cat "$1" | ai "Explain this code step by step"
+  cat "$1" | ask "Explain this code step by step"
 }
 
 # Then use like:

@@ -289,7 +289,7 @@ SPINNER_MESSAGES = [
     return True
 
 def setup_shell_integration(install_dir):
-    """Set up shell integration for the AI CLI"""
+    """Set up shell integration for the Ask CLI"""
     print_step("Setting up shell integration...")
     
     home_dir = str(Path.home())
@@ -299,7 +299,7 @@ def setup_shell_integration(install_dir):
     with open(shell_script_path, "w") as f:
         f.write(f'''#!/bin/bash
 
-ai () {{
+ask () {{
     if [[ -d "{install_dir}/.venv" ]]
     then
         source "{install_dir}/.venv/bin/activate"
@@ -334,8 +334,8 @@ ai () {{
     # Add source command to shell config
     try:
         with open(shell_config, "a") as f:
-            f.write(f'\n# AI CLI integration\nsource {shell_script_path}\n')
-        print_success(f"Added AI CLI integration to {shell_config}")
+            f.write(f'\n# Ask CLI integration\nsource {shell_script_path}\n')
+        print_success(f"Added Ask CLI integration to {shell_config}")
         print_info("To use, restart your terminal or run 'source " + shell_config + "'")
         return True
     except Exception as e:
@@ -428,7 +428,7 @@ def main():
     
     print()
     print(f"{Colors.GREEN}Setup complete!{Colors.RESET}")
-    print("To use the AI CLI, restart your terminal or run:")
+    print("To use the Ask CLI, restart your terminal or run:")
     shell = os.environ.get("SHELL", "").split("/")[-1]
     if shell in ["bash", "zsh"]:
         print(f"  source ~/.{shell}rc")
