@@ -55,10 +55,18 @@ class MarkdownRenderer:
             
             # Run glow with specified options
             cmd = ['glow', temp_path, '-s', self.style, '-w', str(self.width)]
+            
+            # Ensure proper terminal environment for tmux
+            env = os.environ.copy()
+            if 'TMUX' in env:
+                # Force terminal type for proper color support in tmux
+                env['TERM'] = 'xterm-256color'
+            
             result = subprocess.run(cmd, 
                                   capture_output=True, 
                                   text=True, 
-                                  check=True)
+                                  check=True,
+                                  env=env)
             
             # Clean up temp file
             os.unlink(temp_path)
