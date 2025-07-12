@@ -18,6 +18,7 @@ import subprocess
 import platform
 import argparse
 from pathlib import Path
+from datetime import datetime
 
 # Colors for terminal output
 class Colors:
@@ -259,7 +260,8 @@ UPLOAD_CACHE_DIR = os.path.expanduser("~/.ai_uploads")
 TOKEN_FILE = os.path.expanduser("~/.ai_token")
 
 # API configuration
-DEFAULT_MODEL = "claude-3-5-sonnet-20241022"
+#DEFAULT_MODEL = "claude-3-5-sonnet-20241022"
+DEFAULT_MODEL = "claude-opus-4-20250514
 DEFAULT_MAX_TOKENS = 1024
 DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant."
 
@@ -345,11 +347,22 @@ def setup_api_token():
     """Set up the API token"""
     print_step("Setting up API token...")
     
+    # Check if CLAUDE_API_KEY environment variable is set
+    if "CLAUDE_API_KEY" in os.environ:
+        print_info("Using CLAUDE_API_KEY from environment variable")
+        return True
+    
     token_file = os.path.expanduser("~/.ai_token")
     
     # Check if token file already exists
     if os.path.exists(token_file):
         print_info("API token already exists")
+        return True
+    
+    # Check if legacy token file exists
+    legacy_token_file = os.path.expanduser("~/.claude_token")
+    if os.path.exists(legacy_token_file):
+        print_info("Legacy API token found at ~/.claude_token")
         return True
     
     # Ask for the API token
@@ -368,6 +381,7 @@ def setup_api_token():
     except Exception as e:
         print_error(f"Failed to save API token: {e}")
         return False
+
 
 def main():
     """Main entry point for the setup script"""
@@ -410,6 +424,7 @@ def main():
     
     if not args.skip_token and not setup_api_token():
         print_info("API token setup skipped, but you'll need to add it later")
+    
     
     print()
     print(f"{Colors.GREEN}Setup complete!{Colors.RESET}")

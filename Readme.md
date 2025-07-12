@@ -1,9 +1,10 @@
 # Claude CLI
 
-<div align="center">
-  <img src="resources/Demo.gif" alt="Claude CLI Demo" width="700"/>
-  <p><em>A powerful command-line interface for interacting with Claude AI models</em></p>
-</div>
+![Claude CLI Demo](resources/Demo.gif)
+
+*A powerful command-line interface for interacting with Claude AI models*
+
+**Version:** 0.2.1 | **Python:** 3.8+ | **License:** MIT
 
 ## Overview
 
@@ -178,23 +179,35 @@ explain complex_algorithm.py
 
 ```
 claude-cli/
-ÃÄÄ ai/
-³   ÃÄÄ __init__.py
-³   ÃÄÄ __main__.py
-³   ÃÄÄ cli.py            # Main CLI handling
-³   ÃÄÄ constants.py      # Configuration constants
-³   ÃÄÄ api/
-³   ³   ÀÄÄ client.py     # Claude API wrapper
-³   ÃÄÄ modes/
-³   ³   ÀÄÄ interactive.py # Interactive mode
-³   ÀÄÄ utils/
-³       ÃÄÄ colors.py     # Terminal color utilities
-³       ÃÄÄ io.py         # File I/O operations
-³       ÀÄÄ spinner.py    # Progress animation
-ÃÄÄ requirements.txt
-ÃÄÄ setup.py
-ÀÄÄ resources/
-    ÀÄÄ Demo.gif
+ai/
+	__init__.py
+	__main__.py
+	cli.py            # Main CLI handling
+	constants.py      # Configuration constants
+api/
+	client.py     # Claude API wrapper
+	modes/
+		interactive.py # Interactive mode
+		py     # Terminal color utilities
+		io.py         # File I/O operations
+	spinner.py    # Progress animation
+requirements.txt
+setup.py
+resources/
+	Demo.gif
+```
+
+## Version Management
+
+The project uses semantic versioning (MAJOR.MINOR.PATCH) and includes an automatic version bumping system:
+
+- **Automatic Version Bumping**: A git pre-commit hook automatically increments the patch version on each commit
+- **Version Display**: The current version is shown when starting the interactive mode
+- **Version Files**: Version is maintained in both `__init__.py` and `ai/__init__.py`
+
+To disable automatic version bumping for a specific commit:
+```bash
+git commit --no-verify -m "Your commit message"
 ```
 
 ## Troubleshooting
@@ -231,6 +244,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-<div align="center">
-  <p>Made with ?? for the Claude community</p>
-</div>
+*Made with ❤️ for the Claude community*
