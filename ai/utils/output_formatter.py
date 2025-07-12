@@ -140,7 +140,6 @@ def print_info(message: str):
 def print_response(intro: str, content: str, use_markdown: bool = True):
     """Print a formatted AI response"""
     print(OutputFormatter.format_response_intro(intro))
-    print()  # Empty line
     print(OutputFormatter.format_response(content, use_markdown))
 
 def print_header(text: str, level: int = 1):
