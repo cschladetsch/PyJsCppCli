@@ -8,7 +8,7 @@ This script will:
 2. Set up a virtual environment
 3. Install required packages
 4. Copy or create the required files
-5. Make the 'ai' command available in your shell
+5. Make the 'ask' command available in your shell
 """
 
 import os
@@ -156,11 +156,11 @@ def create_main_script(install_dir):
     with open(main_script, "w") as f:
         f.write('''#!/usr/bin/env python3
 """
-Main entry point for the AI CLI
+Main entry point for the Ask CLI
 """
 
 import sys
-from ai.cli import main
+from ask.cli import main
 
 if __name__ == "__main__":
     sys.exit(main())
@@ -176,17 +176,17 @@ if __name__ == "__main__":
 def check_if_files_exist(install_dir):
     """Check if the Python package files already exist"""
     structure = [
-        "ai/__init__.py",
-        "ai/cli.py",
-        "ai/__main__.py",
-        "ai/constants.py",
-        "ai/utils/__init__.py",
-        "ai/utils/colors.py",
-        "ai/utils/spinner.py",
-        "ai/utils/io.py",
-        "ai/utils/interactive.py",
-        "ai/api/__init__.py",
-        "ai/api/client.py"
+        "ask/__init__.py",
+        "ask/cli.py",
+        "ask/__main__.py",
+        "ask/constants.py",
+        "ask/utils/__init__.py",
+        "ask/utils/colors.py",
+        "ask/utils/spinner.py",
+        "ask/utils/io.py",
+        "ask/utils/interactive.py",
+        "ask/api/__init__.py",
+        "ask/api/client.py"
     ]
     
     exists = True
@@ -203,7 +203,7 @@ def copy_project_files(install_dir, source_dir=None):
     print_step("Setting up project files...")
     
     # Create directories if they don't exist
-    for directory in ["ai", "ai/utils", "ai/api"]:
+    for directory in ["ask", "ask/utils", "ask/api"]:
         os.makedirs(os.path.join(install_dir, directory), exist_ok=True)
     
     # If source directory is provided and exists, copy from there
@@ -232,13 +232,13 @@ def copy_project_files(install_dir, source_dir=None):
     
     # Otherwise, create minimal structure with placeholder files
     files = {
-        "ai/__init__.py": '''"""
-AI CLI - A command-line interface for Claude AI
+        "ask/__init__.py": '''"""
+Ask CLI - A command-line interface for Claude AI
 """
 
 __version__ = "0.2.0"
 ''',
-        "ai/__main__.py": '''"""
+        "ask/__main__.py": '''"""
 Entry point for running as a module
 """
 
@@ -247,8 +247,8 @@ from .cli import main
 if __name__ == "__main__":
     main()
 ''',
-        "ai/constants.py": '''"""
-Constants and configuration for AI CLI
+        "ask/constants.py": '''"""
+Constants and configuration for Ask CLI
 """
 
 import os
@@ -272,9 +272,9 @@ SPINNER_MESSAGES = [
     "Analyzing", "Computing", "Pondering"
 ]
 ''',
-        "ai/utils/__init__.py": '''"""AI CLI utilities"""
+        "ask/utils/__init__.py": '''"""Ask CLI utilities"""
 ''',
-        "ai/api/__init__.py": '''"""AI API client"""
+        "ask/api/__init__.py": '''"""Ask API client"""
 ''',
     }
     
@@ -434,7 +434,7 @@ def main():
         print(f"  source ~/.{shell}rc")
     else:
         print("  source your shell configuration file")
-    print("Then you can run 'ai' from anywhere.")
+    print("Then you can run 'ask' from anywhere.")
     print()
     
     return 0
