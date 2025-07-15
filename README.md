@@ -197,26 +197,58 @@ function explain() {
 explain complex_algorithm.py
 ```
 
+## Architecture
+
+![Architecture Diagram](docs/architecture.png)
+
+The Ask CLI follows a layered architecture with clear separation of concerns:
+
+- **Entry Points**: Multiple ways to launch the application
+- **CLI Layer**: Command parsing and routing
+- **Interaction Modes**: Interactive, async, and command-line modes
+- **API Layer**: Claude API integration with connection pooling
+- **Plugin System**: Extensible architecture for custom functionality
+- **Utilities**: Configuration, validation, logging, and streaming support
+
 ## Project Structure
 
 ```
-claude-cli/
-ai/
-	__init__.py
-	__main__.py
-	cli.py            # Main CLI handling
-	constants.py      # Configuration constants
-api/
-	client.py     # Claude API wrapper
-	modes/
-		interactive.py # Interactive mode
-		py     # Terminal color utilities
-		io.py         # File I/O operations
-	spinner.py    # Progress animation
-requirements.txt
-setup.py
-resources/
-	Demo.gif
+PyClaudeCli/
+├── main.py                    # Primary entry point
+├── ai/                        # Main package
+│   ├── __main__.py           # Module entry point
+│   ├── cli.py                # CLI handling logic
+│   ├── constants.py          # Configuration constants
+│   ├── models.py             # Data models
+│   ├── api/                  # API clients
+│   │   ├── client.py         # Sync Claude API client
+│   │   └── async_client.py   # Async Claude API client
+│   ├── modes/                # Interaction modes
+│   │   ├── interactive.py    # Interactive mode
+│   │   └── async_interactive.py # Async interactive mode
+│   ├── plugins/              # Plugin system
+│   │   ├── base.py           # Base plugin classes
+│   │   ├── decorators.py     # Plugin decorators
+│   │   └── plugin_manager.py # Plugin management
+│   └── utils/                # Utilities
+│       ├── config.py         # Configuration management
+│       ├── validation.py     # Input validation
+│       ├── exceptions.py     # Error handling
+│       ├── logging.py        # Logging system
+│       ├── streaming.py      # Streaming support
+│       ├── connection_pool.py # Connection pooling
+│       ├── io.py            # File I/O operations
+│       ├── colors.py        # Terminal colors
+│       ├── spinner.py       # Progress animation
+│       └── output_formatter.py # Output formatting
+├── docs/                     # Documentation
+├── tests/                    # Test suite
+│   ├── unit/                # Unit tests
+│   └── integration/         # Integration tests
+├── requirements.txt         # Dependencies
+├── requirements-dev.txt     # Development dependencies
+├── pyproject.toml          # Modern Python packaging
+└── .github/workflows/      # CI/CD pipeline
 ```
 
 ## Version Management
