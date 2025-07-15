@@ -1,10 +1,14 @@
 """
 Command-line interface handling for AI CLI
+
+This module provides the main command-line interface for the AI CLI,
+handling both interactive and non-interactive modes.
 """
 
 import os
 import sys
 import random
+from typing import List, Optional, Union
 from .utils.colors import Colors
 from .utils.spinner import Spinner
 from .utils.output_formatter import (
@@ -17,8 +21,15 @@ from .api.client import ClaudeClient
 from .constants import HISTORY_FILE, RESPONSE_INTROS
 from .models import Interaction
 
-def handle_command_line_query(query):
-    """Handle a command line query without entering interactive mode"""
+def handle_command_line_query(query: str) -> int:
+    """Handle a command line query without entering interactive mode.
+    
+    Args:
+        query: The user's query string
+        
+    Returns:
+        Exit code (0 for success, 1 for error)
+    """
     client = ClaudeClient()
     
     # Add command to history
