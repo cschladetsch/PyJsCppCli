@@ -1,8 +1,8 @@
 # Claude CLI
 
-![Claude CLI Demo](resources/Demo.gif)
+![Claude CLI Demo](Resources/Demo.gif)
 
-*A powerful command-line interface for interacting with Claude AI models*
+Command-line interface for interacting with Claude AI models.
 
 **Version:** 0.2.1 | **Python:** 3.8+ | **License:** MIT
 
