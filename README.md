@@ -49,6 +49,28 @@ echo "your-anthropic-api-key" > ~/.claude_token
 pip install -e .
 ```
 
+### Setting Up the "ask" Command
+
+To use the `ask` command from anywhere in your terminal, add an alias to your shell configuration:
+
+#### For Zsh (`.zshrc`)
+
+```bash
+echo "alias ask=~/local/repos/PyClaudeCli/main.py" >> ~/.zshrc
+source ~/.zshrc
+```
+
+#### For Bash (`.bashrc`)
+
+```bash
+echo "alias ask=~/local/repos/PyClaudeCli/main.py" >> ~/.bashrc
+source ~/.bashrc
+```
+
+Note: Adjust the path to match where you cloned the repository. The example above assumes the repository is in `~/local/repos/PyClaudeCli/`.
+
+After setting up the alias, you can use the `ask` command from any directory.
+
 ## Usage
 
 ### Interactive Mode
