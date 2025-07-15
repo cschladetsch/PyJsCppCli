@@ -40,11 +40,11 @@ Set up your API key::
 
 Run interactively::
 
-    python main.py
+    ask
 
 Or make quick queries::
 
-    python main.py "What is the capital of France?"
+    ask "What is the capital of France?"
 
 Indices and tables
 ==================

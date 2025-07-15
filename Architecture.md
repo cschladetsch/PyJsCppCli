@@ -42,7 +42,7 @@ PythonClaudeCli/
 
 ### 1. **Entry Points**
 - `main.py`: Primary entry point that imports and runs the CLI
-- `ai/__main__.py`: Module entry point for running as `python -m ai`
+- `ai/__main__.py`: Module entry point for running as `python -m ai` (alternative to `ask` command)
 
 ### 2. **CLI Handler** (`ai/cli.py`)
 - Processes command-line arguments
@@ -138,14 +138,14 @@ For backward compatibility:
 3. **Virtual Environment**: Sets up isolated Python environment
 4. **Package Installation**: Installs all required dependencies
 5. **File Setup**: Copies project files to installation directory
-6. **Shell Integration**: Adds `ai` command to system PATH
+6. **Shell Integration**: Adds `ask` command to system PATH
 7. **API Configuration**: Prompts for API token if not present
 
 ### Usage Workflows
 
 #### Interactive Mode
 ```bash
-ai  # Launch interactive prompt
+ask  # Launch interactive prompt
 ```
 
 **Available Commands:**
@@ -159,20 +159,20 @@ ai  # Launch interactive prompt
 #### Command-Line Mode
 ```bash
 # Quick query
-ai "What is the capital of France?"
+ask "What is the capital of France?"
 
 # Show help
-ai --help
-ai -h
+ask --help
+ask -h
 
 # Clear conversation
-ai clear
+ask clear
 
 # Upload files
-ai upload document.md image.png
+ask upload document.md image.png
 
 # Recursive directory upload
-ai upload --recursive ./docs/
+ask upload --recursive ./docs/
 ```
 
 ## 🌟 Special Features
