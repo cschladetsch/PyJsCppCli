@@ -16,25 +16,44 @@ class MusicPlayer:
     MUSIC_HISTORY_FILE = Path.home() / ".config" / "claude" / "music.json"
     MAX_HISTORY_SIZE = 3000  # Maximum characters for history
     
-    # Musical progressions - full 4/4 bars (frequency in Hz, duration in ms)
-    # Each bar has 4 beats, 125ms per beat = 500ms total (4x speed)
+    # Musical progressions - more interesting and varied patterns
+    # Mix of rhythms, intervals, and melodic shapes for variety
     PROGRESSIONS = [
-        # C major arpeggio - C E G C (1-3-5-8)
-        [(261.63, 125), (329.63, 125), (392.00, 125), (523.25, 125)],
-        # A minor progression - A C E A (1-3-5-8)
-        [(440.00, 125), (523.25, 125), (659.25, 125), (880.00, 125)],
-        # F major with passing tone - F A C F (1-3-5-8)
-        [(349.23, 125), (440.00, 125), (523.25, 125), (698.46, 125)],
-        # D major scale fragment - D E F# A (1-2-3-5)
-        [(293.66, 125), (329.63, 125), (369.99, 125), (440.00, 125)],
-        # G major broken chord - G D G B (1-5-8-3)
-        [(392.00, 125), (587.33, 125), (783.99, 125), (493.88, 125)],
-        # E minor melodic - E G B E (1-3-5-8)
-        [(329.63, 125), (392.00, 125), (493.88, 125), (659.25, 125)],
-        # C major rhythmic - C C G E (1-1-5-3) with syncopation
-        [(261.63, 62), (261.63, 62), (392.00, 125), (329.63, 250)],
-        # Pentatonic melody - C D E G (1-2-3-5)
-        [(261.63, 125), (293.66, 125), (329.63, 125), (392.00, 125)],
+        # Jazz-inspired ii-V-I progression (Dm7-G7-Cmaj)
+        [(293.66, 100), (349.23, 100), (392.00, 100), (261.63, 200)],
+        
+        # Ascending melodic sequence with rhythm variation
+        [(261.63, 150), (329.63, 75), (392.00, 75), (523.25, 200)],
+        
+        # Call and response pattern (question-answer)
+        [(440.00, 100), (493.88, 100), (440.00, 50), (349.23, 250)],
+        
+        # Syncopated funk pattern with octave jumps
+        [(329.63, 75), (659.25, 75), (329.63, 150), (493.88, 200)],
+        
+        # Classical turn ornament (C-D-C-B-C)
+        [(523.25, 80), (587.33, 80), (523.25, 80), (493.88, 80), (523.25, 180)],
+        
+        # Blues-inspired bent note simulation (minor to major third)
+        [(261.63, 150), (311.13, 50), (329.63, 100), (261.63, 200)],
+        
+        # Whole tone scale fragment (mysterious)
+        [(261.63, 125), (293.66, 125), (329.63, 125), (369.99, 125)],
+        
+        # Rhythmic motif with triplet feel
+        [(392.00, 83), (392.00, 83), (392.00, 84), (523.25, 250)],
+        
+        # Descending cascade (waterfall effect)
+        [(880.00, 75), (659.25, 75), (523.25, 75), (392.00, 275)],
+        
+        # Pentatonic with grace note
+        [(493.88, 50), (440.00, 150), (349.23, 150), (293.66, 150)],
+        
+        # Modal interchange (borrowing from parallel minor)
+        [(261.63, 125), (311.13, 125), (349.23, 125), (261.63, 125)],
+        
+        # Alberti bass pattern simulation
+        [(261.63, 100), (329.63, 100), (392.00, 100), (329.63, 200)],
     ]
     
     @classmethod
@@ -242,22 +261,32 @@ public class TonePlayer {{
     
     @classmethod
     def _get_progression_name(cls, progression: List[tuple]) -> str:
-        """Get a friendly name for the progression based on frequencies"""
-        # Map first frequency to progression name
+        """Get a friendly name for the progression based on pattern characteristics"""
+        # Map based on first frequency and pattern length
         first_freq = progression[0][0]
-        # Handle special case for rhythmic pattern
-        if len(progression) > 1 and progression[0][1] == 62:
-            return "C major rhythmic"
+        pattern_length = len(progression)
         
+        # Special patterns based on structure
+        if pattern_length == 5 and first_freq == 523.25:
+            return "Classical turn"
+        elif pattern_length == 3 and progression[0][1] < 90:
+            return "Triplet rhythm"
+        elif first_freq == 880.00:
+            return "Descending cascade"
+        elif first_freq == 493.88 and progression[0][1] == 50:
+            return "Grace note phrase"
+        
+        # Map by starting frequency
         progression_map = {
-            261.63: "C major arpeggio",
-            440.00: "A minor arpeggio",
-            349.23: "F major arpeggio",
-            293.66: "D major scale",
-            392.00: "G major broken",
-            329.63: "E minor melodic"
+            293.66: "Jazz ii-V-I",
+            261.63: "Melodic sequence" if pattern_length == 4 else "Modal interchange",
+            440.00: "Call and response",
+            329.63: "Funk syncopation",
+            311.13: "Blues bend",
+            392.00: "Rhythmic motif",
         }
-        return progression_map.get(first_freq, "Unknown pattern")
+        
+        return progression_map.get(first_freq, f"Pattern #{hash(str(progression)) % 100}")
     
     @classmethod
     def _save_to_history(cls, entry: Dict):
