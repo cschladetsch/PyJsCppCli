@@ -88,62 +88,22 @@ class MusicPlayer:
         if not cls.is_enabled():
             return None
             
-        # Get volume setting
-        volume = cls.get_volume()
-        
-        # Generate context-aware MIDI
+        # Generate context-aware MIDI using the same approach as --gen-midi
         from .midi_music import MidiMusicGenerator
         midi_context = MidiMusicGenerator.generate_and_save(input_text, output_text)
         
-        # Convert MIDI context to playable progression
-        progression = cls._midi_to_progression(midi_context, input_text, output_text)
-        progression_name = f"{midi_context['mood']} ({midi_context['bar_length']}/4)"
+        # Now play the entire MIDI file that was just generated/updated
+        result = cls.play_midi_file()
         
-        # Try to play using different methods
-        played = False
-        method = None
-        
-        # Try SDL2 first for best cross-platform volume control
-        try:
-            if cls._play_with_sdl2(progression, volume):
-                played = True
-                method = "sdl2"
-        except Exception as e:
-            # SDL2 failed, continue to next method
-            pass
-        
-        # Try PulseAudio (works well in WSL2 with WSLg)
-        if not played and cls._play_with_pulseaudio(progression, volume):
-            played = True
-            method = "pulseaudio"
-        # If WSL2 and above fails, try Windows audio methods
-        elif cls._is_wsl2():
-            if cls._play_with_windows_audio(progression, volume):
-                played = True
-                method = "windows-audio"
-            elif cls._play_with_powershell(progression, volume):
-                played = True
-                method = "powershell"
-        # Method 1: Try using sox (play command)
-        elif cls._play_with_sox(progression, volume):
-            played = True
-            method = "sox"
-        # Method 2: Try using beep command
-        elif cls._play_with_beep(progression, volume):
-            played = True
-            method = "beep"
-        # Method 3: Try using speaker-test
-        elif cls._play_with_speaker_test(progression, volume):
-            played = True
-            method = "speaker-test"
-        
-        if played:
-            # Record in history
+        if result:
+            # Record in history with MIDI context info
             history_entry = {
                 "timestamp": datetime.now().isoformat(),
-                "progression": progression_name,
-                "notes": [(f, d) for f, d in progression],
-                "method": method
+                "progression": f"{midi_context['mood']} ({midi_context['bar_length']}/4)",
+                "notes": midi_context['notes_generated'],
+                "method": result['method'],
+                "tempo": midi_context['tempo'],
+                "mood": midi_context['mood']
             }
             cls._save_to_history(history_entry)
             return history_entry
@@ -668,78 +628,6 @@ public class TonePlayer {{
             print(f"SDL2 audio error: {e}")
             return False
     
-    @classmethod
-    def _midi_to_progression(cls, midi_context: Dict, input_text: str, output_text: str) -> List[tuple]:
-        """Convert MIDI context to playable audio progression"""
-        # Use text hash to generate deterministic but varied progression
-        combined_text = f"{input_text} {output_text}"
-        text_hash = hashlib.md5(combined_text.encode()).hexdigest()
-        random.seed(int(text_hash[:8], 16))
-        
-        # Get scale from MIDI context
-        scale_map = {
-            'happy': [261.63, 329.63, 392.00, 523.25],  # C major chord
-            'thoughtful': [220.00, 261.63, 329.63, 440.00],  # A minor chord
-            'energetic': [293.66, 369.99, 440.00, 587.33],  # D major chord  
-            'mysterious': [329.63, 392.00, 493.88, 659.25],  # E minor chord
-            'technical': [349.23, 440.00, 523.25, 698.46],  # F major chord
-            'creative': [392.00, 493.88, 587.33, 783.99],  # G major chord
-            'error': [220.00, 261.63, 329.63, 440.00],  # A minor chord (sad/error)
-            'success': [261.63, 329.63, 392.00, 523.25],  # C major chord (happy/success)
-        }
-        
-        base_freqs = scale_map.get(midi_context['mood'], scale_map['thoughtful'])
-        bar_length = midi_context['bar_length']
-        
-        # Generate progression based on bar length
-        progression = []
-        beat_duration = 60000 // midi_context['tempo'] // 4  # ms per beat (normal speed)
-        
-        for i in range(bar_length):
-            # Pick frequency based on text content
-            freq_index = (ord(combined_text[i % len(combined_text)]) + i) % len(base_freqs)
-            freq = base_freqs[freq_index]
-            
-            # Vary frequency slightly for interest
-            if i % 2 == 1:
-                freq *= random.choice([0.5, 1.5, 2.0])  # Octave variations
-            
-            duration = beat_duration
-            if i == bar_length - 1:  # Last beat slightly longer
-                duration = int(duration * 1.5)
-            
-            progression.append((freq, duration))
-        
-        return progression
-    
-    @classmethod
-    def _get_progression_name(cls, progression: List[tuple]) -> str:
-        """Get a friendly name for the progression based on pattern characteristics"""
-        # Map based on first frequency and pattern length
-        first_freq = progression[0][0]
-        pattern_length = len(progression)
-        
-        # Special patterns based on structure
-        if pattern_length == 5 and first_freq == 523.25:
-            return "Classical turn"
-        elif pattern_length == 3 and progression[0][1] < 90:
-            return "Triplet rhythm"
-        elif first_freq == 880.00:
-            return "Descending cascade"
-        elif first_freq == 493.88 and progression[0][1] == 50:
-            return "Grace note phrase"
-        
-        # Map by starting frequency
-        progression_map = {
-            293.66: "Jazz ii-V-I",
-            261.63: "Melodic sequence" if pattern_length == 4 else "Modal interchange",
-            440.00: "Call and response",
-            329.63: "Funk syncopation",
-            311.13: "Blues bend",
-            392.00: "Rhythmic motif",
-        }
-        
-        return progression_map.get(first_freq, f"Pattern #{hash(str(progression)) % 100}")
     
     @classmethod
     def _save_to_history(cls, entry: Dict):

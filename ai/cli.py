@@ -185,6 +185,8 @@ def main():
         print("  --json                       - Output response in JSON format")
         print("  --config PATH                - Specify config file path")
         print("  --playsong                   - Play the entire accumulated MIDI song")
+        print("  --gen-midi [TEXT]            - Generate MIDI file from text input")
+        print("  --clear-music                - Delete the accumulated MIDI file")
         print("\nCommands (in interactive mode or as query):")
         print("  help, ?                      - Show help")
         print("  clear                        - Clear conversation history")
@@ -292,6 +294,73 @@ def main():
             print_error("Failed to play MIDI song. Check if music.mid exists and audio is available.")
         return 0
     
+    # Check for --gen-midi flag
+    if "--gen-midi" in sys.argv:
+        from .utils.midi_music import MidiMusicGenerator
+        from pathlib import Path
+        
+        try:
+            idx = sys.argv.index("--gen-midi")
+            if idx + 1 < len(sys.argv) and not sys.argv[idx + 1].startswith('-'):
+                # Text provided as argument
+                input_text = sys.argv[idx + 1]
+            else:
+                # No text provided, use default
+                input_text = "Generate music from this text"
+            
+            print(f"Generating MIDI from text: '{input_text}'")
+            
+            # Generate MIDI file
+            result = MidiMusicGenerator.generate_and_save(input_text, "")
+            
+            midi_path = MidiMusicGenerator.MIDI_FILE_PATH
+            if midi_path.exists():
+                file_size = midi_path.stat().st_size
+                print_success(f"MIDI file generated: {midi_path}")
+                print(f"File size: {file_size} bytes")
+                print(f"Mood: {result['mood']}")
+                print(f"Tempo: {result['tempo']} BPM")
+                print(f"Time signature: {result['bar_length']}/4")
+                print(f"Notes generated: {result['notes_generated']}")
+            else:
+                print_error("Failed to generate MIDI file")
+                
+        except Exception as e:
+            print_error(f"Error generating MIDI: {str(e)}")
+        return 0
+    
+    # Check for --clear-music flag
+    if "--clear-music" in sys.argv:
+        from .utils.midi_music import MidiMusicGenerator
+        from .utils.music import MusicPlayer
+        
+        try:
+            midi_path = MidiMusicGenerator.MIDI_FILE_PATH
+            history_path = MusicPlayer.MUSIC_HISTORY_FILE
+            
+            files_deleted = []
+            
+            # Delete MIDI file if it exists
+            if midi_path.exists():
+                midi_path.unlink()
+                files_deleted.append(str(midi_path))
+            
+            # Delete music history file if it exists
+            if history_path.exists():
+                history_path.unlink()
+                files_deleted.append(str(history_path))
+            
+            if files_deleted:
+                print_success("Music files cleared successfully:")
+                for file in files_deleted:
+                    print(f"  - {file}")
+            else:
+                print_info("No music files found to clear.")
+                
+        except Exception as e:
+            print_error(f"Error clearing music files: {str(e)}")
+        return 0
+    
     # Check for --reset flag
     if len(sys.argv) > 1 and sys.argv[1] == "--reset":
         from pathlib import Path
@@ -349,6 +418,10 @@ def main():
             # Skip --volume and its optional value (handled earlier)
             if i + 1 < len(sys.argv) and not sys.argv[i + 1].startswith('-'):
                 i += 1  # Skip the volume value
+        elif arg == "--gen-midi":
+            # Skip --gen-midi and its optional value (handled earlier)
+            if i + 1 < len(sys.argv) and not sys.argv[i + 1].startswith('-'):
+                i += 1  # Skip the text value
         else:
             filtered_args.append(arg)
         i += 1

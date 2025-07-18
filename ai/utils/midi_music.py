@@ -286,8 +286,8 @@ class MidiMusicGenerator:
         return bytes(midi_data)
     
     @classmethod
-    def append_to_midi_file(cls, new_midi_data: bytes):
-        """Append new MIDI data to existing file, merging tracks"""
+    def prepend_to_midi_file(cls, new_midi_data: bytes):
+        """Prepend new MIDI data to existing file, merging tracks"""
         cls.MIDI_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
         
         # Parse existing file
@@ -301,8 +301,8 @@ class MidiMusicGenerator:
                 f.write(new_midi_data)
             new_tracks = cls.parse_midi_file(Path('/tmp/temp.mid')) or []
             
-        # Add new track to existing tracks
-        all_tracks = existing_tracks + new_tracks
+        # Prepend new track to existing tracks (new tracks first)
+        all_tracks = new_tracks + existing_tracks
         
         # Merge and save
         merged_midi = cls.merge_midi_tracks(all_tracks, cls.MAX_FILE_SIZE)
@@ -325,7 +325,7 @@ class MidiMusicGenerator:
         midi_data = cls.create_midi_file(track_data)
         
         # Save to file
-        cls.append_to_midi_file(midi_data)
+        cls.prepend_to_midi_file(midi_data)
         
         return {
             'mood': context['mood'],
