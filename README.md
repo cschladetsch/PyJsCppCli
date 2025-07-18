@@ -31,23 +31,18 @@ Claude CLI provides a seamless, terminal-based interface to interact with Anthro
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/claude-cli.git
-cd claude-cli
-
-# Create a virtual environment (recommended)
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+git clone https://github.com/cschladetsch/PyClaudeCli.git
+cd PyClaudeCli
 
 # Set up your API key
 echo "your-anthropic-api-key" > ~/.claude_token
 # Or set environment variable: export CLAUDE_API_KEY="your-anthropic-api-key"
 
-# Optional: Install in development mode
-pip install -e .
+# Run the CLI (dependencies will be auto-installed on first run)
+python3 main.py "Hello Claude!"
 ```
+
+The application will automatically install required dependencies on first run if they're not already present.
 
 ### Setting Up the "ask" Command
 
@@ -73,6 +68,24 @@ After setting up the alias, you can use the `ask` command from any directory.
 
 ## Usage
 
+### Command-Line Options
+
+```bash
+ask [options] [query]
+```
+
+#### Options
+
+| Option | Description |
+|--------|-------------|
+| `--help`, `-h` | Show help message and exit |
+| `--version`, `-v` | Show version information |
+| `--reset` | Reset configuration to defaults |
+| `--model MODEL` | Specify Claude model to use (e.g., claude-3-opus) |
+| `--no-spinner` | Disable loading spinner animation |
+| `--json` | Output response in JSON format |
+| `--config PATH` | Specify custom config file path |
+
 ### Interactive Mode
 
 Launch the interactive mode by running the command without arguments:
@@ -81,7 +94,7 @@ Launch the interactive mode by running the command without arguments:
 ask
 ```
 
-This opens a prompt where you can chat with Claude continuously.
+This opens a prompt where you can chat with Claude continuously. The prompt is displayed as a magenta lambda symbol (λ).
 
 #### Available Commands in Interactive Mode
 
@@ -120,6 +133,24 @@ For quick, one-off queries without entering interactive mode:
 # Ask a question
 ask "What is the capital of France?"
 
+# Use a specific model
+ask --model claude-3-opus "Explain quantum computing"
+
+# Get JSON output
+ask --json "List 5 prime numbers"
+
+# Disable the spinner for cleaner output
+ask --no-spinner "What is 2+2?"
+
+# Pipe input from stdin
+echo "Analyze this text" | ask -
+
+# Multiline queries with triple quotes
+ask '''
+This is a multiline query.
+It can span multiple lines.
+'''
+
 # Clear conversation history
 ask clear
 
@@ -130,6 +161,12 @@ ask conversation
 
 # Upload files for analysis
 ask upload document.md image.png
+
+# Show version
+ask --version
+
+# Show help
+ask --help
 ```
 
 ## File Handling

@@ -21,7 +21,7 @@ from .api.client import ClaudeClient
 from .constants import HISTORY_FILE, RESPONSE_INTROS
 from .models import Interaction
 
-def handle_command_line_query(query: str) -> int:
+def handle_command_line_query(query: str, no_spinner: bool = False, json_output: bool = False, model: Optional[str] = None) -> int:
     """Handle a command line query without entering interactive mode.
     
     Args:
@@ -88,13 +88,29 @@ def handle_command_line_query(query: str) -> int:
         print("\nWith no arguments, Ask CLI enters interactive mode.")
         return 0
         
+    # Configure client with model if specified
+    if model:
+        client.model = model
+    
     spinner = Spinner()
     try:
-        spinner.start()
+        if not no_spinner:
+            spinner.start()
         reply, updated_interactions = client.generate_response(query, interactions=interactions)
-        spinner.stop()
-        intro = random.choice(RESPONSE_INTROS)
-        print_response(intro, reply)
+        if not no_spinner:
+            spinner.stop()
+        
+        if json_output:
+            import json
+            output = {
+                "query": query,
+                "response": reply,
+                "model": getattr(client, 'model', 'default')
+            }
+            print(json.dumps(output, indent=2))
+        else:
+            intro = random.choice(RESPONSE_INTROS)
+            print_response(intro, reply)
         
         # Save updated conversation state
         save_conversation_state(updated_interactions)
@@ -114,9 +130,64 @@ def handle_command_line_query(query: str) -> int:
 
 def main():
     """Main entry point for the CLI"""
-    # Check for --help flag
-    if len(sys.argv) > 1 and sys.argv[1] in ["--help", "-h"]:
-        return handle_command_line_query("help")
+    import argparse
+    
+    # Create parser but don't parse yet - we need to handle some cases manually
+    parser = argparse.ArgumentParser(
+        prog='ask',
+        description='Command Line Interface for Claude AI',
+        add_help=False,  # We'll handle help manually
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    
+    # Check for --help or -h anywhere in arguments
+    if "--help" in sys.argv or "-h" in sys.argv:
+        print("Ask CLI - Command Line Interface for Claude AI")
+        try:
+            from .build_info import BUILD_DATE
+            print(f"Version: Built {BUILD_DATE}")
+        except ImportError:
+            pass
+        print("\nUsage:")
+        print("  ask [options] [query]")
+        print("  ask                          - Enter interactive mode")
+        print("  ask -                        - Read query from stdin")
+        print("  ask '''multiline query'''    - Start multiline query with triple quotes")
+        print("\nOptions:")
+        print("  --help, -h                   - Show this help")
+        print("  --version, -v                - Show version information")
+        print("  --reset                      - Reset configuration to defaults")
+        print("  --model MODEL                - Specify Claude model to use")
+        print("  --no-spinner                 - Disable loading spinner")
+        print("  --json                       - Output response in JSON format")
+        print("  --config PATH                - Specify config file path")
+        print("\nCommands (in interactive mode or as query):")
+        print("  help, ?                      - Show help")
+        print("  clear                        - Clear conversation history")
+        print("  c, conversation              - Show conversation history")
+        print("  upload <file1> [file2] ...   - Upload files for analysis")
+        print("    Options:")
+        print("      --recursive, -r          - Include all files in directories")
+        print("\nMultiline queries:")
+        print("  - Use triple quotes (''' or \"\"\") to start a multiline query")
+        print("  - Read from stdin: echo \"query\" | ask -")
+        print("  - Pipe from file: cat query.txt | ask -")
+        print("\nExamples:")
+        print("  ask \"What is 2+2?\"")
+        print("  ask --model claude-3-opus \"Explain quantum computing\"")
+        print("  echo \"Analyze this text\" | ask -")
+        print("  ask --no-spinner --json \"Return a JSON array of prime numbers under 10\"")
+        return 0
+    
+    # Check for --version flag
+    if "--version" in sys.argv or "-v" in sys.argv:
+        print("Ask CLI - Command Line Interface for Claude AI")
+        try:
+            from .build_info import BUILD_DATE
+            print(f"Built: {BUILD_DATE}")
+        except ImportError:
+            print("Version: Development")
+        return 0
     
     # Check for --reset flag
     if len(sys.argv) > 1 and sys.argv[1] == "--reset":
@@ -150,9 +221,38 @@ def main():
         
         return 0
     
+    # Parse command line arguments
+    no_spinner = False
+    json_output = False
+    model = None
+    config_path = None
+    
+    # Extract options from argv
+    filtered_args = []
+    i = 1
+    while i < len(sys.argv):
+        arg = sys.argv[i]
+        if arg == "--no-spinner":
+            no_spinner = True
+        elif arg == "--json":
+            json_output = True
+        elif arg == "--model" and i + 1 < len(sys.argv):
+            model = sys.argv[i + 1]
+            i += 1  # Skip the model value
+        elif arg == "--config" and i + 1 < len(sys.argv):
+            config_path = sys.argv[i + 1]
+            i += 1  # Skip the config path
+        else:
+            filtered_args.append(arg)
+        i += 1
+    
+    # Set config path if specified
+    if config_path:
+        os.environ['ASK_CONFIG_PATH'] = config_path
+    
     # Check for command line arguments
-    if len(sys.argv) > 1:
-        query = " ".join(sys.argv[1:])
+    if filtered_args:
+        query = " ".join(filtered_args)
         
         # Check if query is "-" to read from stdin
         if query == "-":
@@ -185,7 +285,7 @@ def main():
                     print("\nOperation canceled.")
                     return 1
         
-        return handle_command_line_query(query)
+        return handle_command_line_query(query, no_spinner=no_spinner, json_output=json_output, model=model)
     else:
         # No arguments, enter interactive mode
         interactive = InteractiveMode()
