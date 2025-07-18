@@ -71,6 +71,7 @@ if __name__ == "__main__":
     # Import after dependencies are installed
     from ai.cli import main
     from ai.utils.config_loader import ConfigLoader
+    from ai.utils.music import MusicPlayer
     from pathlib import Path
     
     # Check if this is first run (config directory doesn't exist)
@@ -80,5 +81,12 @@ if __name__ == "__main__":
         ConfigLoader.create_default_configs()
         print(f"Created configuration files in {config_dir}")
         print("You can customize your settings by editing files in that directory.\n")
+    
+    # Play startup music (if enabled)
+    try:
+        MusicPlayer.play_progression()
+    except Exception:
+        # Silently ignore any music errors
+        pass
     
     sys.exit(main())

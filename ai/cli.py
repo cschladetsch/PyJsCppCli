@@ -8,6 +8,7 @@ handling both interactive and non-interactive modes.
 import os
 import sys
 import random
+import json
 from typing import List, Optional, Union
 from .utils.colors import Colors
 from .utils.spinner import Spinner
@@ -158,6 +159,8 @@ def main():
         print("  --version, -v                - Show version information")
         print("  --reset                      - Reset configuration to defaults")
         print("  --init-config                - Create default config files in ~/.config/claude/")
+        print("  --music                      - Toggle startup music on/off")
+        print("  --music-history              - Show music play history")
         print("  --model MODEL                - Specify Claude model to use")
         print("  --no-spinner                 - Disable loading spinner")
         print("  --json                       - Output response in JSON format")
@@ -200,6 +203,34 @@ def main():
         print(f"  - {ConfigLoader.CONFIG_DIR}/aliases.json    - Command aliases")
         print(f"  - {ConfigLoader.CONFIG_DIR}/models.json     - Model preferences")
         print(f"  - {ConfigLoader.CONFIG_DIR}/templates.json  - Response templates")
+        return 0
+    
+    # Check for --music-history flag
+    if "--music-history" in sys.argv:
+        from .utils.music import MusicPlayer
+        history = MusicPlayer.get_history()
+        if history:
+            print("Music History (last 10 plays):")
+            for entry in history[-10:]:
+                print(f"  {entry['timestamp']}: {entry['progression']} ({entry.get('method', 'unknown')})")
+        else:
+            print("No music history found.")
+        return 0
+    
+    # Check for --music flag to toggle music
+    if "--music" in sys.argv:
+        from .utils.config_loader import ConfigLoader
+        from pathlib import Path
+        models_file = Path.home() / ".config" / "claude" / "models.json"
+        if models_file.exists():
+            model_prefs = ConfigLoader.get_model_preferences()
+            current_state = model_prefs.get('startup_music', True)
+            model_prefs['startup_music'] = not current_state
+            models_file.write_text(json.dumps(model_prefs, indent=2))
+            state_text = "enabled" if model_prefs['startup_music'] else "disabled"
+            print_success(f"Startup music {state_text}")
+        else:
+            print_error("Configuration file not found. Run with --init-config first.")
         return 0
     
     # Check for --reset flag
