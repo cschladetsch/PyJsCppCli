@@ -39,7 +39,9 @@ def check_and_install_dependencies():
                 result = subprocess.run(method, capture_output=True, text=True)
                 if result.returncode == 0:
                     print("Dependencies installed successfully!")
-                    return True
+                    print("Restarting to load new packages...")
+                    # Restart the script to pick up newly installed packages
+                    os.execv(sys.executable, [sys.executable] + sys.argv)
                 else:
                     continue
             except Exception:
