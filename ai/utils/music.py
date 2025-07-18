@@ -17,24 +17,24 @@ class MusicPlayer:
     MAX_HISTORY_SIZE = 3000  # Maximum characters for history
     
     # Musical progressions - full 4/4 bars (frequency in Hz, duration in ms)
-    # Each bar has 4 beats, 500ms per beat = 2000ms total
+    # Each bar has 4 beats, 250ms per beat = 1000ms total (2x speed)
     PROGRESSIONS = [
         # C major arpeggio - C E G C (1-3-5-8)
-        [(261.63, 500), (329.63, 500), (392.00, 500), (523.25, 500)],
+        [(261.63, 250), (329.63, 250), (392.00, 250), (523.25, 250)],
         # A minor progression - A C E A (1-3-5-8)
-        [(440.00, 500), (523.25, 500), (659.25, 500), (880.00, 500)],
+        [(440.00, 250), (523.25, 250), (659.25, 250), (880.00, 250)],
         # F major with passing tone - F A C F (1-3-5-8)
-        [(349.23, 500), (440.00, 500), (523.25, 500), (698.46, 500)],
+        [(349.23, 250), (440.00, 250), (523.25, 250), (698.46, 250)],
         # D major scale fragment - D E F# A (1-2-3-5)
-        [(293.66, 500), (329.63, 500), (369.99, 500), (440.00, 500)],
+        [(293.66, 250), (329.63, 250), (369.99, 250), (440.00, 250)],
         # G major broken chord - G D G B (1-5-8-3)
-        [(392.00, 500), (587.33, 500), (783.99, 500), (493.88, 500)],
+        [(392.00, 250), (587.33, 250), (783.99, 250), (493.88, 250)],
         # E minor melodic - E G B E (1-3-5-8)
-        [(329.63, 500), (392.00, 500), (493.88, 500), (659.25, 500)],
+        [(329.63, 250), (392.00, 250), (493.88, 250), (659.25, 250)],
         # C major rhythmic - C C G E (1-1-5-3) with syncopation
-        [(261.63, 250), (261.63, 250), (392.00, 500), (329.63, 1000)],
+        [(261.63, 125), (261.63, 125), (392.00, 250), (329.63, 500)],
         # Pentatonic melody - C D E G (1-2-3-5)
-        [(261.63, 500), (293.66, 500), (329.63, 500), (392.00, 500)],
+        [(261.63, 250), (293.66, 250), (329.63, 250), (392.00, 250)],
     ]
     
     @classmethod
@@ -230,7 +230,7 @@ public class TonePlayer {
         # Map first frequency to progression name
         first_freq = progression[0][0]
         # Handle special case for rhythmic pattern
-        if len(progression) > 1 and progression[0][1] == 250:
+        if len(progression) > 1 and progression[0][1] == 125:
             return "C major rhythmic"
         
         progression_map = {
