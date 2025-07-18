@@ -255,6 +255,11 @@ The CLI plays a full 4/4 bar musical phrase on startup. This can be toggled:
 Music history is stored in `~/.config/claude/music.json` (trimmed to 3KB).
 Patterns include arpeggios, scales, and rhythmic variations in various keys.
 
+**Note:** Music is automatically disabled in WSL2 as it requires special audio setup. For WSL2 audio support, you would need to:
+- Install PulseAudio on Windows
+- Configure WSL2 to use Windows audio
+- This is beyond the scope of this CLI
+
 ### Data Storage
 
 The CLI maintains several files:

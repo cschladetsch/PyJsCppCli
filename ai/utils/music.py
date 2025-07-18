@@ -42,7 +42,21 @@ class MusicPlayer:
         """Check if music is enabled in config"""
         from .config_loader import ConfigLoader
         model_prefs = ConfigLoader.get_model_preferences()
+        
+        # Check if running in WSL2
+        if cls._is_wsl2():
+            return False  # Disable music in WSL2 by default
+        
         return model_prefs.get('startup_music', True)
+    
+    @classmethod
+    def _is_wsl2(cls) -> bool:
+        """Check if running in WSL2"""
+        try:
+            with open('/proc/version', 'r') as f:
+                return 'microsoft' in f.read().lower()
+        except:
+            return False
     
     @classmethod
     def play_progression(cls) -> Optional[Dict]:

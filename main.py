@@ -63,6 +63,18 @@ def check_and_install_dependencies():
 def check_and_install_sox():
     """Check if sox is installed for music playback"""
     try:
+        # Check if running in WSL2
+        is_wsl2 = False
+        try:
+            with open('/proc/version', 'r') as f:
+                is_wsl2 = 'microsoft' in f.read().lower()
+        except:
+            pass
+        
+        if is_wsl2:
+            # Don't show sox message in WSL2 as audio requires special setup
+            return
+        
         # Check if sox/play command exists
         result = subprocess.run(['which', 'play'], capture_output=True, text=True)
         if result.returncode == 0:
