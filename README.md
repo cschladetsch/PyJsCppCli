@@ -26,6 +26,11 @@ Claude CLI provides a seamless, terminal-based interface to interact with Anthro
 
 - Python 3.8+
 - Anthropic API key
+- sox (optional, for startup music)
+  - macOS: `brew install sox`
+  - Ubuntu/Debian: `sudo apt-get install sox`
+  - Fedora: `sudo dnf install sox`
+  - Arch: `sudo pacman -S sox`
 
 ### Quick Install
 
@@ -85,6 +90,8 @@ ask [options] [query]
 | `--no-spinner` | Disable loading spinner animation |
 | `--json` | Output response in JSON format |
 | `--config PATH` | Specify custom config file path |
+| `--music` | Toggle startup music on/off |
+| `--music-history` | Show music play history |
 
 ### Interactive Mode
 
@@ -231,12 +238,21 @@ Example:
 {
   "default": "claude-3-sonnet-20240229",
   "conversation_load_timeout": 5.0,
+  "startup_music": true,
   "preferences": {
     "temperature": 0.7,
     "max_tokens": 4096
   }
 }
 ```
+
+#### Startup Music
+
+The CLI plays a melodic 3-key chord progression on startup. This can be toggled:
+- Via command line: `ask --music`
+- Via config: Set `"startup_music": false` in `~/.config/claude/models.json`
+
+Music history is stored in `~/.config/claude/music.json` (trimmed to 3KB).
 
 ### Data Storage
 

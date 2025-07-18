@@ -55,7 +55,45 @@ def check_and_install_dependencies():
         print(f"pip install --user --break-system-packages {' '.join(missing_packages)}")
         return False
     
+    # Check for sox (for music playback)
+    check_and_install_sox()
+    
     return True
+
+def check_and_install_sox():
+    """Check if sox is installed for music playback"""
+    try:
+        # Check if sox/play command exists
+        result = subprocess.run(['which', 'play'], capture_output=True, text=True)
+        if result.returncode == 0:
+            return  # sox is already installed
+        
+        # Detect the platform and package manager
+        if sys.platform == "darwin":  # macOS
+            print("Installing sox for music playback (macOS)...")
+            # Try homebrew first
+            if subprocess.run(['which', 'brew'], capture_output=True).returncode == 0:
+                subprocess.run(['brew', 'install', 'sox'], capture_output=True)
+            else:
+                print("Note: Install sox with 'brew install sox' for startup music")
+        elif sys.platform.startswith("linux"):
+            print("Note: For startup music, install sox:")
+            # Check which package manager is available
+            if subprocess.run(['which', 'apt-get'], capture_output=True).returncode == 0:
+                print("  sudo apt-get install sox")
+            elif subprocess.run(['which', 'yum'], capture_output=True).returncode == 0:
+                print("  sudo yum install sox")
+            elif subprocess.run(['which', 'dnf'], capture_output=True).returncode == 0:
+                print("  sudo dnf install sox")
+            elif subprocess.run(['which', 'pacman'], capture_output=True).returncode == 0:
+                print("  sudo pacman -S sox")
+            else:
+                print("  Install sox using your system's package manager")
+        elif sys.platform == "win32":
+            print("Note: For startup music on Windows, download sox from http://sox.sourceforge.net")
+    except Exception:
+        # Silently ignore any errors checking for sox
+        pass
 
 if __name__ == "__main__":
     # Update build time
