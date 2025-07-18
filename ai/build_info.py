@@ -1,3 +1,3 @@
 """Build information for PyClaudeCli"""
 
-BUILD_TIME = "2025-07-18 23:13:50"
+BUILD_DATE = "2025-07-18"

@@ -62,7 +62,7 @@ if __name__ == "__main__":
     build_info_path = os.path.join(os.path.dirname(__file__), 'ai', 'build_info.py')
     with open(build_info_path, 'w') as f:
         f.write('"""Build information for PyClaudeCli"""\n\n')
-        f.write(f'BUILD_TIME = "{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"\n')
+        f.write(f'BUILD_DATE = "{datetime.datetime.now().strftime("%Y-%m-%d")}"\n')
     
     # Check and install dependencies before importing
     if not check_and_install_dependencies():
