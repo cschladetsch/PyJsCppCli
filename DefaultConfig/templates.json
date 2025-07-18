@@ -1,0 +1,5 @@
+{
+  "code_review": "Please review this code for best practices, potential bugs, and improvements:\n\n{content}",
+  "explain": "Please explain this in simple terms:\n\n{content}",
+  "summarize": "Please provide a concise summary of:\n\n{content}"
+}
