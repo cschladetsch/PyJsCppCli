@@ -42,11 +42,6 @@ class MusicPlayer:
         """Check if music is enabled in config"""
         from .config_loader import ConfigLoader
         model_prefs = ConfigLoader.get_model_preferences()
-        
-        # Check if running in WSL2
-        if cls._is_wsl2():
-            return False  # Disable music in WSL2 by default
-        
         return model_prefs.get('startup_music', True)
     
     @classmethod
@@ -72,8 +67,16 @@ class MusicPlayer:
         played = False
         method = None
         
+        # If WSL2, try Windows audio methods
+        if cls._is_wsl2():
+            if cls._play_with_windows_audio(progression):
+                played = True
+                method = "windows-audio"
+            elif cls._play_with_powershell(progression):
+                played = True
+                method = "powershell"
         # Method 1: Try using sox (play command)
-        if cls._play_with_sox(progression):
+        elif cls._play_with_sox(progression):
             played = True
             method = "sox"
         # Method 2: Try using beep command
@@ -141,6 +144,82 @@ class MusicPlayer:
             # This is a very basic implementation - just plays a short tone
             subprocess.run(['speaker-test', '-t', 'sine', '-f', '440', '-l', '1'], 
                          capture_output=True, timeout=0.5)
+            return True
+        except:
+            return False
+    
+    @classmethod
+    def _play_with_powershell(cls, progression: List[tuple]) -> bool:
+        """Try to play using PowerShell on WSL2"""
+        try:
+            # Check if powershell.exe is available
+            result = subprocess.run(['which', 'powershell.exe'], capture_output=True)
+            if result.returncode != 0:
+                return False
+            
+            # Build PowerShell command to play beeps
+            ps_commands = []
+            for freq, duration in progression:
+                ps_commands.append(f'[console]::beep({int(freq)},{duration})')
+            
+            ps_script = '; '.join(ps_commands)
+            cmd = ['powershell.exe', '-Command', ps_script]
+            
+            subprocess.run(cmd, capture_output=True, timeout=5)
+            return True
+        except Exception as e:
+            return False
+    
+    @classmethod
+    def _play_with_windows_audio(cls, progression: List[tuple]) -> bool:
+        """Try to play using Windows audio synthesis"""
+        try:
+            # Create a PowerShell script that uses Windows audio
+            ps_script = """
+Add-Type -TypeDefinition @'
+using System;
+using System.Media;
+using System.IO;
+public class TonePlayer {
+    public static void PlayTone(int frequency, int duration) {
+        using (var stream = new MemoryStream()) {
+            var writer = new BinaryWriter(stream);
+            // Write WAV header
+            writer.Write("RIFF".ToCharArray());
+            writer.Write(36 + duration * 44100 / 1000);
+            writer.Write("WAVE".ToCharArray());
+            writer.Write("fmt ".ToCharArray());
+            writer.Write(16);
+            writer.Write((short)1);
+            writer.Write((short)1);
+            writer.Write(44100);
+            writer.Write(44100);
+            writer.Write((short)1);
+            writer.Write((short)8);
+            writer.Write("data".ToCharArray());
+            writer.Write(duration * 44100 / 1000);
+            
+            // Generate sine wave
+            for (int i = 0; i < duration * 44100 / 1000; i++) {
+                double angle = ((double)i / 44100) * frequency * 2 * Math.PI;
+                writer.Write((byte)(128 + 127 * Math.Sin(angle)));
+            }
+            
+            stream.Position = 0;
+            using (var player = new SoundPlayer(stream)) {
+                player.PlaySync();
+            }
+        }
+    }
+}
+'@ -ReferencedAssemblies System.dll
+
+"""
+            for freq, duration in progression:
+                ps_script += f"[TonePlayer]::PlayTone({int(freq)}, {duration})\n"
+            
+            cmd = ['powershell.exe', '-Command', ps_script]
+            subprocess.run(cmd, capture_output=True, timeout=10)
             return True
         except:
             return False

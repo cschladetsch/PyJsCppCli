@@ -255,10 +255,12 @@ The CLI plays a full 4/4 bar musical phrase on startup. This can be toggled:
 Music history is stored in `~/.config/claude/music.json` (trimmed to 3KB).
 Patterns include arpeggios, scales, and rhythmic variations in various keys.
 
-**Note:** Music is automatically disabled in WSL2 as it requires special audio setup. For WSL2 audio support, you would need to:
-- Install PulseAudio on Windows
-- Configure WSL2 to use Windows audio
-- This is beyond the scope of this CLI
+**Note for WSL2 users:** The CLI will attempt to play audio through Windows PowerShell. If you don't hear sound:
+1. Check Windows Terminal settings - ensure "Bell notification style" is not set to "None"
+2. Check Windows sound settings - ensure system sounds are not muted
+3. The CLI tries two methods:
+   - Windows audio synthesis (higher quality)
+   - PowerShell console beeps (fallback)
 
 ### Data Storage
 

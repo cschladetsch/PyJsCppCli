@@ -72,7 +72,9 @@ def check_and_install_sox():
             pass
         
         if is_wsl2:
-            # Don't show sox message in WSL2 as audio requires special setup
+            # WSL2 - check if PowerShell is available for audio
+            if subprocess.run(['which', 'powershell.exe'], capture_output=True).returncode != 0:
+                print("Note: For startup music in WSL2, ensure Windows paths are accessible")
             return
         
         # Check if sox/play command exists
