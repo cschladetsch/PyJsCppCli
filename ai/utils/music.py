@@ -1,5 +1,5 @@
 """
-Music player for startup sound - plays a melodic 3-key progression
+Music player for startup sound - plays a full bar of 4/4 music
 """
 import os
 import sys
@@ -16,20 +16,25 @@ class MusicPlayer:
     MUSIC_HISTORY_FILE = Path.home() / ".config" / "claude" / "music.json"
     MAX_HISTORY_SIZE = 3000  # Maximum characters for history
     
-    # Musical progressions (frequency in Hz, duration in ms)
+    # Musical progressions - full 4/4 bars (frequency in Hz, duration in ms)
+    # Each bar has 4 beats, 500ms per beat = 2000ms total
     PROGRESSIONS = [
-        # C major - C E G (happy, uplifting)
-        [(261.63, 200), (329.63, 200), (392.00, 400)],
-        # A minor - A C E (thoughtful, contemplative)
-        [(440.00, 200), (523.25, 200), (659.25, 400)],
-        # F major - F A C (warm, friendly)
-        [(349.23, 200), (440.00, 200), (523.25, 400)],
-        # D major - D F# A (bright, confident)
-        [(293.66, 200), (369.99, 200), (440.00, 400)],
-        # G major - G B D (open, expansive)
-        [(392.00, 200), (493.88, 200), (587.33, 400)],
-        # E minor - E G B (mysterious, intriguing)
-        [(329.63, 200), (392.00, 200), (493.88, 400)],
+        # C major arpeggio - C E G C (1-3-5-8)
+        [(261.63, 500), (329.63, 500), (392.00, 500), (523.25, 500)],
+        # A minor progression - A C E A (1-3-5-8)
+        [(440.00, 500), (523.25, 500), (659.25, 500), (880.00, 500)],
+        # F major with passing tone - F A C F (1-3-5-8)
+        [(349.23, 500), (440.00, 500), (523.25, 500), (698.46, 500)],
+        # D major scale fragment - D E F# A (1-2-3-5)
+        [(293.66, 500), (329.63, 500), (369.99, 500), (440.00, 500)],
+        # G major broken chord - G D G B (1-5-8-3)
+        [(392.00, 500), (587.33, 500), (783.99, 500), (493.88, 500)],
+        # E minor melodic - E G B E (1-3-5-8)
+        [(329.63, 500), (392.00, 500), (493.88, 500), (659.25, 500)],
+        # C major rhythmic - C C G E (1-1-5-3) with syncopation
+        [(261.63, 250), (261.63, 250), (392.00, 500), (329.63, 1000)],
+        # Pentatonic melody - C D E G (1-2-3-5)
+        [(261.63, 500), (293.66, 500), (329.63, 500), (392.00, 500)],
     ]
     
     @classmethod
@@ -41,7 +46,7 @@ class MusicPlayer:
     
     @classmethod
     def play_progression(cls) -> Optional[Dict]:
-        """Play a random 3-key progression and return the played notes"""
+        """Play a random 4/4 bar musical phrase and return the played notes"""
         if not cls.is_enabled():
             return None
             
@@ -129,17 +134,21 @@ class MusicPlayer:
     @classmethod
     def _get_progression_name(cls, progression: List[tuple]) -> str:
         """Get a friendly name for the progression based on frequencies"""
-        # Map first frequency to chord name
+        # Map first frequency to progression name
         first_freq = progression[0][0]
-        chord_map = {
-            261.63: "C major",
-            440.00: "A minor",
-            349.23: "F major",
-            293.66: "D major",
-            392.00: "G major",
-            329.63: "E minor"
+        # Handle special case for rhythmic pattern
+        if len(progression) > 1 and progression[0][1] == 250:
+            return "C major rhythmic"
+        
+        progression_map = {
+            261.63: "C major arpeggio",
+            440.00: "A minor arpeggio",
+            349.23: "F major arpeggio",
+            293.66: "D major scale",
+            392.00: "G major broken",
+            329.63: "E minor melodic"
         }
-        return chord_map.get(first_freq, "Unknown")
+        return progression_map.get(first_freq, "Unknown pattern")
     
     @classmethod
     def _save_to_history(cls, entry: Dict):

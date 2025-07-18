@@ -248,11 +248,12 @@ Example:
 
 #### Startup Music
 
-The CLI plays a melodic 3-key chord progression on startup. This can be toggled:
+The CLI plays a full 4/4 bar musical phrase on startup. This can be toggled:
 - Via command line: `ask --music`
 - Via config: Set `"startup_music": false` in `~/.config/claude/models.json`
 
 Music history is stored in `~/.config/claude/music.json` (trimmed to 3KB).
+Patterns include arpeggios, scales, and rhythmic variations in various keys.
 
 ### Data Storage
 
