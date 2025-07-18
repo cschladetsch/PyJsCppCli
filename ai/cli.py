@@ -101,6 +101,14 @@ def handle_command_line_query(query: str, no_spinner: bool = False, json_output:
         if not no_spinner:
             spinner.stop()
         
+        # Play context-aware music after generating response
+        try:
+            from .utils.music import MusicPlayer
+            if MusicPlayer.is_enabled():
+                MusicPlayer.play_progression(input_text=query, output_text=reply[:100])
+        except:
+            pass
+        
         if json_output:
             import json
             output = {
@@ -126,7 +134,17 @@ def handle_command_line_query(query: str, no_spinner: bool = False, json_output:
         return 1
     except Exception as e:
         spinner.stop()
-        print_error(f"An error occurred while processing your request: {str(e)}")
+        error_msg = f"An error occurred while processing your request: {str(e)}"
+        print_error(error_msg)
+        
+        # Play context-aware music for error
+        try:
+            from .utils.music import MusicPlayer
+            if MusicPlayer.is_enabled():
+                MusicPlayer.play_progression(input_text=query, output_text="error")
+        except:
+            pass
+            
         return 1
 
 def main():

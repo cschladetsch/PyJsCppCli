@@ -1,10 +1,11 @@
 """
-Music player for startup sound - plays a full bar of 4/4 music
+Music player for startup sound - plays context-aware music
 """
 import os
 import sys
 import json
 import random
+import hashlib
 import subprocess
 from pathlib import Path
 from datetime import datetime
@@ -82,17 +83,21 @@ class MusicPlayer:
         return max(0.0, min(1.0, float(volume)))
     
     @classmethod
-    def play_progression(cls) -> Optional[Dict]:
-        """Play a random 4/4 bar musical phrase and return the played notes"""
+    def play_progression(cls, input_text: str = "", output_text: str = "") -> Optional[Dict]:
+        """Play a context-aware musical phrase based on input/output"""
         if not cls.is_enabled():
             return None
             
         # Get volume setting
         volume = cls.get_volume()
         
-        # Select random progression
-        progression = random.choice(cls.PROGRESSIONS)
-        progression_name = cls._get_progression_name(progression)
+        # Generate context-aware MIDI
+        from .midi_music import MidiMusicGenerator
+        midi_context = MidiMusicGenerator.generate_and_save(input_text, output_text)
+        
+        # Convert MIDI context to playable progression
+        progression = cls._midi_to_progression(midi_context, input_text, output_text)
+        progression_name = f"{midi_context['mood']} ({midi_context['bar_length']}/4)"
         
         # Try to play using different methods
         played = False
@@ -258,6 +263,50 @@ public class TonePlayer {{
             return True
         except:
             return False
+    
+    @classmethod
+    def _midi_to_progression(cls, midi_context: Dict, input_text: str, output_text: str) -> List[tuple]:
+        """Convert MIDI context to playable audio progression"""
+        # Use text hash to generate deterministic but varied progression
+        combined_text = f"{input_text} {output_text}"
+        text_hash = hashlib.md5(combined_text.encode()).hexdigest()
+        random.seed(int(text_hash[:8], 16))
+        
+        # Get scale from MIDI context
+        scale_map = {
+            'happy': [261.63, 329.63, 392.00, 523.25],  # C major chord
+            'thoughtful': [220.00, 261.63, 329.63, 440.00],  # A minor chord
+            'energetic': [293.66, 369.99, 440.00, 587.33],  # D major chord  
+            'mysterious': [329.63, 392.00, 493.88, 659.25],  # E minor chord
+            'technical': [349.23, 440.00, 523.25, 698.46],  # F major chord
+            'creative': [392.00, 493.88, 587.33, 783.99],  # G major chord
+            'error': [220.00, 261.63, 329.63, 440.00],  # A minor chord (sad/error)
+            'success': [261.63, 329.63, 392.00, 523.25],  # C major chord (happy/success)
+        }
+        
+        base_freqs = scale_map.get(midi_context['mood'], scale_map['thoughtful'])
+        bar_length = midi_context['bar_length']
+        
+        # Generate progression based on bar length
+        progression = []
+        beat_duration = 60000 // midi_context['tempo'] // 4 // 2  # ms per beat (2x speed)
+        
+        for i in range(bar_length):
+            # Pick frequency based on text content
+            freq_index = (ord(combined_text[i % len(combined_text)]) + i) % len(base_freqs)
+            freq = base_freqs[freq_index]
+            
+            # Vary frequency slightly for interest
+            if i % 2 == 1:
+                freq *= random.choice([0.5, 1.5, 2.0])  # Octave variations
+            
+            duration = beat_duration
+            if i == bar_length - 1:  # Last beat slightly longer
+                duration = int(duration * 1.5)
+            
+            progression.append((freq, duration))
+        
+        return progression
     
     @classmethod
     def _get_progression_name(cls, progression: List[tuple]) -> str:

@@ -134,11 +134,4 @@ if __name__ == "__main__":
         print(f"Created configuration files in {config_dir}")
         print("You can customize your settings by editing files in that directory.\n")
     
-    # Play startup music (if enabled)
-    try:
-        MusicPlayer.play_progression()
-    except Exception:
-        # Silently ignore any music errors
-        pass
-    
     sys.exit(main())
