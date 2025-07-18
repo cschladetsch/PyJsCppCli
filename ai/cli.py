@@ -71,6 +71,8 @@ def handle_command_line_query(query: str) -> int:
         print("\nUsage:")
         print("  ask [command or query]")
         print("  ask --help, -h                - Show this help")
+        print("  ask -                        - Read query from stdin")
+        print("  ask '''multiline query'''    - Start multiline query with triple quotes")
         print("\nAvailable commands:")
         print("  help, ?                      - Show this help")
         print("  clear                        - Clear conversation history")
@@ -78,6 +80,10 @@ def handle_command_line_query(query: str) -> int:
         print("  upload <file1> [file2] ...   - Upload files for analysis")
         print("    Options:")
         print("      --recursive, -r          - Include all files in directories")
+        print("\nMultiline queries:")
+        print("  - Use triple quotes (''' or \"\"\") to start a multiline query")
+        print("  - Read from stdin: echo \"query\" | ask -")
+        print("  - Pipe from file: cat query.txt | ask -")
         print("\nWith no arguments, Ask CLI enters interactive mode.")
         return 0
         
@@ -114,6 +120,38 @@ def main():
     # Check for command line arguments
     if len(sys.argv) > 1:
         query = " ".join(sys.argv[1:])
+        
+        # Check if query is "-" to read from stdin
+        if query == "-":
+            try:
+                query = sys.stdin.read().strip()
+                if not query:
+                    print_error("No input received from stdin")
+                    return 1
+            except KeyboardInterrupt:
+                print("\nOperation canceled.")
+                return 1
+        # Check if query starts with triple quotes for multiline
+        elif query.startswith('"""') or query.startswith("'''"):
+            quote_style = query[:3]
+            # If the query ends with the same triple quotes, it's complete
+            if len(query) > 6 and query.endswith(quote_style):
+                query = query[3:-3].strip()
+            else:
+                # Otherwise, keep reading until we find the closing quotes
+                lines = [query[3:]]
+                print("Enter multiline query (end with " + quote_style + " on a new line):")
+                try:
+                    while True:
+                        line = input()
+                        if line.strip() == quote_style:
+                            break
+                        lines.append(line)
+                    query = "\n".join(lines).strip()
+                except (KeyboardInterrupt, EOFError):
+                    print("\nOperation canceled.")
+                    return 1
+        
         return handle_command_line_query(query)
     else:
         # No arguments, enter interactive mode
