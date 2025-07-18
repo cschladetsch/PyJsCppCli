@@ -161,6 +161,7 @@ def main():
         print("  --init-config                - Create default config files in ~/.config/claude/")
         print("  --music                      - Toggle startup music on/off")
         print("  --music-history              - Show music play history")
+        print("  --volume [LEVEL]             - Set/show music volume (0.0-1.0)")
         print("  --model MODEL                - Specify Claude model to use")
         print("  --no-spinner                 - Disable loading spinner")
         print("  --json                       - Output response in JSON format")
@@ -233,6 +234,34 @@ def main():
             print_error("Configuration file not found. Run with --init-config first.")
         return 0
     
+    # Check for --volume flag
+    if "--volume" in sys.argv:
+        try:
+            idx = sys.argv.index("--volume")
+            if idx + 1 < len(sys.argv):
+                volume = float(sys.argv[idx + 1])
+                if 0.0 <= volume <= 1.0:
+                    from .utils.config_loader import ConfigLoader
+                    from pathlib import Path
+                    models_file = Path.home() / ".config" / "claude" / "models.json"
+                    if models_file.exists():
+                        model_prefs = ConfigLoader.get_model_preferences()
+                        model_prefs['music_volume'] = volume
+                        models_file.write_text(json.dumps(model_prefs, indent=2))
+                        print_success(f"Music volume set to {volume:.1f}")
+                    else:
+                        print_error("Configuration file not found. Run with --init-config first.")
+                else:
+                    print_error("Volume must be between 0.0 and 1.0")
+            else:
+                # Show current volume
+                from .utils.music import MusicPlayer
+                current_volume = MusicPlayer.get_volume()
+                print(f"Current music volume: {current_volume:.1f}")
+        except ValueError:
+            print_error("Invalid volume value. Must be a number between 0.0 and 1.0")
+        return 0
+    
     # Check for --reset flag
     if len(sys.argv) > 1 and sys.argv[1] == "--reset":
         from pathlib import Path
@@ -286,6 +315,10 @@ def main():
         elif arg == "--config" and i + 1 < len(sys.argv):
             config_path = sys.argv[i + 1]
             i += 1  # Skip the config path
+        elif arg == "--volume":
+            # Skip --volume and its optional value (handled earlier)
+            if i + 1 < len(sys.argv) and not sys.argv[i + 1].startswith('-'):
+                i += 1  # Skip the volume value
         else:
             filtered_args.append(arg)
         i += 1

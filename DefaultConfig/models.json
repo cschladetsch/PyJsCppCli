@@ -2,6 +2,7 @@
   "default": "claude-3-sonnet-20240229",
   "conversation_load_timeout": 3.0,
   "startup_music": true,
+  "music_volume": 0.5,
   "preferences": {
     "temperature": 0.7,
     "max_tokens": 4096

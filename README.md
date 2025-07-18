@@ -92,6 +92,7 @@ ask [options] [query]
 | `--config PATH` | Specify custom config file path |
 | `--music` | Toggle startup music on/off |
 | `--music-history` | Show music play history |
+| `--volume [LEVEL]` | Set/show music volume (0.0-1.0) |
 
 ### Interactive Mode
 

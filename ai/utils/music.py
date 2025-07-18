@@ -54,11 +54,23 @@ class MusicPlayer:
             return False
     
     @classmethod
+    def get_volume(cls) -> float:
+        """Get volume setting from config (0.0 to 1.0)"""
+        from .config_loader import ConfigLoader
+        model_prefs = ConfigLoader.get_model_preferences()
+        volume = model_prefs.get('music_volume', 0.5)
+        # Clamp between 0.0 and 1.0
+        return max(0.0, min(1.0, float(volume)))
+    
+    @classmethod
     def play_progression(cls) -> Optional[Dict]:
         """Play a random 4/4 bar musical phrase and return the played notes"""
         if not cls.is_enabled():
             return None
             
+        # Get volume setting
+        volume = cls.get_volume()
+        
         # Select random progression
         progression = random.choice(cls.PROGRESSIONS)
         progression_name = cls._get_progression_name(progression)
@@ -69,22 +81,22 @@ class MusicPlayer:
         
         # If WSL2, try Windows audio methods
         if cls._is_wsl2():
-            if cls._play_with_windows_audio(progression):
+            if cls._play_with_windows_audio(progression, volume):
                 played = True
                 method = "windows-audio"
-            elif cls._play_with_powershell(progression):
+            elif cls._play_with_powershell(progression, volume):
                 played = True
                 method = "powershell"
         # Method 1: Try using sox (play command)
-        elif cls._play_with_sox(progression):
+        elif cls._play_with_sox(progression, volume):
             played = True
             method = "sox"
         # Method 2: Try using beep command
-        elif cls._play_with_beep(progression):
+        elif cls._play_with_beep(progression, volume):
             played = True
             method = "beep"
         # Method 3: Try using speaker-test
-        elif cls._play_with_speaker_test(progression):
+        elif cls._play_with_speaker_test(progression, volume):
             played = True
             method = "speaker-test"
         
@@ -102,7 +114,7 @@ class MusicPlayer:
         return None
     
     @classmethod
-    def _play_with_sox(cls, progression: List[tuple]) -> bool:
+    def _play_with_sox(cls, progression: List[tuple], volume: float) -> bool:
         """Try to play using sox (play command)"""
         try:
             # Check if play command exists
@@ -110,8 +122,8 @@ class MusicPlayer:
             if result.returncode != 0:
                 return False
             
-            # Build play command
-            cmd = ['play', '-n']
+            # Build play command with volume
+            cmd = ['play', '-n', '-v', str(volume)]
             for freq, duration in progression:
                 cmd.extend(['synth', f'{duration/1000}', 'sine', str(freq)])
                 
@@ -121,7 +133,7 @@ class MusicPlayer:
             return False
     
     @classmethod
-    def _play_with_beep(cls, progression: List[tuple]) -> bool:
+    def _play_with_beep(cls, progression: List[tuple], volume: float) -> bool:
         """Try to play using beep command"""
         try:
             # Check if beep exists
@@ -129,7 +141,7 @@ class MusicPlayer:
             if result.returncode != 0:
                 return False
                 
-            # Play each note
+            # Play each note (beep doesn't support volume, so we ignore it)
             for freq, duration in progression:
                 subprocess.run(['beep', '-f', str(int(freq)), '-l', str(duration)], 
                              capture_output=True, timeout=1)
@@ -138,10 +150,11 @@ class MusicPlayer:
             return False
     
     @classmethod
-    def _play_with_speaker_test(cls, progression: List[tuple]) -> bool:
+    def _play_with_speaker_test(cls, progression: List[tuple], volume: float) -> bool:
         """Try to play using speaker-test (fallback)"""
         try:
             # This is a very basic implementation - just plays a short tone
+            # speaker-test doesn't support volume control
             subprocess.run(['speaker-test', '-t', 'sine', '-f', '440', '-l', '1'], 
                          capture_output=True, timeout=0.5)
             return True
@@ -149,7 +162,7 @@ class MusicPlayer:
             return False
     
     @classmethod
-    def _play_with_powershell(cls, progression: List[tuple]) -> bool:
+    def _play_with_powershell(cls, progression: List[tuple], volume: float) -> bool:
         """Try to play using PowerShell on WSL2"""
         try:
             # Check if powershell.exe is available
@@ -158,6 +171,7 @@ class MusicPlayer:
                 return False
             
             # Build PowerShell command to play beeps
+            # Console beeps don't support volume, so we ignore it
             ps_commands = []
             for freq, duration in progression:
                 ps_commands.append(f'[console]::beep({int(freq)},{duration})')
@@ -171,18 +185,20 @@ class MusicPlayer:
             return False
     
     @classmethod
-    def _play_with_windows_audio(cls, progression: List[tuple]) -> bool:
+    def _play_with_windows_audio(cls, progression: List[tuple], volume: float) -> bool:
         """Try to play using Windows audio synthesis"""
         try:
             # Create a PowerShell script that uses Windows audio
-            ps_script = """
+            # Convert volume from 0-1 to 0-127 for amplitude
+            amplitude = int(127 * volume)
+            ps_script = f"""
 Add-Type -TypeDefinition @'
 using System;
 using System.Media;
 using System.IO;
-public class TonePlayer {
-    public static void PlayTone(int frequency, int duration) {
-        using (var stream = new MemoryStream()) {
+public class TonePlayer {{
+    public static void PlayTone(int frequency, int duration, int amplitude) {{
+        using (var stream = new MemoryStream()) {{
             var writer = new BinaryWriter(stream);
             // Write WAV header
             writer.Write("RIFF".ToCharArray());
@@ -199,24 +215,24 @@ public class TonePlayer {
             writer.Write("data".ToCharArray());
             writer.Write(duration * 44100 / 1000);
             
-            // Generate sine wave
-            for (int i = 0; i < duration * 44100 / 1000; i++) {
+            // Generate sine wave with volume control
+            for (int i = 0; i < duration * 44100 / 1000; i++) {{
                 double angle = ((double)i / 44100) * frequency * 2 * Math.PI;
-                writer.Write((byte)(128 + 127 * Math.Sin(angle)));
-            }
+                writer.Write((byte)(128 + amplitude * Math.Sin(angle)));
+            }}
             
             stream.Position = 0;
-            using (var player = new SoundPlayer(stream)) {
+            using (var player = new SoundPlayer(stream)) {{
                 player.PlaySync();
-            }
-        }
-    }
-}
+            }}
+        }}
+    }}
+}}
 '@ -ReferencedAssemblies System.dll
 
 """
             for freq, duration in progression:
-                ps_script += f"[TonePlayer]::PlayTone({int(freq)}, {duration})\n"
+                ps_script += f"[TonePlayer]::PlayTone({int(freq)}, {duration}, {amplitude})\n"
             
             cmd = ['powershell.exe', '-Command', ps_script]
             subprocess.run(cmd, capture_output=True, timeout=10)
