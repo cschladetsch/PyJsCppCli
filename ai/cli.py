@@ -71,6 +71,7 @@ def handle_command_line_query(query: str) -> int:
         print("\nUsage:")
         print("  ask [command or query]")
         print("  ask --help, -h                - Show this help")
+        print("  ask --reset                  - Reset configuration to defaults")
         print("  ask -                        - Read query from stdin")
         print("  ask '''multiline query'''    - Start multiline query with triple quotes")
         print("\nAvailable commands:")
@@ -116,6 +117,38 @@ def main():
     # Check for --help flag
     if len(sys.argv) > 1 and sys.argv[1] in ["--help", "-h"]:
         return handle_command_line_query("help")
+    
+    # Check for --reset flag
+    if len(sys.argv) > 1 and sys.argv[1] == "--reset":
+        from pathlib import Path
+        
+        # Clear all default config paths
+        config_paths = [
+            Path.home() / '.ask' / 'config.yml',
+            Path.home() / '.ask' / 'config.yaml',
+            Path.home() / '.ask' / 'config.json',
+            Path.cwd() / '.ask.yml',
+            Path.cwd() / '.ask.yaml',
+            Path.cwd() / '.ask.json',
+        ]
+        
+        removed_files = []
+        for path in config_paths:
+            if path.exists():
+                try:
+                    path.unlink()
+                    removed_files.append(str(path))
+                except Exception as e:
+                    print_error(f"Failed to remove {path}: {e}")
+        
+        if removed_files:
+            print_success("Configuration reset successfully. Removed:")
+            for file in removed_files:
+                print(f"  - {file}")
+        else:
+            print_info("No configuration files found to remove.")
+        
+        return 0
     
     # Check for command line arguments
     if len(sys.argv) > 1:
