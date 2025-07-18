@@ -202,5 +202,4 @@ class InteractiveMode:
                     break
             except (KeyboardInterrupt, EOFError):
                 save_conversation_state(self.message_history)
-                print("\nExiting...")
                 break
