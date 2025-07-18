@@ -215,7 +215,12 @@ class InteractiveMode:
 
     def run(self):
         """Run the interactive mode main loop"""
-        print(OutputFormatter.format_header("Claude", level=1))
+        try:
+            from ..build_info import BUILD_TIME
+            header_text = f"Claude: Built {BUILD_TIME}"
+        except ImportError:
+            header_text = "Claude"
+        print(OutputFormatter.format_header(header_text, level=1))
         #print(f"Type {Colors.CYAN}help{Colors.RESET} to see available commands")
         
         while True:

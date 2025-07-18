@@ -7,6 +7,7 @@ import sys
 import subprocess
 import os
 import importlib.util
+import datetime
 
 def check_and_install_dependencies():
     """Check if required dependencies are installed, install if missing"""
@@ -57,6 +58,12 @@ def check_and_install_dependencies():
     return True
 
 if __name__ == "__main__":
+    # Update build time
+    build_info_path = os.path.join(os.path.dirname(__file__), 'ai', 'build_info.py')
+    with open(build_info_path, 'w') as f:
+        f.write('"""Build information for PyClaudeCli"""\n\n')
+        f.write(f'BUILD_TIME = "{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"\n')
+    
     # Check and install dependencies before importing
     if not check_and_install_dependencies():
         sys.exit(1)
