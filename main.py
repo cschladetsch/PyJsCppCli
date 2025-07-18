@@ -70,4 +70,15 @@ if __name__ == "__main__":
     
     # Import after dependencies are installed
     from ai.cli import main
+    from ai.utils.config_loader import ConfigLoader
+    from pathlib import Path
+    
+    # Check if this is first run (config directory doesn't exist)
+    config_dir = Path.home() / ".config" / "claude"
+    if not config_dir.exists():
+        print("\nFirst run detected. Setting up configuration...")
+        ConfigLoader.create_default_configs()
+        print(f"Created configuration files in {config_dir}")
+        print("You can customize your settings by editing files in that directory.\n")
+    
     sys.exit(main())

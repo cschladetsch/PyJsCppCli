@@ -193,6 +193,51 @@ You can provide your Claude API key in either of two ways:
    echo "your-api-key-here" > ~/.claude_token
    ```
 
+### Configuration Directory
+
+Claude CLI uses `~/.config/claude/` for user customization. To create default configuration files:
+
+```bash
+ask --init-config
+```
+
+This creates the following files:
+
+| File | Purpose |
+|------|---------|
+| `~/.config/claude/system` | Custom system prompt |
+| `~/.config/claude/conversations.json` | Conversation history (auto-managed) |
+| `~/.config/claude/aliases.json` | Command aliases |
+| `~/.config/claude/models.json` | Model preferences and settings |
+| `~/.config/claude/templates.json` | Response templates |
+
+#### Custom System Prompt
+
+Edit `~/.config/claude/system` to customize Claude's behavior:
+
+```bash
+echo "You are a helpful coding assistant specializing in Python" > ~/.config/claude/system
+```
+
+#### Model Preferences
+
+Edit `~/.config/claude/models.json` to configure:
+- Default model
+- Conversation load timeout (default: 3.0 seconds)
+- Temperature and max tokens
+
+Example:
+```json
+{
+  "default": "claude-3-sonnet-20240229",
+  "conversation_load_timeout": 5.0,
+  "preferences": {
+    "temperature": 0.7,
+    "max_tokens": 4096
+  }
+}
+```
+
 ### Data Storage
 
 The CLI maintains several files:
@@ -200,11 +245,11 @@ The CLI maintains several files:
 | File | Purpose |
 |------|---------|
 | `~/.ask_history` | Command history |
-| `~/.ask_conversation_state.json` | Conversation state |
+| `~/.config/claude/conversations.json` | Conversation state |
 | `~/.ask_uploads` | Temporary cache for uploaded files |
 | `~/.ask_token` | API token (if not using environment variable) |
 
-Legacy paths with `.claude_` prefix are also supported for backward compatibility.
+Legacy paths are supported for backward compatibility.
 
 ## Advanced Usage
 

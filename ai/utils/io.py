@@ -7,6 +7,9 @@ import json
 import mimetypes
 import glob
 import base64
+import time
+import threading
+from pathlib import Path
 from ..constants import (
     TOKEN_FILE, LEGACY_TOKEN_FILE,
     CONVERSATION_STATE_FILE, LEGACY_CONVERSATION_STATE_FILE,
@@ -35,12 +38,63 @@ def read_token():
             
     raise FileNotFoundError("Token file not found and 'CLAUDE_API_KEY' environment variable is not set.")
 
+def load_conversation_state_with_timeout(timeout=3.0):
+    """
+    Load conversation history with a configurable timeout.
+    Returns loaded interactions or empty list if timeout exceeded.
+    """
+    result = []
+    exception = None
+    
+    def load_state():
+        nonlocal result, exception
+        try:
+            result = load_conversation_state()
+        except Exception as e:
+            exception = e
+    
+    thread = threading.Thread(target=load_state)
+    thread.start()
+    thread.join(timeout)
+    
+    if thread.is_alive():
+        # Timeout exceeded
+        return []
+    
+    if exception:
+        raise exception
+    
+    return result
+
 def load_conversation_state():
     """
     Load conversation history from state file.
-    Checks both new and legacy file paths.
+    First checks ~/.config/claude/conversations.json, then legacy locations.
     Returns a list of Interaction objects.
     """
+    # Check new config directory first
+    config_dir = Path.home() / ".config" / "claude"
+    config_file = config_dir / "conversations.json"
+    
+    if config_file.exists():
+        try:
+            with open(config_file, 'r') as f:
+                data = json.load(f)
+                # Handle new format (list of interaction dicts)
+                if data and isinstance(data[0], dict) and 'query' in data[0]:
+                    return [Interaction.from_dict(item) for item in data]
+                # Handle legacy format (alternating messages)
+                else:
+                    interactions = []
+                    for i in range(0, len(data), 2):
+                        if i+1 < len(data):
+                            query = data[i].get("content", "") if isinstance(data[i], dict) else str(data[i])
+                            response = data[i+1].get("content", "") if isinstance(data[i+1], dict) else str(data[i+1])
+                            interactions.append(Interaction(query, response))
+                    return interactions
+        except (json.JSONDecodeError, KeyError, IndexError) as e:
+            # Continue to check other locations
+            pass
     # Check new location first
     if os.path.exists(CONVERSATION_STATE_FILE):
         try:
@@ -81,12 +135,26 @@ def load_conversation_state():
     return []
 
 def save_conversation_state(interactions):
-    """Save conversation history to state file"""
+    """Save conversation history to state file in ~/.config/claude/"""
+    # Ensure config directory exists
+    config_dir = Path.home() / ".config" / "claude"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    config_file = config_dir / "conversations.json"
+    
     # Convert Interaction objects to dictionaries
     data = [interaction.to_dict() for interaction in interactions]
-    # Save to new location
-    with open(CONVERSATION_STATE_FILE, 'w') as f:
+    
+    # Save to config directory
+    with open(config_file, 'w') as f:
         json.dump(data, f, indent=2)
+    
+    # Also save to legacy location for backward compatibility
+    try:
+        with open(CONVERSATION_STATE_FILE, 'w') as f:
+            json.dump(data, f, indent=2)
+    except:
+        # Ignore errors saving to legacy location
+        pass
 
 def append_to_conversation_log(interaction):
     """

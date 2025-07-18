@@ -157,6 +157,7 @@ def main():
         print("  --help, -h                   - Show this help")
         print("  --version, -v                - Show version information")
         print("  --reset                      - Reset configuration to defaults")
+        print("  --init-config                - Create default config files in ~/.config/claude/")
         print("  --model MODEL                - Specify Claude model to use")
         print("  --no-spinner                 - Disable loading spinner")
         print("  --json                       - Output response in JSON format")
@@ -187,6 +188,18 @@ def main():
             print(f"Built: {BUILD_DATE}")
         except ImportError:
             print("Version: Development")
+        return 0
+    
+    # Check for --init-config flag
+    if "--init-config" in sys.argv:
+        from .utils.config_loader import ConfigLoader
+        ConfigLoader.create_default_configs()
+        print_success(f"Created default configuration files in {ConfigLoader.CONFIG_DIR}")
+        print("\nConfiguration files created:")
+        print(f"  - {ConfigLoader.CONFIG_DIR}/system          - Custom system prompt")
+        print(f"  - {ConfigLoader.CONFIG_DIR}/aliases.json    - Command aliases")
+        print(f"  - {ConfigLoader.CONFIG_DIR}/models.json     - Model preferences")
+        print(f"  - {ConfigLoader.CONFIG_DIR}/templates.json  - Response templates")
         return 0
     
     # Check for --reset flag

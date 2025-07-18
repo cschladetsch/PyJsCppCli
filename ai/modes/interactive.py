@@ -19,6 +19,7 @@ from ..utils.output_formatter import (
 )
 from ..utils.io import (
     load_conversation_state, 
+    load_conversation_state_with_timeout,
     save_conversation_state, 
     prepare_files_for_upload, 
     resolve_file_paths,
@@ -28,6 +29,7 @@ from ..constants import RESPONSE_INTROS
 from ..api.client import ClaudeClient
 from ..constants import HISTORY_FILE, DEFAULT_SYSTEM_PROMPT, UPLOAD_CACHE_DIR
 from ..models import Interaction
+from ..utils.config_loader import ConfigLoader
 
 def setup_key_bindings():
     """Set up vim-style key bindings"""
@@ -44,9 +46,15 @@ class InteractiveMode:
     """Interactive command mode for Claude AI"""
     
     def __init__(self):
-        self.system_prompt = DEFAULT_SYSTEM_PROMPT
+        # Load custom system prompt or use default
+        custom_prompt = ConfigLoader.get_system_prompt()
+        self.system_prompt = custom_prompt if custom_prompt else DEFAULT_SYSTEM_PROMPT
         self.client = ClaudeClient()
-        self.interactions = load_conversation_state()
+        
+        # Load conversation history with timeout from config
+        model_prefs = ConfigLoader.get_model_preferences()
+        load_timeout = model_prefs.get('conversation_load_timeout', 3.0)
+        self.interactions = load_conversation_state_with_timeout(timeout=load_timeout)
         self.session = PromptSession(
             history=FileHistory(HISTORY_FILE),
             key_bindings=setup_key_bindings(),
