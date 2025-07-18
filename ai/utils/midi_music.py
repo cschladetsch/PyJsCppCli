@@ -37,10 +37,14 @@ class MidiMusicGenerator:
         """Analyze input/output to determine musical parameters"""
         combined_text = f"{input_text} {output_text}".lower()
         
-        # Check if this is an error response first
+        # Check if this is an error or success response first
         if output_text.lower() == 'error':
             mood = 'error'  # Minor key for errors
-        else:
+        elif output_text.lower().startswith('success:'):
+            # For successful responses, analyze the content after SUCCESS:
+            content = output_text[8:].lower()  # Skip "SUCCESS:"
+            combined_text = f"{input_text} {content}".lower()
+            
             # Determine mood based on keywords for successful responses
             mood = 'success'  # Default to major key for success
             if any(word in combined_text for word in ['happy', 'great', 'awesome', 'love', 'excellent']):
@@ -53,6 +57,9 @@ class MidiMusicGenerator:
                 mood = 'technical'
             elif any(word in combined_text for word in ['create', 'design', 'art', 'music', 'build']):
                 mood = 'creative'
+        else:
+            # Fallback to thoughtful (minor) if we can't determine
+            mood = 'thoughtful'
         
         # Determine tempo based on text length and energy
         text_length = len(combined_text)

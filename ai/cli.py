@@ -105,7 +105,7 @@ def handle_command_line_query(query: str, no_spinner: bool = False, json_output:
         try:
             from .utils.music import MusicPlayer
             if MusicPlayer.is_enabled():
-                MusicPlayer.play_progression(input_text=query, output_text=reply[:100])
+                MusicPlayer.play_progression(input_text=query, output_text=f"SUCCESS: {reply[:100]}")
         except:
             pass
         
@@ -184,6 +184,7 @@ def main():
         print("  --no-spinner                 - Disable loading spinner")
         print("  --json                       - Output response in JSON format")
         print("  --config PATH                - Specify config file path")
+        print("  --playsong                   - Play the entire accumulated MIDI song")
         print("\nCommands (in interactive mode or as query):")
         print("  help, ?                      - Show help")
         print("  clear                        - Clear conversation history")
@@ -278,6 +279,17 @@ def main():
                 print(f"Current music volume: {current_volume:.1f}")
         except ValueError:
             print_error("Invalid volume value. Must be a number between 0.0 and 1.0")
+        return 0
+    
+    # Check for --playsong flag
+    if "--playsong" in sys.argv:
+        from .utils.music import MusicPlayer
+        print("Playing accumulated MIDI song...")
+        result = MusicPlayer.play_midi_file()
+        if result:
+            print_success(f"Played MIDI song using {result['method']}")
+        else:
+            print_error("Failed to play MIDI song. Check if music.mid exists and audio is available.")
         return 0
     
     # Check for --reset flag

@@ -103,8 +103,21 @@ class MusicPlayer:
         played = False
         method = None
         
-        # If WSL2, try Windows audio methods
-        if cls._is_wsl2():
+        # Try SDL2 first for best cross-platform volume control
+        try:
+            if cls._play_with_sdl2(progression, volume):
+                played = True
+                method = "sdl2"
+        except Exception as e:
+            # SDL2 failed, continue to next method
+            pass
+        
+        # Try PulseAudio (works well in WSL2 with WSLg)
+        if not played and cls._play_with_pulseaudio(progression, volume):
+            played = True
+            method = "pulseaudio"
+        # If WSL2 and above fails, try Windows audio methods
+        elif cls._is_wsl2():
             if cls._play_with_windows_audio(progression, volume):
                 played = True
                 method = "windows-audio"
@@ -174,6 +187,236 @@ class MusicPlayer:
             return False
     
     @classmethod
+    def _play_with_pulseaudio(cls, progression: List[tuple], volume: float) -> bool:
+        """Try to play using PulseAudio (for WSL2 with WSLg)"""
+        try:
+            import tempfile
+            import wave
+            import numpy as np
+            
+            # Check if paplay exists
+            result = subprocess.run(['which', 'paplay'], capture_output=True)
+            if result.returncode != 0:
+                return False
+            
+            # Create a temporary WAV file
+            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+                temp_filename = temp_file.name
+                
+                # Generate continuous audio stream with overlapping notes
+                sample_rate = 44100
+                
+                # Calculate total duration with overlaps
+                overlap_duration = 0.5  # 500ms overlap between notes (much longer)
+                overlap_samples = int(overlap_duration * sample_rate)
+                
+                # Calculate total duration - just use the full duration without subtracting overlaps
+                total_duration_ms = sum(duration for _, duration in progression)
+                total_samples = int(sample_rate * total_duration_ms / 1000)
+                
+                # Create continuous audio buffer
+                audio_data = np.zeros(total_samples)
+                
+                # Track current position in the audio buffer
+                current_pos = 0
+                
+                # Generate each note with significant overlap for smooth blending
+                for i, (freq, duration_ms) in enumerate(progression):
+                    # Make notes longer and slower
+                    extended_duration_ms = duration_ms * 2  # Double the duration
+                    num_samples = int(sample_rate * extended_duration_ms / 1000)
+                    t = np.linspace(0, extended_duration_ms / 1000, num_samples, False)
+                    
+                    # Generate smoother sine wave with subtle harmonics
+                    fundamental = np.sin(2 * np.pi * freq * t)
+                    second_harmonic = 0.1 * np.sin(2 * np.pi * freq * 2 * t)
+                    third_harmonic = 0.03 * np.sin(2 * np.pi * freq * 3 * t)
+                    wave_data = fundamental + second_harmonic + third_harmonic
+                    
+                    # Normalize to prevent clipping
+                    max_val = np.max(np.abs(wave_data))
+                    if max_val > 0:
+                        wave_data = wave_data / max_val
+                    
+                    # Create smooth blending envelope
+                    envelope = np.ones(num_samples)
+                    
+                    # Long fade in (except first note) for smooth blending
+                    if i > 0:
+                        fade_in_samples = overlap_samples
+                        if fade_in_samples > 0:
+                            fade_in_samples = min(fade_in_samples, num_samples)
+                            # Use very smooth exponential curve
+                            fade_curve = np.linspace(0, 1, fade_in_samples)
+                            envelope[:fade_in_samples] = 1 - np.exp(-3 * fade_curve)
+                    
+                    # Long fade out (except last note) for smooth blending
+                    if i < len(progression) - 1:
+                        fade_out_samples = overlap_samples
+                        if fade_out_samples > 0:
+                            fade_out_samples = min(fade_out_samples, num_samples)
+                            # Use very smooth exponential curve
+                            fade_curve = np.linspace(0, 1, fade_out_samples)
+                            envelope[-fade_out_samples:] = np.exp(-3 * fade_curve)
+                    
+                    # Apply envelope and volume
+                    wave_data = wave_data * envelope * volume * 0.3  # Much lower volume to prevent clipping when mixing
+                    
+                    # Calculate position in buffer (with overlap)
+                    if i == 0:
+                        start_pos = 0
+                    else:
+                        start_pos = current_pos - overlap_samples
+                        if start_pos < 0:
+                            start_pos = 0
+                    
+                    # Add to continuous audio buffer with mixing
+                    end_pos = min(start_pos + num_samples, total_samples)
+                    actual_samples = end_pos - start_pos
+                    if start_pos >= 0 and actual_samples > 0:
+                        audio_data[start_pos:end_pos] += wave_data[:actual_samples]
+                    
+                    # Update position for next note (ensure forward progress)
+                    note_spacing = num_samples - overlap_samples
+                    if note_spacing <= 0:
+                        note_spacing = num_samples // 2  # Ensure some spacing
+                    current_pos += note_spacing
+                
+                # Apply efficient smoothing using numpy convolution
+                # Simple but effective smoothing kernel
+                kernel = np.array([0.1, 0.2, 0.4, 0.2, 0.1])
+                audio_data = np.convolve(audio_data, kernel, mode='same')
+                
+                # Add bass and snare drums
+                beat_duration = 0.5  # 500ms per beat
+                beat_samples = int(beat_duration * sample_rate)
+                
+                # Generate bass drum (low frequency thump)
+                bass_freq = 60  # 60Hz bass
+                bass_duration = 0.15  # 150ms
+                bass_samples = int(bass_duration * sample_rate)
+                bass_t = np.linspace(0, bass_duration, bass_samples, False)
+                bass_wave = np.sin(2 * np.pi * bass_freq * bass_t) * np.exp(-bass_t * 8)  # Quick decay
+                
+                # Generate better snare drum (layered sound)
+                snare_duration = 0.15  # 150ms
+                snare_samples = int(snare_duration * sample_rate)
+                snare_t = np.linspace(0, snare_duration, snare_samples, False)
+                
+                # Layer 1: High frequency noise (snare wire sound)
+                noise = np.random.uniform(-1, 1, snare_samples)
+                # Apply band-pass filter effect by emphasizing mid-high frequencies
+                noise_filtered = noise * (1 + 0.5 * np.sin(2 * np.pi * 200 * snare_t))
+                
+                # Layer 2: Drum body resonance (tuned percussion)
+                body_freq = 200  # 200Hz resonance
+                body_wave = np.sin(2 * np.pi * body_freq * snare_t) * 0.4
+                
+                # Layer 3: Sharp attack transient
+                attack_wave = np.sin(2 * np.pi * 2000 * snare_t) * 0.2
+                
+                # Combine layers
+                snare_wave = noise_filtered + body_wave + attack_wave
+                
+                # Apply realistic envelope (fast attack, medium decay)
+                envelope = np.exp(-snare_t * 12)  # Faster decay
+                envelope[:int(0.005 * sample_rate)] = 1  # Sharp attack for first 5ms
+                
+                snare_wave = snare_wave * envelope
+                
+                # Add drums to the mix with varying time signatures
+                current_beat = 0
+                bar_count = 0
+                
+                while current_beat * beat_samples < len(audio_data):
+                    beat_pos = current_beat * beat_samples
+                    
+                    # Determine time signature based on bar
+                    if bar_count % 3 == 0:
+                        # 3/4 time (waltz pattern)
+                        beats_per_bar = 3
+                        # Bass on beat 1, snare on beat 3
+                        if current_beat % beats_per_bar == 0:
+                            end_pos = min(beat_pos + bass_samples, len(audio_data))
+                            actual_bass_samples = end_pos - beat_pos
+                            if actual_bass_samples > 0:
+                                audio_data[beat_pos:end_pos] += bass_wave[:actual_bass_samples] * 0.3
+                        elif current_beat % beats_per_bar == 2:
+                            end_pos = min(beat_pos + snare_samples, len(audio_data))
+                            actual_snare_samples = end_pos - beat_pos
+                            if actual_snare_samples > 0:
+                                audio_data[beat_pos:end_pos] += snare_wave[:actual_snare_samples] * 0.2
+                    
+                    elif bar_count % 3 == 1:
+                        # 5/4 time (complex pattern)
+                        beats_per_bar = 5
+                        # Bass on beats 1 and 4, snare on beats 2 and 5
+                        if current_beat % beats_per_bar == 0 or current_beat % beats_per_bar == 3:
+                            end_pos = min(beat_pos + bass_samples, len(audio_data))
+                            actual_bass_samples = end_pos - beat_pos
+                            if actual_bass_samples > 0:
+                                audio_data[beat_pos:end_pos] += bass_wave[:actual_bass_samples] * 0.3
+                        elif current_beat % beats_per_bar == 1 or current_beat % beats_per_bar == 4:
+                            end_pos = min(beat_pos + snare_samples, len(audio_data))
+                            actual_snare_samples = end_pos - beat_pos
+                            if actual_snare_samples > 0:
+                                audio_data[beat_pos:end_pos] += snare_wave[:actual_snare_samples] * 0.2
+                    
+                    else:
+                        # 7/8 time (irregular pattern)
+                        beats_per_bar = 7
+                        # Bass on beats 1, 3, 6, snare on beats 2, 5, 7
+                        if current_beat % beats_per_bar == 0 or current_beat % beats_per_bar == 2 or current_beat % beats_per_bar == 5:
+                            end_pos = min(beat_pos + bass_samples, len(audio_data))
+                            actual_bass_samples = end_pos - beat_pos
+                            if actual_bass_samples > 0:
+                                audio_data[beat_pos:end_pos] += bass_wave[:actual_bass_samples] * 0.3
+                        elif current_beat % beats_per_bar == 1 or current_beat % beats_per_bar == 4 or current_beat % beats_per_bar == 6:
+                            end_pos = min(beat_pos + snare_samples, len(audio_data))
+                            actual_snare_samples = end_pos - beat_pos
+                            if actual_snare_samples > 0:
+                                audio_data[beat_pos:end_pos] += snare_wave[:actual_snare_samples] * 0.2
+                    
+                    current_beat += 1
+                    
+                    # Update bar count based on current time signature
+                    if bar_count % 3 == 0 and current_beat % 3 == 0:
+                        bar_count += 1
+                    elif bar_count % 3 == 1 and current_beat % 5 == 0:
+                        bar_count += 1
+                    elif bar_count % 3 == 2 and current_beat % 7 == 0:
+                        bar_count += 1
+                
+                # Apply gentle limiting to prevent clipping
+                max_val = np.max(np.abs(audio_data))
+                if max_val > 0.2:
+                    audio_data = audio_data / max_val * 0.2
+                
+                # Final soft limiting with doubled volume
+                audio_data = np.tanh(audio_data) * 1.6  # Double the volume
+                
+                # Convert to 16-bit PCM
+                audio_int16 = (audio_data * 32767).astype(np.int16)
+                
+                # Write WAV file
+                with wave.open(temp_filename, 'wb') as wav_file:
+                    wav_file.setnchannels(1)
+                    wav_file.setsampwidth(2)
+                    wav_file.setframerate(sample_rate)
+                    wav_file.writeframes(audio_int16.tobytes())
+            
+            # Play using paplay (no timeout for long songs)
+            subprocess.run(['paplay', temp_filename], capture_output=True)
+            
+            # Clean up
+            os.unlink(temp_filename)
+            return True
+            
+        except Exception as e:
+            print(f"PulseAudio error: {e}")
+            return False
+    
+    @classmethod
     def _play_with_speaker_test(cls, progression: List[tuple], volume: float) -> bool:
         """Try to play using speaker-test (fallback)"""
         try:
@@ -214,35 +457,72 @@ class MusicPlayer:
         try:
             # Create a PowerShell script that uses Windows audio
             # Convert volume from 0-1 to 0-127 for amplitude
-            amplitude = int(127 * volume)
+            # Use square root for more perceptible volume changes
+            amplitude = int(127 * (volume ** 0.5))
             ps_script = f"""
 Add-Type -TypeDefinition @'
 using System;
 using System.Media;
 using System.IO;
 public class TonePlayer {{
-    public static void PlayTone(int frequency, int duration, int amplitude) {{
+    public static void PlayTone(int frequency, int duration, double volume) {{
         using (var stream = new MemoryStream()) {{
             var writer = new BinaryWriter(stream);
-            // Write WAV header
+            int sampleRate = 44100;
+            int numSamples = duration * sampleRate / 1000;
+            short bitsPerSample = 16;
+            short channels = 1;
+            int byteRate = sampleRate * channels * bitsPerSample / 8;
+            
+            // Write WAV header for 16-bit audio
             writer.Write("RIFF".ToCharArray());
-            writer.Write(36 + duration * 44100 / 1000);
+            writer.Write(36 + numSamples * 2); // 2 bytes per sample
             writer.Write("WAVE".ToCharArray());
             writer.Write("fmt ".ToCharArray());
-            writer.Write(16);
-            writer.Write((short)1);
-            writer.Write((short)1);
-            writer.Write(44100);
-            writer.Write(44100);
-            writer.Write((short)1);
-            writer.Write((short)8);
+            writer.Write(16); // fmt chunk size
+            writer.Write((short)1); // PCM format
+            writer.Write(channels);
+            writer.Write(sampleRate);
+            writer.Write(byteRate);
+            writer.Write((short)(channels * bitsPerSample / 8)); // block align
+            writer.Write(bitsPerSample);
             writer.Write("data".ToCharArray());
-            writer.Write(duration * 44100 / 1000);
+            writer.Write(numSamples * 2); // data size in bytes
             
-            // Generate sine wave with volume control
-            for (int i = 0; i < duration * 44100 / 1000; i++) {{
-                double angle = ((double)i / 44100) * frequency * 2 * Math.PI;
-                writer.Write((byte)(128 + amplitude * Math.Sin(angle)));
+            // Generate 16-bit sine wave with ADSR envelope
+            double attackTime = 0.01; // 10ms attack
+            double decayTime = 0.05;  // 50ms decay
+            double sustainLevel = 0.8; // 80% sustain level
+            double releaseTime = 0.1;  // 100ms release
+            
+            int attackSamples = (int)(attackTime * sampleRate);
+            int decaySamples = (int)(decayTime * sampleRate);
+            int releaseSamples = (int)(releaseTime * sampleRate);
+            int sustainSamples = numSamples - attackSamples - decaySamples - releaseSamples;
+            if (sustainSamples < 0) sustainSamples = 0;
+            
+            for (int i = 0; i < numSamples; i++) {{
+                double angle = ((double)i / sampleRate) * frequency * 2 * Math.PI;
+                double envelope = 1.0;
+                
+                if (i < attackSamples) {{
+                    // Attack phase
+                    envelope = (double)i / attackSamples;
+                }} else if (i < attackSamples + decaySamples) {{
+                    // Decay phase
+                    int decayIndex = i - attackSamples;
+                    envelope = 1.0 - ((1.0 - sustainLevel) * decayIndex / decaySamples);
+                }} else if (i < attackSamples + decaySamples + sustainSamples) {{
+                    // Sustain phase
+                    envelope = sustainLevel;
+                }} else {{
+                    // Release phase
+                    int releaseIndex = i - attackSamples - decaySamples - sustainSamples;
+                    envelope = sustainLevel * (1.0 - (double)releaseIndex / releaseSamples);
+                }}
+                
+                short sample = (short)(32767 * volume * envelope * Math.Sin(angle));
+                writer.Write(sample);
             }}
             
             stream.Position = 0;
@@ -256,12 +536,136 @@ public class TonePlayer {{
 
 """
             for freq, duration in progression:
-                ps_script += f"[TonePlayer]::PlayTone({int(freq)}, {duration}, {amplitude})\n"
+                ps_script += f"[TonePlayer]::PlayTone({int(freq)}, {duration}, {volume})\n"
             
             cmd = ['powershell.exe', '-Command', ps_script]
             subprocess.run(cmd, capture_output=True, timeout=10)
             return True
         except:
+            return False
+    
+    @classmethod
+    def _play_with_sdl2(cls, progression: List[tuple], volume: float) -> bool:
+        """Try to play using SDL2 for better cross-platform audio"""
+        try:
+            # Try to set SDL2 DLL path for different platforms
+            import os
+            import platform
+            
+            # Common SDL2 library paths
+            if platform.system() == "Linux":
+                # Try common Linux paths
+                sdl2_paths = [
+                    "/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0",
+                    "/usr/lib/libSDL2-2.0.so.0",
+                    "/usr/local/lib/libSDL2-2.0.so.0"
+                ]
+                for path in sdl2_paths:
+                    if os.path.exists(path):
+                        os.environ["PYSDL2_DLL_PATH"] = os.path.dirname(path)
+                        break
+            
+            import sdl2
+            import sdl2.ext
+            import numpy as np
+            import struct
+            
+            # Initialize SDL2 audio
+            sdl2.SDL_Init(sdl2.SDL_INIT_AUDIO)
+            
+            # Audio specs
+            sample_rate = 44100
+            channels = 1
+            samples = 2048
+            
+            # Generate audio data for all notes
+            audio_data = bytearray()
+            
+            for freq, duration_ms in progression:
+                # Calculate number of samples
+                num_samples = int(sample_rate * duration_ms / 1000)
+                
+                # Generate sine wave
+                t = np.linspace(0, duration_ms / 1000, num_samples, False)
+                wave = np.sin(2 * np.pi * freq * t)
+                
+                # Apply ADSR envelope for smooth blending
+                attack_time = 0.01  # 10ms
+                decay_time = 0.05   # 50ms
+                sustain_level = 0.8 # 80%
+                release_time = 0.1  # 100ms
+                
+                attack_samples = int(attack_time * sample_rate)
+                decay_samples = int(decay_time * sample_rate)
+                release_samples = int(release_time * sample_rate)
+                sustain_samples = num_samples - attack_samples - decay_samples - release_samples
+                if sustain_samples < 0:
+                    sustain_samples = 0
+                
+                # Create envelope
+                envelope = np.ones(num_samples)
+                
+                # Attack
+                if attack_samples > 0:
+                    envelope[:attack_samples] = np.linspace(0, 1, attack_samples)
+                
+                # Decay
+                if decay_samples > 0:
+                    start = attack_samples
+                    end = start + decay_samples
+                    envelope[start:end] = np.linspace(1, sustain_level, decay_samples)
+                
+                # Sustain
+                if sustain_samples > 0:
+                    start = attack_samples + decay_samples
+                    end = start + sustain_samples
+                    envelope[start:end] = sustain_level
+                
+                # Release
+                if release_samples > 0:
+                    start = attack_samples + decay_samples + sustain_samples
+                    envelope[start:] = np.linspace(sustain_level, 0, min(release_samples, num_samples - start))
+                
+                # Apply envelope and volume
+                wave = wave * envelope * volume
+                
+                # Convert to 16-bit signed integer
+                wave_int16 = (wave * 32767).astype(np.int16)
+                
+                # Add to audio data
+                audio_data.extend(wave_int16.tobytes())
+            
+            # Define audio spec
+            audio_spec = sdl2.SDL_AudioSpec(
+                sample_rate,  # freq
+                sdl2.AUDIO_S16SYS,  # format
+                channels,  # channels
+                samples,  # samples
+                None,  # callback (we'll use SDL_QueueAudio)
+                None   # userdata
+            )
+            
+            # Open audio device
+            device = sdl2.SDL_OpenAudioDevice(None, 0, audio_spec, None, 0)
+            if device == 0:
+                return False
+            
+            # Queue and play audio
+            sdl2.SDL_QueueAudio(device, audio_data, len(audio_data))
+            sdl2.SDL_PauseAudioDevice(device, 0)  # Start playing
+            
+            # Wait for audio to finish
+            while sdl2.SDL_GetQueuedAudioSize(device) > 0:
+                sdl2.SDL_Delay(100)
+            
+            # Clean up
+            sdl2.SDL_CloseAudioDevice(device)
+            sdl2.SDL_Quit()
+            
+            return True
+            
+        except Exception as e:
+            print(f"SDL2 audio error: {e}")
             return False
     
     @classmethod
@@ -289,7 +693,7 @@ public class TonePlayer {{
         
         # Generate progression based on bar length
         progression = []
-        beat_duration = 60000 // midi_context['tempo'] // 4 // 2  # ms per beat (2x speed)
+        beat_duration = 60000 // midi_context['tempo'] // 4  # ms per beat (normal speed)
         
         for i in range(bar_length):
             # Pick frequency based on text content
@@ -374,3 +778,148 @@ public class TonePlayer {{
             except:
                 return []
         return []
+    
+    @classmethod
+    def play_midi_file(cls) -> Optional[Dict]:
+        """Play the entire accumulated MIDI file"""
+        from .midi_music import MidiMusicGenerator
+        
+        midi_path = MidiMusicGenerator.MIDI_FILE_PATH
+        if not midi_path.exists():
+            return None
+        
+        # Get volume setting
+        volume = cls.get_volume()
+        
+        # Parse MIDI file to extract all tracks
+        tracks = MidiMusicGenerator.parse_midi_file(midi_path)
+        if not tracks:
+            return None
+        
+        # Convert MIDI tracks to playable progression
+        # This is a simplified approach - we'll play all notes sequentially
+        progression = cls._midi_tracks_to_progression(tracks)
+        
+        if not progression:
+            return None
+        
+        # Try to play using different methods
+        played = False
+        method = None
+        
+        # Try SDL2 first for best cross-platform volume control
+        try:
+            if cls._play_with_sdl2(progression, volume):
+                played = True
+                method = "sdl2"
+        except Exception as e:
+            # SDL2 failed, continue to next method
+            pass
+        
+        # Try PulseAudio (works well in WSL2 with WSLg)
+        if not played and cls._play_with_pulseaudio(progression, volume):
+            played = True
+            method = "pulseaudio"
+        # If WSL2 and above fails, try Windows audio methods
+        elif cls._is_wsl2():
+            if cls._play_with_windows_audio(progression, volume):
+                played = True
+                method = "windows-audio"
+            elif cls._play_with_powershell(progression, volume):
+                played = True
+                method = "powershell"
+        # Method 1: Try using sox (play command)
+        elif cls._play_with_sox(progression, volume):
+            played = True
+            method = "sox"
+        # Method 2: Try using beep command
+        elif cls._play_with_beep(progression, volume):
+            played = True
+            method = "beep"
+        # Method 3: Try using speaker-test
+        elif cls._play_with_speaker_test(progression, volume):
+            played = True
+            method = "speaker-test"
+        
+        if played:
+            return {"method": method, "notes": len(progression)}
+        
+        return None
+    
+    @classmethod
+    def _midi_tracks_to_progression(cls, tracks: List[bytes]) -> List[tuple]:
+        """Convert MIDI tracks to a playable progression of (frequency, duration) tuples"""
+        progression = []
+        
+        # MIDI note to frequency conversion
+        def midi_to_freq(midi_note):
+            return 440.0 * (2.0 ** ((midi_note - 69) / 12.0))
+        
+        # Parse each track
+        for track in tracks:
+            if len(track) < 8 or track[:4] != b'MTrk':
+                continue
+            
+            # Skip MTrk header and length
+            pos = 8
+            track_end = len(track)
+            
+            # Default tempo (120 BPM)
+            tempo = 500000  # microseconds per quarter note
+            
+            while pos < track_end - 3:
+                # Read delta time (simplified - assumes single byte)
+                delta_time = track[pos]
+                pos += 1
+                
+                # Read event
+                if pos >= track_end:
+                    break
+                    
+                event = track[pos]
+                pos += 1
+                
+                # Check for tempo change
+                if event == 0xFF and pos + 2 < track_end:
+                    meta_type = track[pos]
+                    meta_length = track[pos + 1]
+                    if meta_type == 0x51 and meta_length == 3 and pos + 5 < track_end:
+                        # Tempo change
+                        tempo = (track[pos + 2] << 16) | (track[pos + 3] << 8) | track[pos + 4]
+                        pos += 5
+                    else:
+                        pos += 2 + meta_length
+                # Note on event
+                elif (event & 0xF0) == 0x90 and pos + 1 < track_end:
+                    note = track[pos]
+                    velocity = track[pos + 1]
+                    pos += 2
+                    
+                    if velocity > 0:  # Note on with velocity > 0
+                        freq = midi_to_freq(note)
+                        # Simplified duration calculation (assume quarter note)
+                        duration_ms = tempo // 1000  # Convert microseconds to milliseconds
+                        progression.append((freq, duration_ms))
+                # Note off event
+                elif (event & 0xF0) == 0x80 and pos + 1 < track_end:
+                    pos += 2  # Skip note and velocity
+                # Other events - skip
+                else:
+                    if event < 0x80:
+                        # Running status - this is data, not an event
+                        pos -= 1
+                    elif event >= 0xC0 and event <= 0xDF:
+                        # Program change or channel pressure - 1 data byte
+                        pos += 1
+                    elif event >= 0x80:
+                        # Most other events have 2 data bytes
+                        pos += 2
+        
+        # Limit progression length to prevent very long playback
+        max_notes = 200
+        if len(progression) > max_notes:
+            # Take a sample from throughout the song
+            step = len(progression) // max_notes
+            progression = progression[::step][:max_notes]
+        
+        return progression
