@@ -216,8 +216,8 @@ class InteractiveMode:
     def run(self):
         """Run the interactive mode main loop"""
         try:
-            from ..build_info import BUILD_TIME
-            header_text = f"Claude: Built {BUILD_TIME}"
+            from ..build_info import BUILD_DATE
+            header_text = f"Claude: Built {BUILD_DATE}"
         except ImportError:
             header_text = "Claude"
         print(OutputFormatter.format_header(header_text, level=1))
