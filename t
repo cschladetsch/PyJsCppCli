@@ -1,22 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Comprehensive test suite for PyClaudeCli Variable System
 
-set -e  # Exit on any error
+# Source common utilities
+source "$(dirname "$0")/scripts/common.sh"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+check_project_root
 
 # Counters
-TESTS_PASSED=0
-TESTS_FAILED=0
-TOTAL_TESTS=0
+declare -i TESTS_PASSED=0
+declare -i TESTS_FAILED=0
+declare -i TOTAL_TESTS=0
 
-echo -e "${BLUE}🧪 PyClaudeCli Variable System Test Suite${NC}"
-echo "=========================================="
+print_header "PyClaudeCli Variable System Test Suite" "Comprehensive testing with 40+ tests"
 
 # Function to run test and track results
 run_test() {
@@ -24,19 +19,19 @@ run_test() {
     local test_command="$2"
     local expected_exit_code="${3:-0}"
     
-    echo -e "\n${YELLOW}📋 Running: $test_name${NC}"
+    show_progress "Running: $test_name"
     echo "Command: $test_command"
     
     if eval "$test_command"; then
-        if [ $? -eq $expected_exit_code ]; then
-            echo -e "${GREEN}✅ PASSED: $test_name${NC}"
+        if [[ $? -eq $expected_exit_code ]]; then
+            log_success "PASSED: $test_name"
             ((TESTS_PASSED++))
         else
-            echo -e "${RED}❌ FAILED: $test_name (wrong exit code)${NC}"
+            log_error "FAILED: $test_name (wrong exit code)"
             ((TESTS_FAILED++))
         fi
     else
-        echo -e "${RED}❌ FAILED: $test_name${NC}"
+        log_error "FAILED: $test_name"
         ((TESTS_FAILED++))
     fi
     ((TOTAL_TESTS++))
@@ -44,7 +39,7 @@ run_test() {
 
 # Function to test variable functionality manually
 test_variable_functionality() {
-    echo -e "\n${YELLOW}🔧 Testing Variable System Functionality${NC}"
+    log_test "Testing Variable System Functionality"
     
     python3 -c "
 import sys

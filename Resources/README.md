@@ -1,6 +1,6 @@
 # Resources Directory
 
-Resource files for PyClaudeCli documentation and assets.
+Resource files for PyClaudeCli documentation, assets, and generated diagrams.
 
 ## Files
 
@@ -9,8 +9,29 @@ Resource files for PyClaudeCli documentation and assets.
 - `Arch.svg` - Architecture diagram (SVG format)
 - `Demo.gif` - Demo animation
 - `Image.jpg` - Sample image
-- `generate_architecture.py` - Script to generate architecture documentation
+
+## Generated Content
+
+This directory also serves as the output location for:
+- **Doxygen diagrams**: `.dot` files converted to PNG format via CMake
+- **Architecture diagrams**: Generated documentation visuals
+- **Build artifacts**: Documentation-related outputs
+
+## Build System Integration
+
+The CMake build system automatically:
+1. **Finds all `.dot` files** throughout the project
+2. **Converts them to PNG** using Graphviz/dot
+3. **Outputs to this directory** for easy access
+4. **Updates on build** - run `./b` to regenerate
+
+### Example Usage
+```bash
+./b                    # Build and generate diagrams
+make docs              # Generate Doxygen documentation (if available)
+make diagrams          # Convert .dot files to PNG in Resources/
+```
 
 ## Description
 
-This directory contains visual assets, documentation resources, and utility scripts used for PyClaudeCli documentation and presentations.
+This directory contains visual assets, documentation resources, utility scripts, and auto-generated diagrams used for PyClaudeCli documentation and presentations. It serves as the central location for all visual documentation elements.

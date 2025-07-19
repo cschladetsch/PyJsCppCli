@@ -1,42 +1,47 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Run script for PyClaudeCli - builds if needed then runs console
 
-set -e  # Exit on any error
+# Source common utilities
+source "$(dirname "$0")/scripts/common.sh"
+
+check_project_root
+
+print_header "PyClaudeCli Run System" "Smart build and console launcher"
 
 # Check if we need to build
-NEED_BUILD=false
+declare NEED_BUILD=false
 
 # Check if build directory exists
-if [ ! -d "build" ]; then
-    echo "📦 Build directory not found, building..."
+if [[ ! -d "build" ]]; then
+    log_info "Build directory not found, building..."
     NEED_BUILD=true
 fi
 
 # Check if any source files are newer than build artifacts
-if [ -d "build" ]; then
-    if [ "ai/utils/variables.py" -nt "build/Makefile" ] || \
-       [ "ai/bindings/variable_api.cpp" -nt "build/Makefile" ] || \
-       [ "CMakeLists.txt" -nt "build/Makefile" ]; then
-        echo "📦 Source files updated, rebuilding..."
+if [[ -d "build" ]]; then
+    if is_newer "ai/utils/variables.py" "build/Makefile" || \
+       is_newer "ai/bindings/variable_api.cpp" "build/Makefile" || \
+       is_newer "CMakeLists.txt" "build/Makefile"; then
+        log_info "Source files updated, rebuilding..."
         NEED_BUILD=true
     fi
 fi
 
 # Build if needed
-if [ "$NEED_BUILD" = true ]; then
-    echo "🔨 Running build script..."
+if [[ "$NEED_BUILD" == "true" ]]; then
+    log_build "Running build script..."
     ./b
 fi
 
-# Check if v8console exists
-if command -v v8console >/dev/null 2>&1; then
-    echo "🚀 Starting v8console..."
+# Check available consoles and start the best one
+if command_exists v8console; then
+    log_run "Starting v8console..."
     v8console
-elif command -v node >/dev/null 2>&1; then
-    echo "🚀 Starting Node.js REPL (v8console not found)..."
+elif command_exists node; then
+    log_run "Starting Node.js REPL (v8console not found)..."
     node
-elif command -v python3 >/dev/null 2>&1; then
-    echo "🚀 Starting Python interactive mode (v8console not found)..."
+elif command_exists python3; then
+    log_run "Starting Python interactive mode (v8console not found)..."
     python3 -c "
 import sys
 sys.path.append('.')
@@ -46,6 +51,6 @@ print('Usage: vm = VariableManager(); vm.process_input(\"name=value\")')
 exec('import code; code.interact(local=globals())')
 "
 else
-    echo "❌ No suitable console found (v8console, node, or python3)"
+    log_error "No suitable console found (v8console, node, or python3)"
     exit 1
 fi
