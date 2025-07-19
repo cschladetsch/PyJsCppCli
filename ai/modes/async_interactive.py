@@ -145,10 +145,11 @@ class AsyncInteractiveMode:
         for i, interaction in enumerate(interactions, 1):
             user_color = theme_config.get_color("user")
             assistant_color = theme_config.get_color("assistant")
+            index_color = theme_config.get_color("index")
             user_short = interaction.query[:50] + "..." if len(interaction.query) > 50 else interaction.query
             assistant_short = interaction.response[:50] + "..." if len(interaction.response) > 50 else interaction.response
             
-            print(f"{Colors.BRIGHT_CYAN}{i}.{Colors.RESET} {user_color}User:{Colors.RESET} {user_short}")
+            print(f"{index_color}{i}.{Colors.RESET} {user_color}User:{Colors.RESET} {user_short}")
             print(f"   {assistant_color}Assistant:{Colors.RESET} {assistant_short}")
             print()
                 

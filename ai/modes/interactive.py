@@ -91,7 +91,8 @@ class InteractiveMode:
             user_short = interaction.query[:50] + "..." if len(interaction.query) > 50 else interaction.query
             user_color = theme_config.get_color("user")
             assistant_color = theme_config.get_color("assistant")
-            print(f"{Colors.BRIGHT_CYAN}{i}.{Colors.RESET} {user_color}User:{Colors.RESET} {user_short}")
+            index_color = theme_config.get_color("index")
+            print(f"{index_color}{i}.{Colors.RESET} {user_color}User:{Colors.RESET} {user_short}")
             assistant_short = interaction.response[:50] + "..." if len(interaction.response) > 50 else interaction.response
             print(f"   {assistant_color}Claude:{Colors.RESET} {assistant_short}")
             print()
