@@ -1,25 +1,25 @@
-# Claude CLI
+# AI CLI
 
-![Claude CLI Demo2](Demo3.gif)
+![CLI Demo2](Demo3.gif)
 
-![Claude CLI Demo](Resources/Demo.gif)
+![CLI Demo](Resources/Demo.gif)
 
-Command-line interface for interacting with Claude AI models.
+Command-line interface for interacting with AI models.
 
 **Version:** 0.3.0 | **Python:** 3.8+ | **License:** MIT
 
 ## Overview
 
-Claude CLI provides a seamless, terminal-based interface to interact with Anthropic's Claude AI models. It combines the power of Claude's advanced reasoning capabilities with the efficiency of a command-line workflow, perfect for developers, researchers, and power users.
+This CLI aapp provides a seamless, terminal-based interface to interact with various models. It combines the power of AI's advanced reasoning capabilities with the efficiency of a command-line workflow, perfect for developers, researchers, and power users.
 
 ## Features
 
-- **Interactive Mode**: Engage in continuous conversations with Claude through a responsive terminal interface
+- **Interactive Mode**: Engage in continuous conversations with AI through a responsive terminal interface
 - **Command-Line Mode**: Quick queries without entering the interactive environment
 - **Variable System**: Persistent variables with simple assignment and interpolation (`name=John`, then use `name`)
 - **Vim-Style Key Bindings**: Familiar navigation and editing for power users
 - **Conversation Management**: Save, view, and clear conversation history
-- **File Upload Support**: Share files with Claude for analysis, with intelligent handling of both text and image files
+- **File Upload Support**: Share files with AI for analysis, with intelligent handling of both text and image files
 - **Rich Terminal UI**: Color-coded output and animated progress indicators
 - **Context Preservation**: Maintain conversation context for more coherent exchanges
 - **C++ API**: Cross-language variable access for integration
@@ -45,18 +45,18 @@ Claude CLI provides a seamless, terminal-based interface to interact with Anthro
 
 ```bash
 # Clone the repository
-git clone https://github.com/cschladetsch/PyClaudeCli.git
-cd PyClaudeCli
+# You have already done this
 
-# Set up your API key
+# Set up your API key: eg:
 echo "your-anthropic-api-key" > ~/.claude_token
 # Or set environment variable: export CLAUDE_API_KEY="your-anthropic-api-key"
+# Or set environment variable: export AI_ENGINE_API_KEY="your-x-api-key"
 
 # Build and test everything
 ./b    # Builds C++ components and runs all tests
 
 # Run the CLI (dependencies will be auto-installed on first run)
-python3 main.py "Hello Claude!"
+python3 main.py "Hello Ai!"
 ```
 
 The application will automatically install required dependencies on first run if they're not already present.
@@ -68,18 +68,18 @@ To use the `ask` command from anywhere in your terminal, add an alias to your sh
 #### For Zsh (`.zshrc`)
 
 ```bash
-echo "alias ask=~/local/repos/PyClaudeCli/main.py" >> ~/.zshrc
+echo "alias ask=~/local/repos/PyCPyJsCppCli/main.py" >> ~/.zshrc
 source ~/.zshrc
 ```
 
 #### For Bash (`.bashrc`)
 
 ```bash
-echo "alias ask=~/local/repos/PyClaudeCli/main.py" >> ~/.bashrc
+echo "alias ask=~/local/repos/PPyJsCppCli/main.py" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-Note: Adjust the path to match where you cloned the repository. The example above assumes the repository is in `~/local/repos/PyClaudeCli/`.
+Note: Adjust the path to match where you cloned the repository. The example above assumes the repository is in `~/local/repos/PyJsCppCli/`.
 
 After setting up the alias, you can use the `ask` command from any directory.
 
@@ -99,7 +99,7 @@ ask [options] [query]
 | `--version`, `-v` | Show version information |
 | `--reset` | Reset configuration to defaults |
 | `--init-config` | Create default config files in ~/.config/claude/ |
-| `--model MODEL` | Specify Claude model to use (e.g., claude-3-opus) |
+| `--model MODEL` | Specify model to use (e.g., claude-3-opus) |
 | `--no-spinner` | Disable loading spinner animation |
 | `--json` | Output response in JSON format |
 | `--config PATH` | Specify custom config file path |
@@ -119,7 +119,7 @@ Launch the interactive mode by running the command without arguments:
 ask
 ```
 
-This opens a prompt where you can chat with Claude continuously. The prompt is displayed as a magenta lambda symbol (λ).
+This opens a prompt where you can chat with Ai continuously. The prompt is displayed as a magenta lambda symbol (λ).
 
 #### Available Commands in Interactive Mode
 
@@ -216,17 +216,17 @@ ask --help
 
 ## File Handling
 
-Claude CLI intelligently handles different file types:
+CLI intelligently handles different file types:
 
-- **Text Files** (markdown, code, txt, etc.): Content is extracted and included directly in the message to Claude
-- **Image Files** (jpeg, png, gif, webp): Sent as attachments via the Claude API
+- **Text Files** (markdown, code, txt, etc.): Content is extracted and included directly in the message to Ai
+- **Image Files** (jpeg, png, gif, webp): Sent as attachments via the AI API
 - **Unsupported Files**: Warning message is displayed, and file is skipped
 
 ## Configuration
 
 ### API Key
 
-You can provide your Claude API key in either of two ways:
+You can provide your AI API key in either of two ways:
 
 1. **Environment Variable**:
    ```bash
@@ -240,7 +240,7 @@ You can provide your Claude API key in either of two ways:
 
 ### Configuration Directory
 
-Claude CLI uses `~/.config/claude/` for user customization. To create default configuration files:
+CLI uses `~/.config/claude/` for user customization. To create default configuration files:
 
 ```bash
 ask --init-config
@@ -259,7 +259,7 @@ This creates the following files:
 
 #### Custom System Prompt
 
-Edit `~/.config/claude/system` to customize Claude's behavior:
+Edit `~/.config/claude/system` to customize AI's behavior:
 
 ```bash
 echo "You are a helpful coding assistant specializing in Python" > ~/.config/claude/system
@@ -380,7 +380,7 @@ make
 
 ### Using with Unix Pipes
 
-Claude CLI works well with Unix pipes, allowing integration into complex workflows:
+AI CLI works well with Unix pipes, allowing integration into complex workflows:
 
 ```bash
 # Analyze the output of a command
@@ -413,26 +413,14 @@ The Ask CLI follows a layered architecture with clear separation of concerns:
 - **Entry Points**: Multiple ways to launch the application
 - **CLI Layer**: Command parsing and routing
 - **Interaction Modes**: Interactive, async, and command-line modes
-- **API Layer**: Claude API integration with connection pooling
+- **API Layer**: AI API integration with connection pooling
 - **Plugin System**: Extensible architecture for custom functionality
 - **Utilities**: Configuration, validation, logging, and streaming support
 
 ## Project Structure
 
 ```
-PyClaudeCli/
-├── main.py                    # Primary entry point
-├── ai/                        # Main package
-│   ├── __main__.py           # Module entry point
-│   ├── cli.py                # CLI handling logic
-│   ├── constants.py          # Configuration constants
-│   ├── models.py             # Data models
-│   ├── api/                  # API clients
-│   │   ├── client.py         # Sync Claude API client
-│   │   └── async_client.py   # Async Claude API client
-│   ├── modes/                # Interaction modes
-│   │   ├── interactive.py    # Interactive mode
-│   │   └── async_interactive.py # Async interactive mode
+py # Async interactive mode
 │   ├── bindings/             # C++ API bindings
 │   │   ├── variable_api.cpp  # C++ variable interface
 │   │   └── CMakeLists.txt    # C++ build configuration
@@ -516,9 +504,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- [Anthropic](https://www.anthropic.com/) for creating Claude
-- The Python community for excellent libraries like prompt_toolkit
+- The Python community for excellent libraries like prompt\_toolkit
 
----
-
-*Made with ❤️ for the Claude community*
