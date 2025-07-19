@@ -88,25 +88,68 @@ class MusicPlayer:
         if not cls.is_enabled():
             return None
             
-        # Generate context-aware MIDI using the same approach as --gen-midi
+        # Generate context-aware MIDI for this interaction only
         from .midi_music import MidiMusicGenerator
-        midi_context = MidiMusicGenerator.generate_and_save(input_text, output_text)
+        midi_context = MidiMusicGenerator.analyze_context(input_text, output_text)
         
-        # Now play the entire MIDI file that was just generated/updated
-        result = cls.play_midi_file()
+        # Generate melody for this interaction
+        melody = MidiMusicGenerator.generate_melody(midi_context)
         
-        if result:
-            # Record in history with MIDI context info
-            history_entry = {
-                "timestamp": datetime.now().isoformat(),
-                "progression": f"{midi_context['mood']} ({midi_context['bar_length']}/4)",
-                "notes": midi_context['notes_generated'],
-                "method": result['method'],
-                "tempo": midi_context['tempo'],
-                "mood": midi_context['mood']
-            }
-            cls._save_to_history(history_entry)
-            return history_entry
+        # Create MIDI track for this interaction
+        track_data = MidiMusicGenerator.create_midi_track(melody, midi_context['tempo'])
+        
+        # Create MIDI file for this interaction only
+        current_midi_data = MidiMusicGenerator.create_midi_file(track_data)
+        
+        # Parse the current MIDI to get tracks for playback
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix='.mid', delete=False) as temp_file:
+            temp_file.write(current_midi_data)
+            temp_filename = temp_file.name
+        
+        try:
+            # Parse current MIDI to get progression for playback
+            current_tracks = MidiMusicGenerator.parse_midi_file(Path(temp_filename))
+            if current_tracks:
+                current_progression = cls._midi_tracks_to_progression(current_tracks)
+                
+                # Play just the current interaction's music
+                volume = cls.get_volume()
+                played = False
+                method = None
+                
+                # Play using SDL2 only
+                try:
+                    if cls._play_with_sdl2(current_progression, volume):
+                        played = True
+                        method = "sdl2"
+                except Exception as e:
+                    print(f"SDL2 audio playback failed: {e}")
+                    return None
+                
+                if played:
+                    # Now prepend this interaction to the accumulated MIDI file
+                    MidiMusicGenerator.prepend_to_midi_file(current_midi_data)
+                    
+                    # Record in history
+                    history_entry = {
+                        "timestamp": datetime.now().isoformat(),
+                        "progression": f"{midi_context['mood']} ({midi_context['bar_length']}/4)",
+                        "notes": midi_context['notes_generated'] if 'notes_generated' in midi_context else len(melody),
+                        "method": method,
+                        "tempo": midi_context['tempo'],
+                        "mood": midi_context['mood']
+                    }
+                    cls._save_to_history(history_entry)
+                    return history_entry
+            
+        finally:
+            # Clean up temp file
+            import os
+            try:
+                os.unlink(temp_filename)
+            except:
+                pass
         
         return None
     
