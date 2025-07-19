@@ -14,11 +14,13 @@ Claude CLI provides a seamless, terminal-based interface to interact with Anthro
 
 - **Interactive Mode**: Engage in continuous conversations with Claude through a responsive terminal interface
 - **Command-Line Mode**: Quick queries without entering the interactive environment
+- **Variable System**: Persistent variables with simple assignment and interpolation (`name=John`, then use `name`)
 - **Vim-Style Key Bindings**: Familiar navigation and editing for power users
 - **Conversation Management**: Save, view, and clear conversation history
 - **File Upload Support**: Share files with Claude for analysis, with intelligent handling of both text and image files
 - **Rich Terminal UI**: Color-coded output and animated progress indicators
 - **Context Preservation**: Maintain conversation context for more coherent exchanges
+- **C++ API**: Cross-language variable access for integration
 
 ## Installation
 
@@ -42,6 +44,9 @@ cd PyClaudeCli
 # Set up your API key
 echo "your-anthropic-api-key" > ~/.claude_token
 # Or set environment variable: export CLAUDE_API_KEY="your-anthropic-api-key"
+
+# Build and test everything
+./b    # Builds C++ components and runs all tests
 
 # Run the CLI (dependencies will be auto-installed on first run)
 python3 main.py "Hello Claude!"
@@ -115,7 +120,27 @@ This opens a prompt where you can chat with Claude continuously. The prompt is d
 | `c N` | Show last N exchanges from conversation |
 | `clear` | Clear conversation history |
 | `upload <file1> [file2] ...` | Upload files to analyze |
+| `vars` | Show all stored variables |
+| `name=value` | Set a variable (e.g., `user=Alice`) |
 | `exit`, `quit` | Exit the program |
+
+#### Variable System
+
+Set and use variables for persistent storage across conversations:
+
+```bash
+# Set variables
+name=John
+age=25
+data=["item1", "item2", "item3"]
+
+# Use variables (simple word substitution)
+Hello name, you are age years old
+# → "Hello John, you are 25 years old"
+
+# Variables persist across sessions
+vars  # List all variables
+```
 
 #### Upload Command Options
 
@@ -215,6 +240,7 @@ This creates the following files:
 |------|---------|
 | `~/.config/claude/system` | Custom system prompt |
 | `~/.config/claude/conversations.json` | Conversation history (auto-managed) |
+| `~/.config/claude/variables.json` | Persistent variables |
 | `~/.config/claude/aliases.json` | Command aliases |
 | `~/.config/claude/models.json` | Model preferences and settings |
 | `~/.config/claude/templates.json` | Response templates |
@@ -282,6 +308,56 @@ The CLI maintains several files:
 
 Note: The `~/.ask_*` files are in the home directory for easy access, while configuration files are organized under `~/.config/claude/` following XDG standards.
 
+## Development & Testing
+
+### Build System
+
+The project includes a modern CMake-based build system with C++23 support:
+
+```bash
+./b    # Build everything and run all tests
+./r    # Run console (builds if needed)
+./t    # Run comprehensive test suite
+```
+
+#### Available Build Commands
+
+| Script | Purpose |
+|--------|---------|
+| `./b` | Build C++ components and run all Python tests |
+| `./r` | Smart run script - builds if needed, then starts console |
+| `./t` | Comprehensive test suite with 40+ tests |
+
+#### Test Options
+
+```bash
+./t --quick       # Quick functionality test (30 seconds)
+./t --unit        # Run 40 unit tests
+./t --integration # Integration tests
+./t --cpp         # C++ API tests
+./t --build       # Build system tests
+./t --help        # Show all options
+```
+
+### C++ Integration
+
+The variable system includes a C++ API for cross-language integration:
+
+```cpp
+#include "ai/bindings/variable_api.cpp"
+
+VariableManager vm;
+vm.SetVariable("test", "value");
+std::string result = vm.GetVariable("test");
+```
+
+Build C++ components:
+```bash
+mkdir build && cd build
+cmake .. -DCMAKE_CXX_COMPILER=clang++
+make
+```
+
 ## Advanced Usage
 
 ### Using with Unix Pipes
@@ -339,12 +415,16 @@ PyClaudeCli/
 │   ├── modes/                # Interaction modes
 │   │   ├── interactive.py    # Interactive mode
 │   │   └── async_interactive.py # Async interactive mode
+│   ├── bindings/             # C++ API bindings
+│   │   ├── variable_api.cpp  # C++ variable interface
+│   │   └── CMakeLists.txt    # C++ build configuration
 │   ├── plugins/              # Plugin system
 │   │   ├── base.py           # Base plugin classes
 │   │   ├── decorators.py     # Plugin decorators
 │   │   └── plugin_manager.py # Plugin management
 │   └── utils/                # Utilities
 │       ├── config.py         # Configuration management
+│       ├── variables.py      # Variable system
 │       ├── validation.py     # Input validation
 │       ├── exceptions.py     # Error handling
 │       ├── logging.py        # Logging system
@@ -354,10 +434,16 @@ PyClaudeCli/
 │       ├── colors.py        # Terminal colors
 │       ├── spinner.py       # Progress animation
 │       └── output_formatter.py # Output formatting
+├── b                        # Build script
+├── r                        # Run script  
+├── t                        # Test script
+├── CMakeLists.txt          # CMake configuration
+├── Doxyfile                # Documentation generation
 ├── docs/                     # Documentation
 ├── tests/                    # Test suite
-│   ├── unit/                # Unit tests
-│   └── integration/         # Integration tests
+│   ├── unit/                # Unit tests (40+ tests)
+│   ├── integration/         # Integration tests
+│   └── cpp/                 # C++ API tests
 ├── requirements.txt         # Dependencies
 ├── requirements-dev.txt     # Development dependencies
 ├── pyproject.toml          # Modern Python packaging

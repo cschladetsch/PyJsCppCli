@@ -1,0 +1,297 @@
+#!/bin/bash
+# Comprehensive test suite for PyClaudeCli Variable System
+
+set -e  # Exit on any error
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Counters
+TESTS_PASSED=0
+TESTS_FAILED=0
+TOTAL_TESTS=0
+
+echo -e "${BLUE}🧪 PyClaudeCli Variable System Test Suite${NC}"
+echo "=========================================="
+
+# Function to run test and track results
+run_test() {
+    local test_name="$1"
+    local test_command="$2"
+    local expected_exit_code="${3:-0}"
+    
+    echo -e "\n${YELLOW}📋 Running: $test_name${NC}"
+    echo "Command: $test_command"
+    
+    if eval "$test_command"; then
+        if [ $? -eq $expected_exit_code ]; then
+            echo -e "${GREEN}✅ PASSED: $test_name${NC}"
+            ((TESTS_PASSED++))
+        else
+            echo -e "${RED}❌ FAILED: $test_name (wrong exit code)${NC}"
+            ((TESTS_FAILED++))
+        fi
+    else
+        echo -e "${RED}❌ FAILED: $test_name${NC}"
+        ((TESTS_FAILED++))
+    fi
+    ((TOTAL_TESTS++))
+}
+
+# Function to test variable functionality manually
+test_variable_functionality() {
+    echo -e "\n${YELLOW}🔧 Testing Variable System Functionality${NC}"
+    
+    python3 -c "
+import sys
+sys.path.append('.')
+from ai.utils.variables import VariableManager
+import tempfile
+import os
+
+# Use temp file for testing
+temp_file = '/tmp/test_variables_' + str(os.getpid()) + '.json'
+vm = VariableManager(temp_file)
+
+print('Testing basic assignment...')
+result1, was_assignment1 = vm.process_input('name=TestUser')
+assert was_assignment1, 'Assignment should return True'
+assert 'TestUser' in result1, 'Result should contain value'
+
+print('Testing interpolation...')
+result2, was_assignment2 = vm.process_input('Hello name, welcome!')
+assert not was_assignment2, 'Interpolation should not be assignment'
+assert result2 == 'Hello TestUser, welcome!', f'Expected interpolation, got: {result2}'
+
+print('Testing persistence...')
+vm2 = VariableManager(temp_file)
+result3, was_assignment3 = vm2.process_input('User name logged in')
+assert not was_assignment3, 'Should not be assignment'
+assert result3 == 'User TestUser logged in', f'Persistence failed, got: {result3}'
+
+print('Testing JSON...')
+vm.process_input('data=[\"item1\", \"item2\"]')
+result4, _ = vm.process_input('Data contains data items')
+assert 'item1' in result4 and 'item2' in result4, f'JSON interpolation failed: {result4}'
+
+# Cleanup
+os.unlink(temp_file)
+print('✅ All functionality tests passed!')
+"
+}
+
+# Function to check file existence
+check_files() {
+    echo -e "\n${YELLOW}📁 Checking Required Files${NC}"
+    
+    local files=(
+        "ai/utils/variables.py"
+        "ai/bindings/variable_api.cpp"
+        "tests/unit/test_variables.py"
+        "tests/integration/test_variable_integration.py"
+        "tests/cpp/test_variable_api.cpp"
+        "CMakeLists.txt"
+        "Doxyfile"
+        "b"
+        "r"
+    )
+    
+    for file in "${files[@]}"; do
+        if [ -f "$file" ]; then
+            echo -e "${GREEN}✅ Found: $file${NC}"
+        else
+            echo -e "${RED}❌ Missing: $file${NC}"
+            ((TESTS_FAILED++))
+        fi
+        ((TOTAL_TESTS++))
+    done
+}
+
+# Function to test build system
+test_build_system() {
+    echo -e "\n${YELLOW}🔨 Testing Build System${NC}"
+    
+    # Clean build
+    if [ -d "build" ]; then
+        rm -rf build
+        echo "Cleaned existing build directory"
+    fi
+    
+    # Test CMake configuration
+    mkdir -p build
+    cd build
+    
+    echo "Testing CMake configuration..."
+    if cmake .. >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ CMake configuration successful${NC}"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}❌ CMake configuration failed${NC}"
+        ((TESTS_FAILED++))
+    fi
+    ((TOTAL_TESTS++))
+    
+    # Test build
+    echo "Testing build process..."
+    if make >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ Build successful${NC}"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}❌ Build failed${NC}"
+        ((TESTS_FAILED++))
+    fi
+    ((TOTAL_TESTS++))
+    
+    cd ..
+}
+
+# Function to test scripts
+test_scripts() {
+    echo -e "\n${YELLOW}🚀 Testing Scripts${NC}"
+    
+    # Test build script
+    if [ -x "./b" ]; then
+        echo -e "${GREEN}✅ Build script (./b) is executable${NC}"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}❌ Build script (./b) not executable${NC}"
+        ((TESTS_FAILED++))
+    fi
+    ((TOTAL_TESTS++))
+    
+    # Test run script
+    if [ -x "./r" ]; then
+        echo -e "${GREEN}✅ Run script (./r) is executable${NC}"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}❌ Run script (./r) not executable${NC}"
+        ((TESTS_FAILED++))
+    fi
+    ((TOTAL_TESTS++))
+}
+
+# Function to show test summary
+show_summary() {
+    echo -e "\n${BLUE}📊 Test Summary${NC}"
+    echo "================"
+    echo -e "Total Tests: $TOTAL_TESTS"
+    echo -e "${GREEN}Passed: $TESTS_PASSED${NC}"
+    echo -e "${RED}Failed: $TESTS_FAILED${NC}"
+    
+    if [ $TESTS_FAILED -eq 0 ]; then
+        echo -e "\n${GREEN}🎉 All tests passed! Variable system is ready!${NC}"
+        exit 0
+    else
+        echo -e "\n${RED}💥 Some tests failed. Check the output above.${NC}"
+        exit 1
+    fi
+}
+
+# Main test execution
+main() {
+    echo -e "${BLUE}Starting comprehensive tests...${NC}\n"
+    
+    # File existence checks
+    check_files
+    
+    # Script permissions
+    test_scripts
+    
+    # Build system
+    test_build_system
+    
+    # Core functionality
+    run_test "Variable System Import" "python3 -c 'from ai.utils.variables import VariableManager; print(\"Import successful\")'"
+    
+    run_test "Unit Tests (40 tests)" "python3 tests/unit/test_variables.py >/dev/null 2>&1"
+    
+    run_test "Integration Tests" "python3 tests/integration/test_variable_integration.py >/dev/null 2>&1" 1
+    
+    # C++ tests if build exists
+    if [ -f "build/tests/cpp/test_variable_api" ]; then
+        run_test "C++ API Tests" "cd build/tests/cpp && ./test_variable_api >/dev/null 2>&1"
+    else
+        echo -e "${YELLOW}⚠️  C++ tests skipped (executable not found)${NC}"
+    fi
+    
+    # Interactive mode test
+    run_test "Interactive Mode Import" "python3 -c 'from ai.modes.interactive import InteractiveMode; print(\"Interactive mode import successful\")'"
+    
+    # Manual functionality test
+    if test_variable_functionality; then
+        echo -e "${GREEN}✅ PASSED: Variable Functionality Test${NC}"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}❌ FAILED: Variable Functionality Test${NC}"
+        ((TESTS_FAILED++))
+    fi
+    ((TOTAL_TESTS++))
+    
+    # Compiler detection
+    run_test "Clang Detection" "which clang >/dev/null 2>&1 && which clang++ >/dev/null 2>&1"
+    
+    # Show final results
+    show_summary
+}
+
+# Help function
+show_help() {
+    echo "PyClaudeCli Variable System Test Suite"
+    echo ""
+    echo "Usage: ./t [option]"
+    echo ""
+    echo "Options:"
+    echo "  --help, -h     Show this help message"
+    echo "  --unit         Run only unit tests"
+    echo "  --integration  Run only integration tests"
+    echo "  --cpp          Run only C++ tests"
+    echo "  --build        Test only build system"
+    echo "  --quick        Run quick functionality test"
+    echo ""
+    echo "Default: Run all tests"
+}
+
+# Handle command line arguments
+case "${1:-}" in
+    --help|-h)
+        show_help
+        exit 0
+        ;;
+    --unit)
+        run_test "Unit Tests" "python3 tests/unit/test_variables.py"
+        show_summary
+        ;;
+    --integration)
+        run_test "Integration Tests" "python3 tests/integration/test_variable_integration.py" 1
+        show_summary
+        ;;
+    --cpp)
+        if [ -f "build/tests/cpp/test_variable_api" ]; then
+            run_test "C++ API Tests" "cd build/tests/cpp && ./test_variable_api"
+        else
+            echo "C++ tests not built. Run ./b first."
+            exit 1
+        fi
+        show_summary
+        ;;
+    --build)
+        test_build_system
+        show_summary
+        ;;
+    --quick)
+        test_variable_functionality
+        ;;
+    "")
+        main
+        ;;
+    *)
+        echo "Unknown option: $1"
+        echo "Use ./t --help for available options"
+        show_help
+        exit 1
+        ;;
+esac

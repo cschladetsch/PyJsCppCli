@@ -31,6 +31,7 @@ from ..api.client import ClaudeClient
 from ..constants import HISTORY_FILE, DEFAULT_SYSTEM_PROMPT, UPLOAD_CACHE_DIR
 from ..models import Interaction
 from ..utils.config_loader import ConfigLoader
+from ..utils.variables import process_input as process_variables
 
 def setup_key_bindings():
     """Set up vim-style key bindings"""
@@ -166,6 +167,17 @@ class InteractiveMode:
 
     def process_input(self, user_prompt):
         """Process user input and execute appropriate action"""
+        # First, handle variable assignments and interpolation
+        processed_prompt, was_assignment = process_variables(user_prompt)
+        
+        # If it was a variable assignment, show the result and return
+        if was_assignment:
+            print(processed_prompt)
+            return True
+        
+        # Use the processed prompt for further command processing
+        user_prompt = processed_prompt
+        
         if user_prompt.lower() in ["exit", "quit"]:
             save_conversation_state(self.interactions)
             return False
@@ -206,7 +218,19 @@ class InteractiveMode:
             print("  upload <file1> [file2] ... - Upload files to AI")
             print("    Options:")
             print("      --recursive, -r - Include all files in directories")
+            print("  vars   - Show all stored variables")
+            print("  var=value - Set a variable (e.g., name=John)")
             print("  exit   - Exit the program")
+            return True
+        elif user_prompt.lower() == "vars":
+            from ..utils.variables import get_variable_manager
+            variables = get_variable_manager().list_variables()
+            if variables:
+                print("Stored variables:")
+                for name, value in variables.items():
+                    print(f"  {name} = {value}")
+            else:
+                print("No variables stored")
             return True
         else:
             spinner = Spinner()
