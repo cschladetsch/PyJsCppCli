@@ -147,7 +147,7 @@ class TestClaudeClient:
         monkeypatch.delenv("CLAUDE_API_KEY", raising=False)
         
         # Create a mock token file
-        token_file = tmp_path / ".ask_token"
+        token_file = tmp_path / ".claude_token"
         token_file.write_text("file-api-key-123")
         
         with patch('os.path.expanduser') as mock_expand:

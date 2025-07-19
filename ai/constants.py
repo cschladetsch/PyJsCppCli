@@ -12,12 +12,12 @@ HISTORY_FILE = os.path.expanduser("~/.ask_history")
 CONVERSATION_STATE_FILE = os.path.expanduser("~/.ask_conversation_state.json")
 CONVERSATION_LOG_FILE = os.path.expanduser("~/.ask_conversation.md")
 UPLOAD_CACHE_DIR = os.path.expanduser("~/.ask_uploads")
-TOKEN_FILE = os.path.expanduser("~/.ask_token")
+TOKEN_FILE = os.path.expanduser("~/.claude_token")
 
 # File paths - Legacy (for backward compatibility)
 LEGACY_HISTORY_FILE = os.path.expanduser("~/.claude_history")
 LEGACY_CONVERSATION_STATE_FILE = os.path.expanduser("~/.claude_conversation_state.json")
-LEGACY_TOKEN_FILE = os.path.expanduser("~/.claude_token")
+LEGACY_TOKEN_FILE = os.path.expanduser("~/.ask_token")
 
 # API configuration
 DEFAULT_MODEL = "claude-3-5-sonnet-20241022"

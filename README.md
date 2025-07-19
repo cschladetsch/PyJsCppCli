@@ -269,12 +269,18 @@ The CLI maintains several files:
 
 | File | Purpose |
 |------|---------|
+| `~/.claude_token` | API token (if not using environment variable) |
 | `~/.ask_history` | Command history |
-| `~/.config/claude/conversations.json` | Conversation state |
 | `~/.ask_uploads` | Temporary cache for uploaded files |
-| `~/.ask_token` | API token (if not using environment variable) |
+| `~/.config/claude/` | User configuration directory |
+| `~/.config/claude/conversations.json` | Conversation state |
+| `~/.config/claude/system` | Custom system prompt |
+| `~/.config/claude/aliases.json` | Command aliases |
+| `~/.config/claude/models.json` | Model preferences |
+| `~/.config/claude/templates.json` | Response templates |
+| `~/.config/claude/music.json` | Music play history |
 
-Legacy paths are supported for backward compatibility.
+Note: The `~/.ask_*` files are in the home directory for easy access, while configuration files are organized under `~/.config/claude/` following XDG standards.
 
 ## Advanced Usage
 

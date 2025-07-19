@@ -217,7 +217,7 @@ class TestIOUtils:
         """Test getting API key from file"""
         monkeypatch.delenv("CLAUDE_API_KEY", raising=False)
         
-        token_file = tmp_path / ".ask_token"
+        token_file = tmp_path / ".claude_token"
         token_file.write_text("file-key-456\n")
         
         with patch('os.path.expanduser', return_value=str(token_file)):
