@@ -2,9 +2,10 @@
 Theme configuration for customizable color schemes
 """
 
-import os
 import json
-from typing import Dict, Optional
+import os
+from typing import Dict
+
 from .colors import Colors
 
 # Default theme configurations
@@ -24,12 +25,9 @@ THEMES = {
             "muted": Colors.MUTED,
             "user": Colors.BRIGHT_GREEN,
             "assistant": Colors.BRIGHT_BLUE,
-            "index": Colors.BRIGHT_CYAN
+            "index": Colors.BRIGHT_CYAN,
         },
-        "markdown": {
-            "style": "dark",
-            "width": 100
-        }
+        "markdown": {"style": "dark", "width": 100},
     },
     "minimal": {
         "name": "Minimal",
@@ -46,12 +44,9 @@ THEMES = {
             "muted": Colors.BRIGHT_BLACK,
             "user": Colors.GREEN,
             "assistant": Colors.CYAN,
-            "index": Colors.CYAN
+            "index": Colors.CYAN,
         },
-        "markdown": {
-            "style": "notty",
-            "width": 80
-        }
+        "markdown": {"style": "notty", "width": 80},
     },
     "vibrant": {
         "name": "Vibrant",
@@ -68,12 +63,9 @@ THEMES = {
             "muted": Colors.DIM + Colors.WHITE,
             "user": Colors.LIME,
             "assistant": Colors.BRIGHT_CYAN,
-            "index": Colors.BRIGHT_MAGENTA
+            "index": Colors.BRIGHT_MAGENTA,
         },
-        "markdown": {
-            "style": "pink",
-            "width": 120
-        }
+        "markdown": {"style": "pink", "width": 120},
     },
     "terminal": {
         "name": "Terminal",
@@ -90,22 +82,20 @@ THEMES = {
             "muted": Colors.BRIGHT_BLACK,
             "user": Colors.GREEN,
             "assistant": Colors.WHITE,
-            "index": Colors.BLUE
+            "index": Colors.BLUE,
         },
-        "markdown": {
-            "style": "dark",
-            "width": 100
-        }
-    }
+        "markdown": {"style": "dark", "width": 100},
+    },
 }
+
 
 class ThemeConfig:
     """Manages theme configuration and customization"""
-    
+
     def __init__(self, config_dir: str = None):
         """
         Initialize theme configuration.
-        
+
         Args:
             config_dir: Directory to store theme config (defaults to ~/.ai)
         """
@@ -114,51 +104,51 @@ class ThemeConfig:
         self.current_theme = "default"
         self.custom_themes = {}
         self._load_config()
-    
+
     def _load_config(self):
         """Load theme configuration from file"""
         try:
             if os.path.exists(self.config_path):
-                with open(self.config_path, 'r') as f:
+                with open(self.config_path) as f:
                     config = json.load(f)
                     self.current_theme = config.get("current_theme", "default")
                     self.custom_themes = config.get("custom_themes", {})
-        except (json.JSONDecodeError, IOError):
+        except (OSError, json.JSONDecodeError):
             # If config is corrupted or unreadable, use defaults
             pass
-    
+
     def _save_config(self):
         """Save theme configuration to file"""
         try:
             os.makedirs(self.config_dir, exist_ok=True)
             config = {
                 "current_theme": self.current_theme,
-                "custom_themes": self.custom_themes
+                "custom_themes": self.custom_themes,
             }
-            with open(self.config_path, 'w') as f:
+            with open(self.config_path, "w") as f:
                 json.dump(config, f, indent=2)
-        except IOError:
+        except OSError:
             # Silently fail if we can't write config
             pass
-    
+
     def get_available_themes(self) -> Dict[str, dict]:
         """Get all available themes (built-in and custom)"""
         all_themes = THEMES.copy()
         all_themes.update(self.custom_themes)
         return all_themes
-    
+
     def get_current_theme(self) -> dict:
         """Get the current active theme configuration"""
         all_themes = self.get_available_themes()
         return all_themes.get(self.current_theme, THEMES["default"])
-    
+
     def set_theme(self, theme_name: str) -> bool:
         """
         Set the active theme.
-        
+
         Args:
             theme_name: Name of the theme to activate
-            
+
         Returns:
             True if theme was set successfully, False otherwise
         """
@@ -168,15 +158,15 @@ class ThemeConfig:
             self._save_config()
             return True
         return False
-    
+
     def add_custom_theme(self, name: str, theme_config: dict) -> bool:
         """
         Add a custom theme.
-        
+
         Args:
             name: Name for the custom theme
             theme_config: Theme configuration dictionary
-            
+
         Returns:
             True if theme was added successfully
         """
@@ -185,20 +175,20 @@ class ThemeConfig:
             required_keys = ["name", "description", "colors", "markdown"]
             if not all(key in theme_config for key in required_keys):
                 return False
-            
+
             self.custom_themes[name] = theme_config
             self._save_config()
             return True
         except:
             return False
-    
+
     def remove_custom_theme(self, name: str) -> bool:
         """
         Remove a custom theme.
-        
+
         Args:
             name: Name of the custom theme to remove
-            
+
         Returns:
             True if theme was removed successfully
         """
@@ -209,20 +199,20 @@ class ThemeConfig:
             self._save_config()
             return True
         return False
-    
+
     def get_color(self, color_type: str) -> str:
         """
         Get a color code for the specified type from current theme.
-        
+
         Args:
             color_type: Type of color (prompt, response, error, etc.)
-            
+
         Returns:
             ANSI color code
         """
         theme = self.get_current_theme()
         return theme["colors"].get(color_type, Colors.RESET)
-    
+
     def get_markdown_config(self) -> dict:
         """Get markdown rendering configuration for current theme"""
         theme = self.get_current_theme()

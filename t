@@ -202,7 +202,7 @@ main() {
     # Core functionality
     run_test "Variable System Import" "PYTHONPATH=. python3 -c 'from ai.utils.variables import VariableManager; print(\"Import successful\")'"
     
-    run_test "Unit Tests (80 tests)" "PYTHONPATH=. python3 tests/unit/test_variables.py >/dev/null 2>&1"
+    run_test "Variable Unit Tests (80 tests)" "PYTHONPATH=. python3 tests/unit/test_variables.py >/dev/null 2>&1"
     
     # Integration tests
     run_test "Integration Tests" "PYTHONPATH=. python3 tests/integration/test_variable_integration.py >/dev/null 2>&1"

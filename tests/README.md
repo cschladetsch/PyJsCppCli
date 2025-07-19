@@ -1,24 +1,26 @@
 # Tests Module
 
-Comprehensive test suite for PyClaudeCli with 40+ tests covering all functionality.
+Comprehensive test suite for PyClaudeCli with 100+ tests covering all functionality, including 80 tests for the variable system alone.
 
 ## Structure
 
 - `__init__.py` - Module initialization
-- `conftest.py` - Pytest configuration and fixtures
+- `conftest.py` - Pytest configuration and shared fixtures
 - `unit/` - Unit tests for individual components
-  - `test_api_client.py` - API client tests
-  - `test_cli.py` - CLI tests
-  - `test_config.py` - Configuration tests
-  - `test_interactive_mode.py` - Interactive mode tests
-  - `test_io_utils.py` - I/O utility tests
-  - `test_validation.py` - Validation tests
-  - `test_variables.py` - **Variable system tests (40 comprehensive tests)**
+  - `test_api_client.py` - API client tests (sync and async)
+  - `test_cli.py` - CLI argument parsing and command handling
+  - `test_config.py` - Configuration loading and management
+  - `test_interactive_mode.py` - Interactive mode behavior
+  - `test_io_utils.py` - File I/O and token management
+  - `test_validation.py` - Input validation and security
+  - `test_variables.py` - **Variable system tests (80 comprehensive tests)**
+  - `test_music.py` - Music generation and playback
+  - `test_theme.py` - Theme system and color management
 - `integration/` - Integration tests
-  - `test_full_conversation.py` - Full conversation flow tests
-  - `test_variable_integration.py` - **Variable system integration tests**
+  - `test_full_conversation.py` - End-to-end conversation flows
+  - `test_variable_integration.py` - **Variable system integration across modes**
 - `cpp/` - C++ API tests
-  - `test_variable_api.cpp` - **C++ variable API tests**
+  - `test_variable_api.cpp` - **C++ variable API cross-language tests**
   - `CMakeLists.txt` - C++ test build configuration
 
 ## Running Tests
@@ -26,31 +28,60 @@ Comprehensive test suite for PyClaudeCli with 40+ tests covering all functionali
 ### Quick Test Script (Recommended)
 ```bash
 ./t --quick       # Fast functionality test (30 seconds)
-./t --unit        # Run 40 unit tests
+./t --unit        # Run all unit tests (100+ tests)
 ./t --integration # Integration tests  
 ./t --cpp         # C++ API tests
+./t --build       # Build system tests
 ./t               # Complete test suite
 ```
 
-### Traditional Methods
+### Using Pytest Directly
 ```bash
-pytest                                    # All pytest tests
-python3 tests/unit/test_variables.py     # Variable system tests
-python3 tests/integration/test_variable_integration.py  # Integration tests
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=ai --cov-report=html
+
+# Run specific test categories
+pytest -m unit              # Unit tests only
+pytest -m integration       # Integration tests only
+pytest -k "variable"       # Tests containing "variable"
+
+# Run specific test files
+pytest tests/unit/test_variables.py     # 80 variable tests
+pytest tests/unit/test_music.py         # Music tests
 ```
 
-### Build and Test
+### Using Make
 ```bash
-./b               # Build everything and run all tests
+make test           # Run all tests
+make test-unit      # Unit tests only
+make test-coverage  # With coverage report
 ```
 
 ## Test Coverage
 
-- **40 Unit Tests**: Complete variable system coverage
-- **Integration Tests**: Interactive mode integration
-- **C++ Tests**: Cross-language API validation
-- **Build Tests**: CMake and compilation validation
-- **Edge Cases**: Unicode, corruption, performance testing
+### Unit Tests (100+)
+- **Variable System**: 80 tests covering all edge cases
+- **API Clients**: Request/response handling, error cases
+- **CLI**: Argument parsing, command execution
+- **Configuration**: Loading, validation, defaults
+- **Interactive Mode**: User input, commands, display
+- **Music System**: Generation, playback, MIDI creation
+- **Themes**: Color application, theme switching
+- **Validation**: Security checks, input sanitization
+
+### Integration Tests
+- **Full Conversations**: End-to-end API interactions
+- **Variable Integration**: Cross-mode variable usage
+- **File Uploads**: Multiple file handling
+- **Error Recovery**: Network issues, API limits
+
+### C++ Tests
+- **Variable API**: Get/Set operations from C++
+- **Memory Management**: No leaks, proper cleanup
+- **Cross-language**: Python ↔ C++ data exchange
 
 ## Variable System Tests
 

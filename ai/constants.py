@@ -25,9 +25,7 @@ DEFAULT_MAX_TOKENS = 1024
 DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant."
 
 # UI Configuration - The Spinner Symphony!
-SPINNER_FRAMES = [
-    "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"  # Classic dots
-]
+SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]  # Classic dots
 
 # Alternative spinner collections for future fun!
 FANCY_SPINNERS = {

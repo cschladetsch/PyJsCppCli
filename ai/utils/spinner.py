@@ -3,13 +3,16 @@ Spinner animation for terminal feedback during operations
 """
 
 import sys
-import time
 import threading
-from .colors import Colors
+import time
+
 from ..constants import SPINNER_FRAMES, SPINNER_MESSAGES
+from .colors import Colors
+
 
 class Spinner:
     """An enhanced spinner class with a smooth animation"""
+
     def __init__(self):
         self.spinning = False
         self.frames = SPINNER_FRAMES
@@ -56,5 +59,5 @@ class Spinner:
     def stop(self):
         """Stop the spinner animation"""
         self.spinning = False
-        if hasattr(self, 'thread') and self.thread is not None:
+        if hasattr(self, "thread") and self.thread is not None:
             self.thread.join()

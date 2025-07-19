@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ask-cli"
-version = "0.2.1"
+version = "0.3.0"
 description = "A powerful command-line interface for interacting with Claude AI models"
 readme = "README.md"
 license = {text = "MIT"}

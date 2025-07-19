@@ -6,7 +6,7 @@
 
 Command-line interface for interacting with Claude AI models.
 
-**Version:** 0.2.1 | **Python:** 3.8+ | **License:** MIT
+**Version:** 0.3.0 | **Python:** 3.8+ | **License:** MIT
 
 ## Overview
 
@@ -23,6 +23,11 @@ Claude CLI provides a seamless, terminal-based interface to interact with Anthro
 - **Rich Terminal UI**: Color-coded output and animated progress indicators
 - **Context Preservation**: Maintain conversation context for more coherent exchanges
 - **C++ API**: Cross-language variable access for integration
+- **Async Support**: Asynchronous API client for improved performance
+- **Plugin Architecture**: Extensible plugin system for custom functionality
+- **Theme Support**: Customizable color themes for terminal output
+- **MIDI Music Generation**: Generate and play MIDI music from text
+- **Connection Pooling**: Efficient HTTP connection management
 
 ## Installation
 
@@ -93,6 +98,7 @@ ask [options] [query]
 | `--help`, `-h` | Show help message and exit |
 | `--version`, `-v` | Show version information |
 | `--reset` | Reset configuration to defaults |
+| `--init-config` | Create default config files in ~/.config/claude/ |
 | `--model MODEL` | Specify Claude model to use (e.g., claude-3-opus) |
 | `--no-spinner` | Disable loading spinner animation |
 | `--json` | Output response in JSON format |
@@ -100,6 +106,10 @@ ask [options] [query]
 | `--music` | Toggle startup music on/off |
 | `--music-history` | Show music play history |
 | `--volume [LEVEL]` | Set/show music volume (0.0-1.0) |
+| `--playsong` | Play the entire accumulated MIDI song |
+| `--playsong --loop` | Play MIDI song on loop (Ctrl+C to stop) |
+| `--gen-midi [TEXT]` | Generate MIDI file from text input |
+| `--clear-music` | Delete the accumulated MIDI file |
 
 ### Interactive Mode
 
@@ -334,12 +344,18 @@ The project includes a modern CMake-based build system with C++23 support:
 
 ```bash
 ./t --quick       # Quick functionality test (30 seconds)
-./t --unit        # Run 40 unit tests
+./t --unit        # Run 80+ unit tests
 ./t --integration # Integration tests
 ./t --cpp         # C++ API tests
 ./t --build       # Build system tests
 ./t --help        # Show all options
 ```
+
+The test suite includes:
+- **80+ Unit Tests**: Comprehensive coverage of variable system
+- **Integration Tests**: Full conversation flow testing
+- **C++ API Tests**: Cross-language binding verification
+- **Build System Tests**: CMake and compilation verification
 
 ### C++ Integration
 
@@ -426,6 +442,7 @@ PyClaudeCli/
 │   │   └── plugin_manager.py # Plugin management
 │   └── utils/                # Utilities
 │       ├── config.py         # Configuration management
+│       ├── config_loader.py  # Configuration file loading
 │       ├── variables.py      # Variable system
 │       ├── validation.py     # Input validation
 │       ├── exceptions.py     # Error handling
@@ -435,7 +452,12 @@ PyClaudeCli/
 │       ├── io.py            # File I/O operations
 │       ├── colors.py        # Terminal colors
 │       ├── spinner.py       # Progress animation
-│       └── output_formatter.py # Output formatting
+│       ├── output_formatter.py # Output formatting
+│       ├── interactive.py    # Interactive mode helpers
+│       ├── markdown_renderer.py # Markdown rendering
+│       ├── music.py         # Music player functionality
+│       ├── midi_music.py    # MIDI music generation
+│       └── theme_config.py  # Theme configuration
 ├── b                        # Build script
 ├── r                        # Run script  
 ├── t                        # Test script

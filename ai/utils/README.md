@@ -1,27 +1,36 @@
 # Utils Module
 
-Utility functions and helpers for PyClaudeCli, including the comprehensive variable system.
+Comprehensive utility functions and helpers for PyClaudeCli, providing core functionality including the advanced variable system, UI components, and system integration.
 
 ## Files
 
-- `__init__.py` - Module initialization
-- `colors.py` - Terminal color utilities
-- `config.py` - Configuration management
-- `config_loader.py` - Configuration file loading
-- `connection_pool.py` - Connection pooling utilities
-- `exceptions.py` - Custom exception classes
-- `interactive.py` - Interactive mode utilities
-- `io.py` - Input/output utilities
-- `logging.py` - Logging configuration
-- `markdown_renderer.py` - Markdown rendering utilities
-- `midi_music.py` - MIDI music generation utilities
-- `music.py` - Music generation utilities
-- `output_formatter.py` - Output formatting utilities
-- `spinner.py` - Loading spinner implementation
-- `streaming.py` - Stream processing utilities
-- `theme_config.py` - Theme configuration management
-- `validation.py` - Input validation utilities
-- **`variables.py`** - **Persistent variable storage and interpolation system**
+### Core Utilities
+- `__init__.py` - Module initialization and exports
+- `config.py` - Main configuration management system
+- `config_loader.py` - YAML/JSON configuration file loading
+- `exceptions.py` - Custom exception classes for error handling
+- `validation.py` - Input validation and security checks
+- `io.py` - File I/O operations, token management, and file uploads
+
+### User Interface Components
+- `colors.py` - Terminal color utilities with ANSI escape codes
+- `spinner.py` - Animated loading spinner for long operations
+- `output_formatter.py` - Response formatting and display
+- `markdown_renderer.py` - Rich markdown rendering in terminal
+- `theme_config.py` - Customizable color themes for output
+- `interactive.py` - Interactive mode helpers and prompt management
+
+### Music and Audio
+- `music.py` - Musical sequence generation and playback
+- `midi_music.py` - MIDI file generation from text input
+
+### API and Networking
+- `connection_pool.py` - HTTP connection pooling for efficiency
+- `streaming.py` - Async stream processing for real-time responses
+- `logging.py` - Structured logging configuration
+
+### Variable System
+- **`variables.py`** - **Persistent variable storage and interpolation system with 80+ tests**
 
 ## Key Components
 
@@ -55,12 +64,61 @@ variables = vm.list_variables()
 ```
 
 #### Features
-- **40+ comprehensive tests** covering all functionality
+- **80+ comprehensive tests** covering all edge cases
 - **C++ API integration** for cross-language access
 - **Error handling** for corrupted files and edge cases
 - **Unicode support** for international characters
 - **JSON validation** with fallback to string storage
+- **Thread-safe operations** for concurrent access
+- **Performance optimized** for large variable sets
+
+### Configuration System
+- **Hierarchical config loading**: System → User → Local
+- **YAML and JSON support**: Flexible configuration formats
+- **Environment variable override**: `CLAUDE_CONFIG_PATH`
+- **Default templates**: Auto-generated on first run
+
+### UI Components
+- **Themes**: Multiple color themes (default, monokai, solarized, dracula)
+- **Spinner**: Smooth animation with fallback for non-TTY
+- **Markdown**: Tables, code blocks, lists, emphasis
+- **Progress indicators**: Real-time status updates
+
+### Security Features
+- **Input validation**: Sanitize user inputs
+- **Path traversal protection**: Safe file operations
+- **API key security**: Never logged or exposed
+- **Command injection prevention**: Safe subprocess execution
+
+## Usage Examples
+
+### Variable System
+```python
+from ai.utils.variables import process_input
+
+# Set and use variables
+result, was_assignment = process_input("name=Alice")
+result, _ = process_input("Hello name!")  # → "Hello Alice!"
+```
+
+### Theme System
+```python
+from ai.utils.theme_config import apply_theme, THEMES
+
+# Apply a theme
+theme = THEMES["monokai"]
+apply_theme(theme)
+```
+
+### Configuration
+```python
+from ai.utils.config import get_config
+
+# Load user configuration
+config = get_config()
+model = config.get("default_model", "claude-3-sonnet")
+```
 
 ## Description
 
-This module contains various utility functions that support the core functionality of PyClaudeCli, including configuration management, I/O operations, formatting, user interface elements, and the powerful variable system that enables persistent data storage across CLI sessions.
+This module provides the foundation for PyClaudeCli's functionality, offering robust utilities for configuration management, user interface, file operations, and the innovative variable system that enables persistent context across CLI sessions. All components are designed with security, performance, and user experience in mind.
