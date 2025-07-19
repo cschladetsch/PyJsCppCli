@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PyClaudeCli Ultimate Feature Demo - 100 second comprehensive showcase
+# PyJsCppCli Ultimate Feature Demo - 100 second comprehensive showcase
 # Shows ALL features: Python, C++, Performance, Testing, Interactive Mode, and more
 
 # Colors for better visibility
@@ -34,7 +34,7 @@ start_time=$(date +%s)
 
 # Start demo
 echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}${BOLD}║         PyClaudeCli Ultimate Feature Showcase v0.3             ║${NC}"
+echo -e "${CYAN}${BOLD}║         PyJsCppCli Ultimate Feature Showcase v0.3             ║${NC}"
 echo -e "${CYAN}${BOLD}║    Python • C++ • JSON • Testing • Performance • Interactive  ║${NC}"
 echo -e "${CYAN}${BOLD}║                   100-Second Deep Dive Demo                    ║${NC}"
 echo -e "${CYAN}${BOLD}╚════════════════════════════════════════════════════════════════╝${NC}"
@@ -120,7 +120,7 @@ total_sections = 15
 
 # 1. Introduction & Basic Variables
 section(1, total_sections, "Introduction & Basic Variables", "🎯", major=True)
-animate_text(f"{YELLOW}Welcome to PyClaudeCli Variable System!{NC}")
+animate_text(f"{YELLOW}Welcome to PyJsCppCli Variable System!{NC}")
 time.sleep(1.5)
 
 demo_cmd("name=Alice")
@@ -184,7 +184,7 @@ show_result("2D array stored")
 section(5, total_sections, "Complex Nested Structures", "🏗️")
 
 complex_json = '''project={
-  "name": "PyClaudeCli",
+  "name": "PyJsCppCli",
   "version": "0.3",
   "author": {"name": "Alice", "email": "alice@example.com"},
   "features": {
@@ -477,7 +477,7 @@ echo
 echo -e "${GREEN}${BOLD}✨ Demo completed in ${total_time} seconds!${NC}"
 echo
 echo -e "${BLUE}${BOLD}Quick Start Commands:${NC}"
-echo -e "  ${BOLD}./r${NC}      - Interactive Python REPL with PyClaudeCli"
+echo -e "  ${BOLD}./r${NC}      - Interactive Python REPL with PyJsCppCli"
 echo -e "  ${BOLD}./b${NC}      - Build everything (Python + C++)"
 echo -e "  ${BOLD}./t${NC}      - Run complete test suite"
 echo -e "  ${BOLD}./demo.sh${NC} - Run this demo again"
@@ -489,7 +489,7 @@ echo -e "  ${BOLD}./t --cpp${NC}              - Run only C++ tests"
 echo -e "  ${BOLD}PYTHONPATH=. python3${NC}  - Manual Python REPL"
 echo
 echo -e "${CYAN}${BOLD}Documentation & Support:${NC}"
-echo -e "  GitHub:  ${BOLD}https://github.com/cschladetsch/PyClaudeCli${NC}"
+echo -e "  GitHub:  ${BOLD}https://github.com/cschladetsch/PyJsCppCli${NC}"
 echo -e "  Version: ${BOLD}0.3${NC} (${GREEN}Latest${NC})"
 echo -e "  License: ${BOLD}MIT${NC}"
 echo
