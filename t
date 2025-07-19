@@ -215,7 +215,8 @@ main() {
     fi
     
     # Interactive mode test
-    run_test "Interactive Mode Import" "PYTHONPATH=. python3 -c 'from ai.modes.interactive import InteractiveMode; print(\"Interactive mode import successful\")'"
+    cd "$SCRIPT_DIR"  # Go back to project root
+    run_test "Interactive Mode Import" "PYTHONPATH=\"\$(pwd)\" python3 -c 'from ai.modes.interactive import InteractiveMode; print(\"Interactive mode import successful\")'"
     
     # Manual functionality test
     if test_variable_functionality >/dev/null 2>&1; then
