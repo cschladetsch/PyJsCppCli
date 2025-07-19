@@ -194,7 +194,7 @@ public:
         // Test 18: Invalid directory handling
         VariableManager invalid_vm("/invalid/path/that/does/not/exist");
         // Should not crash, even if it can't save
-        bool invalid_set = invalid_vm.SetVariable("test", "value");
+        invalid_vm.SetVariable("test", "value");
         assert_true(true, "Invalid directory doesn't crash");
     }
 };

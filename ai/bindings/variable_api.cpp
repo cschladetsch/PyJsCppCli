@@ -8,7 +8,15 @@ private:
     std::string config_path;
     
     std::string execute_python_command(const std::string& cmd) const {
-        std::string python_cmd = "python3 -c \"" + cmd + "\"";
+        // Ensure we're using the project root as the Python path
+        std::string project_root = std::string(getenv("PWD"));
+        // If we're in a subdirectory, find the project root
+        size_t build_pos = project_root.find("/build");
+        if (build_pos != std::string::npos) {
+            project_root = project_root.substr(0, build_pos);
+        }
+        
+        std::string python_cmd = "cd " + project_root + " && python3 -c \"" + cmd + "\"";
         
         FILE* pipe = popen(python_cmd.c_str(), "r");
         if (!pipe) return "";
@@ -40,28 +48,54 @@ public:
     }
     
     std::string GetVariable(const std::string& name) const {
+        std::string escaped_path = config_path;
+        std::string escaped_name = name;
+        // Escape single quotes
+        size_t pos = 0;
+        while ((pos = escaped_path.find("'", pos)) != std::string::npos) {
+            escaped_path.replace(pos, 1, "\\'");
+            pos += 2;
+        }
+        pos = 0;
+        while ((pos = escaped_name.find("'", pos)) != std::string::npos) {
+            escaped_name.replace(pos, 1, "\\'");
+            pos += 2;
+        }
+        
         std::string python_code = 
-            "import sys; "
-            "sys.path.append('" + std::string(getenv("PWD")) + "'); "
-            "from ai.utils.variables import get_variable_manager; "
-            "vm = get_variable_manager(); "
-            "vm.storage_path = '" + config_path + "'; "
-            "vm._load_variables(); "
-            "value = vm.get_variable('" + name + "'); "
+            "from ai.utils.variables import VariableManager; "
+            "vm = VariableManager('" + escaped_path + "'); "
+            "value = vm.get_variable('" + escaped_name + "'); "
             "print(value if value is not None else '', end='')";
         
         return execute_python_command(python_code);
     }
     
     bool SetVariable(const std::string& name, const std::string& value) const {
+        std::string escaped_path = config_path;
+        std::string escaped_name = name;
+        std::string escaped_value = value;
+        // Escape single quotes
+        size_t pos = 0;
+        while ((pos = escaped_path.find("'", pos)) != std::string::npos) {
+            escaped_path.replace(pos, 1, "\\'");
+            pos += 2;
+        }
+        pos = 0;
+        while ((pos = escaped_name.find("'", pos)) != std::string::npos) {
+            escaped_name.replace(pos, 1, "\\'");
+            pos += 2;
+        }
+        pos = 0;
+        while ((pos = escaped_value.find("'", pos)) != std::string::npos) {
+            escaped_value.replace(pos, 1, "\\'");
+            pos += 2;
+        }
+        
         std::string python_code = 
-            "import sys; "
-            "sys.path.append('" + std::string(getenv("PWD")) + "'); "
-            "from ai.utils.variables import get_variable_manager; "
-            "vm = get_variable_manager(); "
-            "vm.storage_path = '" + config_path + "'; "
-            "vm._load_variables(); "
-            "vm.set_variable('" + name + "', '" + value + "'); "
+            "from ai.utils.variables import VariableManager; "
+            "vm = VariableManager('" + escaped_path + "'); "
+            "vm.set_variable('" + escaped_name + "', '" + escaped_value + "'); "
             "print('success', end='')";
         
         std::string result = execute_python_command(python_code);
@@ -69,14 +103,18 @@ public:
     }
     
     std::string ListVariables() const {
+        std::string escaped_path = config_path;
+        // Escape single quotes
+        size_t pos = 0;
+        while ((pos = escaped_path.find("'", pos)) != std::string::npos) {
+            escaped_path.replace(pos, 1, "\\'");
+            pos += 2;
+        }
+        
         std::string python_code = 
-            "import sys; "
-            "sys.path.append('" + std::string(getenv("PWD")) + "'); "
-            "from ai.utils.variables import get_variable_manager; "
+            "from ai.utils.variables import VariableManager; "
             "import json; "
-            "vm = get_variable_manager(); "
-            "vm.storage_path = '" + config_path + "'; "
-            "vm._load_variables(); "
+            "vm = VariableManager('" + escaped_path + "'); "
             "print(json.dumps(vm.list_variables()), end='')";
         
         return execute_python_command(python_code);

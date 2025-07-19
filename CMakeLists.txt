@@ -48,7 +48,7 @@ if(DOXYGEN_FOUND)
     # Add target to convert .dot files to PNG in top-level Resources
     if(DOT_EXECUTABLE)
         add_custom_target(diagrams
-            COMMAND find ${CMAKE_CURRENT_SOURCE_DIR} -name "*.dot" -type f | while read dotfile\; do echo "Converting $$dotfile to PNG"\; basename_no_ext=$$(basename "$$dotfile" .dot)\; ${DOT_EXECUTABLE} -Tpng "$$dotfile" -o "${CMAKE_CURRENT_SOURCE_DIR}/Resources/$$basename_no_ext.png"\; done
+            COMMAND find ${CMAKE_CURRENT_SOURCE_DIR} -name "*.dot" -type f | while read dotfile ; do echo "Converting $$dotfile to PNG" ; basename_no_ext=$$(basename "$$dotfile" .dot) ; ${DOT_EXECUTABLE} -Tpng "$$dotfile" -o "${CMAKE_CURRENT_SOURCE_DIR}/Resources/$$basename_no_ext.png" ; done
             DEPENDS docs
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Converting all .dot files to PNG format in top-level Resources folder"

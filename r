@@ -34,23 +34,43 @@ if [[ "$NEED_BUILD" == "true" ]]; then
 fi
 
 # Check available consoles and start the best one
-if command_exists v8console; then
-    log_run "Starting v8console..."
-    v8console
-elif command_exists node; then
-    log_run "Starting Node.js REPL (v8console not found)..."
-    node
-elif command_exists python3; then
-    log_run "Starting Python interactive mode (v8console not found)..."
+if command_exists python3; then
+    log_run "Starting Python interactive mode..."
     python3 -c "
 import sys
 sys.path.append('.')
 from ai.utils.variables import VariableManager
-print('PyClaudeCli Variable System Loaded')
-print('Usage: vm = VariableManager(); vm.process_input(\"name=value\")')
-exec('import code; code.interact(local=globals())')
+from ai.modes.interactive import InteractiveMode
+from ai.api.client import ClaudeClient
+
+print('\n🚀 PyClaudeCli Variable System Loaded')
+print('\nAvailable imports:')
+print('  - VariableManager: Variable management system')
+print('  - InteractiveMode: Interactive CLI mode')
+print('  - ClaudeClient: Claude API client')
+print('\nExample usage:')
+print('  vm = VariableManager()')
+print('  vm.process_input(\"name=John\")')
+print('  vm.process_input(\"Hello name!\")')
+print('\nType exit() or Ctrl+D to quit\n')
+
+# Create global instances for convenience
+vm = VariableManager()
+globals()['vm'] = vm
+globals()['VariableManager'] = VariableManager
+globals()['InteractiveMode'] = InteractiveMode
+globals()['ClaudeClient'] = ClaudeClient
+
+import code
+code.interact(local=globals(), banner='')
 "
+elif command_exists v8console; then
+    log_run "Starting v8console..."
+    v8console
+elif command_exists node; then
+    log_run "Starting Node.js REPL..."
+    node
 else
-    log_error "No suitable console found (v8console, node, or python3)"
+    log_error "No suitable console found (python3, v8console, or node)"
     exit 1
 fi

@@ -167,17 +167,7 @@ class InteractiveMode:
 
     def process_input(self, user_prompt):
         """Process user input and execute appropriate action"""
-        # First, handle variable assignments and interpolation
-        processed_prompt, was_assignment = process_variables(user_prompt)
-        
-        # If it was a variable assignment, show the result and return
-        if was_assignment:
-            print(processed_prompt)
-            return True
-        
-        # Use the processed prompt for further command processing
-        user_prompt = processed_prompt
-        
+        # Check for special commands first (before variable processing)
         if user_prompt.lower() in ["exit", "quit"]:
             save_conversation_state(self.interactions)
             return False
@@ -233,6 +223,17 @@ class InteractiveMode:
                 print("No variables stored")
             return True
         else:
+            # Now handle variable assignments and interpolation
+            processed_prompt, was_assignment = process_variables(user_prompt)
+            
+            # If it was a variable assignment, show the result and return
+            if was_assignment:
+                print(processed_prompt)
+                return True
+            
+            # Use the processed prompt for further command processing
+            user_prompt = processed_prompt
+            
             spinner = Spinner()
             spinner.start()
             response, self.interactions = self.client.generate_response(

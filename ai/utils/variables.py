@@ -34,9 +34,13 @@ class VariableManager:
     
     def _save_variables(self):
         """Save variables to storage file."""
-        self.storage_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.storage_path, 'w') as f:
-            json.dump(self._variables, f, indent=2)
+        try:
+            self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.storage_path, 'w') as f:
+                json.dump(self._variables, f, indent=2)
+        except (PermissionError, OSError):
+            # Silently ignore if we can't save (e.g., invalid path)
+            pass
     
     def set_variable(self, name: str, value: Any):
         """Set a variable value."""
@@ -97,8 +101,9 @@ class VariableManager:
         for word in words:
             # Check if this word is a variable name (alphanumeric identifier)
             if re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', word):
-                value = self.get_variable(word)
-                if value is not None:
+                # Check if variable exists (not just if it's None)
+                if word in self._variables:
+                    value = self._variables[word]
                     result.append(str(value))
                 else:
                     result.append(word)

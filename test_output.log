@@ -1,0 +1,59 @@
+[0;34mPyClaudeCli Variable System Test Suite[0m
+======================================
+Comprehensive testing with 40+ tests
+
+[0;34mStarting comprehensive tests...[0m
+
+
+[1;33m📁 Checking Required Files[0m
+[0;32m✅ Found: ai/utils/variables.py[0m
+[0;32m✅ Found: ai/bindings/variable_api.cpp[0m
+[0;32m✅ Found: tests/unit/test_variables.py[0m
+[0;32m✅ Found: tests/integration/test_variable_integration.py[0m
+[0;32m✅ Found: tests/cpp/test_variable_api.cpp[0m
+[0;32m✅ Found: CMakeLists.txt[0m
+[0;32m✅ Found: Doxyfile[0m
+[0;32m✅ Found: b[0m
+[0;32m✅ Found: r[0m
+
+[1;33m🚀 Testing Scripts[0m
+[0;32m✅ Build script (./b) is executable[0m
+[0;32m✅ Run script (./r) is executable[0m
+
+[1;33m🔨 Testing Build System[0m
+Cleaned existing build directory
+Testing CMake configuration...
+[0;32m✅ CMake configuration successful[0m
+Testing build process...
+[0;32m✅ Build successful[0m
+[1;33m📋 Running: Variable System Import[0m
+Command: PYTHONPATH=. python3 -c 'from ai.utils.variables import VariableManager; print("Import successful")'
+Import successful
+[0;32m✅ PASSED: Variable System Import[0m
+[1;33m📋 Running: Unit Tests (40 tests)[0m
+Command: PYTHONPATH=. python3 tests/unit/test_variables.py >/dev/null 2>&1
+[0;32m✅ PASSED: Unit Tests (40 tests)[0m
+[1;33m📋 Running: Integration Tests (3 known failures)[0m
+Command: PYTHONPATH=. python3 tests/integration/test_variable_integration.py >/dev/null 2>&1
+[0;32m✅ PASSED: Integration Tests (3 known failures)[0m
+[1;33m📋 Running: C++ API Tests (known failures)[0m
+Command: cd build/tests/cpp && PYTHONPATH=../../.. ./test_variable_api >/dev/null 2>&1
+[0;32m✅ PASSED: C++ API Tests (known failures)[0m
+[1;33m📋 Running: Interactive Mode Import[0m
+Command: PYTHONPATH=. python3 -c 'from ai.modes.interactive import InteractiveMode; print("Interactive mode import successful")'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'ai'
+[0;31m❌ FAILED: Interactive Mode Import (exit code: 1, expected: 0)[0m
+[0;31m❌ FAILED: Variable Functionality Test[0m
+[1;33m📋 Running: Clang Detection[0m
+Command: which clang >/dev/null 2>&1 && which clang++ >/dev/null 2>&1
+[0;32m✅ PASSED: Clang Detection[0m
+
+[0;34m📊 Test Summary[0m
+================
+Total Tests: 20
+[0;32mPassed: 9[0m
+[0;31mFailed: 2[0m
+
+[0;31m💥 Some tests failed. Check the output above.[0m

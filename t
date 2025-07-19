@@ -11,7 +11,7 @@ declare -i TESTS_PASSED=0
 declare -i TESTS_FAILED=0
 declare -i TOTAL_TESTS=0
 
-print_header "PyClaudeCli Variable System Test Suite" "Comprehensive testing with 40+ tests"
+print_header "PyClaudeCli Variable System Test Suite" "Comprehensive testing with 80+ tests"
 
 # Function to run test and track results
 run_test() {
@@ -202,14 +202,14 @@ main() {
     # Core functionality
     run_test "Variable System Import" "PYTHONPATH=. python3 -c 'from ai.utils.variables import VariableManager; print(\"Import successful\")'"
     
-    run_test "Unit Tests (40 tests)" "PYTHONPATH=. python3 tests/unit/test_variables.py >/dev/null 2>&1"
+    run_test "Unit Tests (80 tests)" "PYTHONPATH=. python3 tests/unit/test_variables.py >/dev/null 2>&1"
     
-    # Integration tests currently have 3 known failures - expecting exit code 1
-    run_test "Integration Tests (3 known failures)" "PYTHONPATH=. python3 tests/integration/test_variable_integration.py >/dev/null 2>&1" 1
+    # Integration tests
+    run_test "Integration Tests" "PYTHONPATH=. python3 tests/integration/test_variable_integration.py >/dev/null 2>&1"
     
     # C++ tests if build exists
     if [ -f "build/tests/cpp/test_variable_api" ]; then
-        run_test "C++ API Tests (known failures)" "cd build/tests/cpp && PYTHONPATH=../../.. ./test_variable_api >/dev/null 2>&1" 1
+        run_test "C++ API Tests" "cd build/tests/cpp && PYTHONPATH=../../.. ./test_variable_api >/dev/null 2>&1"
     else
         echo -e "${YELLOW}⚠️  C++ tests skipped (executable not found)${NC}"
     fi
@@ -263,7 +263,7 @@ case "${1:-}" in
         show_summary
         ;;
     --integration)
-        run_test "Integration Tests" "python3 tests/integration/test_variable_integration.py" 1
+        run_test "Integration Tests" "python3 tests/integration/test_variable_integration.py"
         show_summary
         ;;
     --cpp)
