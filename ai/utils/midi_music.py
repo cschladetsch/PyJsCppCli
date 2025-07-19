@@ -72,7 +72,11 @@ class MidiMusicGenerator:
             tempo = base_tempo
         
         # Use hash to create deterministic but varied rhythm
-        text_hash = hashlib.md5(combined_text.encode()).hexdigest()
+        # Add timestamp to get variation even with same input
+        import time
+        time_component = str(int(time.time() * 1000))[-6:]  # Last 6 digits of timestamp
+        combined_with_time = combined_text + time_component
+        text_hash = hashlib.md5(combined_with_time.encode()).hexdigest()
         rhythm_seed = int(text_hash[:8], 16)
         
         # Choose bar length based on input characteristics

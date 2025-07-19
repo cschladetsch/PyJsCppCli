@@ -505,131 +505,7 @@ public class TonePlayer {{
             return False
     
     @classmethod
-    def _play_with_sdl2(cls, progression: List[tuple], volume: float) -> bool:
-        """Try to play using SDL2 for better cross-platform audio"""
-        try:
-            # Try to set SDL2 DLL path for different platforms
-            import os
-            import platform
-            
-            # Common SDL2 library paths
-            if platform.system() == "Linux":
-                # Try common Linux paths
-                sdl2_paths = [
-                    "/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0",
-                    "/usr/lib/libSDL2-2.0.so.0",
-                    "/usr/local/lib/libSDL2-2.0.so.0"
-                ]
-                for path in sdl2_paths:
-                    if os.path.exists(path):
-                        os.environ["PYSDL2_DLL_PATH"] = os.path.dirname(path)
-                        break
-            
-            import sdl2
-            import sdl2.ext
-            import numpy as np
-            import struct
-            
-            # Initialize SDL2 audio
-            sdl2.SDL_Init(sdl2.SDL_INIT_AUDIO)
-            
-            # Audio specs
-            sample_rate = 44100
-            channels = 1
-            samples = 2048
-            
-            # Generate audio data for all notes
-            audio_data = bytearray()
-            
-            for freq, duration_ms in progression:
-                # Calculate number of samples
-                num_samples = int(sample_rate * duration_ms / 1000)
-                
-                # Generate sine wave
-                t = np.linspace(0, duration_ms / 1000, num_samples, False)
-                wave = np.sin(2 * np.pi * freq * t)
-                
-                # Apply ADSR envelope for smooth blending
-                attack_time = 0.01  # 10ms
-                decay_time = 0.05   # 50ms
-                sustain_level = 0.8 # 80%
-                release_time = 0.1  # 100ms
-                
-                attack_samples = int(attack_time * sample_rate)
-                decay_samples = int(decay_time * sample_rate)
-                release_samples = int(release_time * sample_rate)
-                sustain_samples = num_samples - attack_samples - decay_samples - release_samples
-                if sustain_samples < 0:
-                    sustain_samples = 0
-                
-                # Create envelope
-                envelope = np.ones(num_samples)
-                
-                # Attack
-                if attack_samples > 0:
-                    envelope[:attack_samples] = np.linspace(0, 1, attack_samples)
-                
-                # Decay
-                if decay_samples > 0:
-                    start = attack_samples
-                    end = start + decay_samples
-                    envelope[start:end] = np.linspace(1, sustain_level, decay_samples)
-                
-                # Sustain
-                if sustain_samples > 0:
-                    start = attack_samples + decay_samples
-                    end = start + sustain_samples
-                    envelope[start:end] = sustain_level
-                
-                # Release
-                if release_samples > 0:
-                    start = attack_samples + decay_samples + sustain_samples
-                    envelope[start:] = np.linspace(sustain_level, 0, min(release_samples, num_samples - start))
-                
-                # Apply envelope and volume
-                wave = wave * envelope * volume
-                
-                # Convert to 16-bit signed integer
-                wave_int16 = (wave * 32767).astype(np.int16)
-                
-                # Add to audio data
-                audio_data.extend(wave_int16.tobytes())
-            
-            # Define audio spec
-            audio_spec = sdl2.SDL_AudioSpec(
-                sample_rate,  # freq
-                sdl2.AUDIO_S16SYS,  # format
-                channels,  # channels
-                samples,  # samples
-                None,  # callback (we'll use SDL_QueueAudio)
-                None   # userdata
-            )
-            
-            # Open audio device
-            device = sdl2.SDL_OpenAudioDevice(None, 0, audio_spec, None, 0)
-            if device == 0:
-                return False
-            
-            # Queue and play audio
-            sdl2.SDL_QueueAudio(device, audio_data, len(audio_data))
-            sdl2.SDL_PauseAudioDevice(device, 0)  # Start playing
-            
-            # Wait for audio to finish
-            while sdl2.SDL_GetQueuedAudioSize(device) > 0:
-                sdl2.SDL_Delay(100)
-            
-            # Clean up
-            sdl2.SDL_CloseAudioDevice(device)
-            sdl2.SDL_Quit()
-            
-            return True
-            
-        except Exception as e:
-            print(f"SDL2 audio error: {e}")
-            return False
-    
-    
-    @classmethod
+
     def _save_to_history(cls, entry: Dict):
         """Save entry to history file, trimming if necessary"""
         cls.MUSIC_HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -638,7 +514,7 @@ public class TonePlayer {{
         history = []
         if cls.MUSIC_HISTORY_FILE.exists():
             try:
-                with open(cls.MUSIC_HISTORY_FILE, 'r') as f:
+                with open(cls.MUSIC_HISTORY_FILE, "r") as f:
                     history = json.load(f)
             except:
                 history = []
@@ -649,32 +525,74 @@ public class TonePlayer {{
         # Trim history if too large
         history_str = json.dumps(history)
         while len(history_str) > cls.MAX_HISTORY_SIZE and len(history) > 1:
-            history.pop(0)  # Remove oldest entry
+            history.pop(0)
             history_str = json.dumps(history)
         
-        # Save trimmed history
-        with open(cls.MUSIC_HISTORY_FILE, 'w') as f:
-            json.dump(history, f, indent=2)
+        # Save history
+        with open(cls.MUSIC_HISTORY_FILE, "w") as f:
+            json.dump(history, f)
     
     @classmethod
     def get_history(cls) -> List[Dict]:
         """Get music history"""
         if cls.MUSIC_HISTORY_FILE.exists():
             try:
-                with open(cls.MUSIC_HISTORY_FILE, 'r') as f:
+                with open(cls.MUSIC_HISTORY_FILE, "r") as f:
                     return json.load(f)
             except:
                 return []
         return []
     
     @classmethod
-    def play_midi_file(cls) -> Optional[Dict]:
+    def play_midi_file(cls, loop: bool = False) -> Optional[Dict]:
         """Play the entire accumulated MIDI file"""
         from .midi_music import MidiMusicGenerator
         
         midi_path = MidiMusicGenerator.MIDI_FILE_PATH
         if not midi_path.exists():
             return None
+        
+        # For looping, try timidity first (better quality), then pygame
+        if loop:
+            # Try timidity first for better sound quality
+            try:
+                import subprocess
+                if subprocess.run(["which", "timidity"], capture_output=True).returncode == 0:
+                    print("Playing MIDI on loop with timidity. Press Ctrl+C to stop...")
+                    subprocess.run(["timidity", "-idl", str(midi_path)])
+                    return {"method": "timidity", "looped": True}
+            except KeyboardInterrupt:
+                print("\nLoop stopped.")
+                return {"method": "timidity", "looped": True}
+            except:
+                pass
+            
+            # Fall back to pygame
+            try:
+                import pygame
+                pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=2048)
+                pygame.mixer.music.load(str(midi_path))
+                pygame.mixer.music.play(-1)  # -1 means loop forever
+                print("Playing MIDI on loop with pygame. Press Ctrl+C to stop...")
+                
+                # Keep the program running while music plays
+                while pygame.mixer.music.get_busy():
+                    pygame.time.wait(100)
+                    
+            except KeyboardInterrupt:
+                pygame.mixer.music.stop()
+                print("\nLoop stopped.")
+                return {"method": "pygame", "looped": True}
+            except ImportError:
+                print("pygame not installed. Install with: pip install -r requirements.txt")
+                loop_playback = True  # Fall back to manual loop
+            except Exception as e:
+                print(f"pygame error: {e}")
+                import traceback
+                traceback.print_exc()
+                loop_playback = True  # Fall back to manual loop
+        else:
+            loop_playback = False
         
         # Get volume setting
         volume = cls.get_volume()
@@ -691,48 +609,56 @@ public class TonePlayer {{
         if not progression:
             return None
         
-        # Try to play using different methods
-        played = False
-        method = None
-        
-        # Try SDL2 first for best cross-platform volume control
-        try:
-            if cls._play_with_sdl2(progression, volume):
+        # Function to play once
+        def play_once():
+            # Try to play using different methods
+            played = False
+            method = None
+            
+            # Try PulseAudio (works well in WSL2 with WSLg)
+            if not played and cls._play_with_pulseaudio(progression, volume):
                 played = True
-                method = "sdl2"
-        except Exception as e:
-            # SDL2 failed, continue to next method
-            pass
-        
-        # Try PulseAudio (works well in WSL2 with WSLg)
-        if not played and cls._play_with_pulseaudio(progression, volume):
-            played = True
-            method = "pulseaudio"
-        # If WSL2 and above fails, try Windows audio methods
-        elif cls._is_wsl2():
-            if cls._play_with_windows_audio(progression, volume):
+                method = "pulseaudio"
+            # If WSL2 and above fails, try Windows audio methods
+            elif cls._is_wsl2():
+                if cls._play_with_windows_audio(progression, volume):
+                    played = True
+                    method = "windows-audio"
+                elif cls._play_with_powershell(progression, volume):
+                    played = True
+                    method = "powershell"
+            # Method 1: Try using sox (play command)
+            elif cls._play_with_sox(progression, volume):
                 played = True
-                method = "windows-audio"
-            elif cls._play_with_powershell(progression, volume):
+                method = "sox"
+            # Method 2: Try using beep command
+            elif cls._play_with_beep(progression, volume):
                 played = True
-                method = "powershell"
-        # Method 1: Try using sox (play command)
-        elif cls._play_with_sox(progression, volume):
-            played = True
-            method = "sox"
-        # Method 2: Try using beep command
-        elif cls._play_with_beep(progression, volume):
-            played = True
-            method = "beep"
-        # Method 3: Try using speaker-test
-        elif cls._play_with_speaker_test(progression, volume):
-            played = True
-            method = "speaker-test"
+                method = "beep"
+            # Method 3: Try using speaker-test
+            elif cls._play_with_speaker_test(progression, volume):
+                played = True
+                method = "speaker-test"
+            
+            return played, method
         
-        if played:
-            return {"method": method, "notes": len(progression)}
-        
-        return None
+        # Play the audio
+        if loop_playback:
+            # Play in a loop
+            try:
+                while True:
+                    played, method = play_once()
+                    if not played:
+                        return None
+            except KeyboardInterrupt:
+                print("\nLoop stopped.")
+                return {"method": method, "notes": len(progression), "looped": True}
+        else:
+            # Play once
+            played, method = play_once()
+            if played:
+                return {"method": method, "notes": len(progression)}
+            return None
     
     @classmethod
     def _midi_tracks_to_progression(cls, tracks: List[bytes]) -> List[tuple]:
@@ -745,7 +671,7 @@ public class TonePlayer {{
         
         # Parse each track
         for track in tracks:
-            if len(track) < 8 or track[:4] != b'MTrk':
+            if len(track) < 8 or track[:4] != b"MTrk":
                 continue
             
             # Skip MTrk header and length
@@ -783,31 +709,28 @@ public class TonePlayer {{
                     velocity = track[pos + 1]
                     pos += 2
                     
-                    if velocity > 0:  # Note on with velocity > 0
+                    if velocity > 0:
+                        # Convert MIDI note to frequency
                         freq = midi_to_freq(note)
-                        # Simplified duration calculation (assume quarter note)
-                        duration_ms = tempo // 1000  # Convert microseconds to milliseconds
+                        # Simple duration calculation (not accurate but works)
+                        duration_ms = int((tempo / 1000) * 0.5)  # Half a beat
                         progression.append((freq, duration_ms))
-                # Note off event
-                elif (event & 0xF0) == 0x80 and pos + 1 < track_end:
-                    pos += 2  # Skip note and velocity
-                # Other events - skip
+                # Skip other events
                 else:
-                    if event < 0x80:
-                        # Running status - this is data, not an event
-                        pos -= 1
-                    elif event >= 0xC0 and event <= 0xDF:
-                        # Program change or channel pressure - 1 data byte
-                        pos += 1
-                    elif event >= 0x80:
-                        # Most other events have 2 data bytes
+                    # Try to determine event length and skip
+                    if (event & 0x80) == 0:
+                        # Running status, this is data
+                        continue
+                    elif (event & 0xF0) in [0x80, 0xA0, 0xB0, 0xE0]:
+                        # 2 data bytes
                         pos += 2
-        
-        # Limit progression length to prevent very long playback
-        max_notes = 200
-        if len(progression) > max_notes:
-            # Take a sample from throughout the song
-            step = len(progression) // max_notes
-            progression = progression[::step][:max_notes]
+                    elif (event & 0xF0) in [0xC0, 0xD0]:
+                        # 1 data byte
+                        pos += 1
+                    elif event == 0xF0:
+                        # SysEx - skip to F7
+                        while pos < track_end and track[pos] != 0xF7:
+                            pos += 1
+                        pos += 1
         
         return progression

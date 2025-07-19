@@ -15,8 +15,8 @@ def check_and_install_dependencies():
         'anthropic': 'anthropic>=0.44.0',
         'prompt_toolkit': 'prompt_toolkit>=3.0.39',
         'pyperclip': 'pyperclip>=1.8.2',
-        'sdl2': 'PySDL2>=0.9.14',
-        'numpy': 'numpy>=1.21.0'
+        'numpy': 'numpy>=1.21.0',
+        'pygame': 'pygame>=2.5.0'
     }
     
     missing_packages = []

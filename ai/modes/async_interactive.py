@@ -101,6 +101,14 @@ class AsyncInteractiveMode:
             save_conversation_state(self.interactions)
             append_to_conversation_log(interaction)
             
+            # Generate MIDI from query and response
+            try:
+                from ..utils.midi_music import MidiMusicGenerator
+                MidiMusicGenerator.generate_and_save(query, full_response)
+            except Exception as e:
+                # Don't fail the interaction if MIDI generation fails
+                pass
+            
         except Exception as e:
             print_error(f"Error: {str(e)}")
             

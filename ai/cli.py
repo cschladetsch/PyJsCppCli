@@ -121,6 +121,14 @@ def handle_command_line_query(query: str, no_spinner: bool = False, json_output:
             intro = random.choice(RESPONSE_INTROS)
             print_response(intro, reply)
         
+        # Generate MIDI from query and response
+        try:
+            from .utils.midi_music import MidiMusicGenerator
+            MidiMusicGenerator.generate_and_save(query, reply)
+        except Exception:
+            # Don't fail if MIDI generation fails
+            pass
+            
         # Save updated conversation state
         save_conversation_state(updated_interactions)
         # Log the latest interaction to markdown file
@@ -185,6 +193,7 @@ def main():
         print("  --json                       - Output response in JSON format")
         print("  --config PATH                - Specify config file path")
         print("  --playsong                   - Play the entire accumulated MIDI song")
+        print("  --playsong --loop            - Play MIDI song on loop (Ctrl+C to stop)")
         print("  --gen-midi [TEXT]            - Generate MIDI file from text input")
         print("  --clear-music                - Delete the accumulated MIDI file")
         print("\nCommands (in interactive mode or as query):")
@@ -286,10 +295,18 @@ def main():
     # Check for --playsong flag
     if "--playsong" in sys.argv:
         from .utils.music import MusicPlayer
-        print("Playing accumulated MIDI song...")
-        result = MusicPlayer.play_midi_file()
+        # Check if --loop flag is also present
+        loop = "--loop" in sys.argv
+        if loop:
+            print("Playing accumulated MIDI song on loop...")
+        else:
+            print("Playing accumulated MIDI song...")
+        result = MusicPlayer.play_midi_file(loop=loop)
         if result:
-            print_success(f"Played MIDI song using {result['method']}")
+            if result.get('looped'):
+                print_success(f"Stopped MIDI loop playback (was using {result['method']})")
+            else:
+                print_success(f"Played MIDI song using {result['method']}")
         else:
             print_error("Failed to play MIDI song. Check if music.mid exists and audio is available.")
         return 0
@@ -422,6 +439,9 @@ def main():
             # Skip --gen-midi and its optional value (handled earlier)
             if i + 1 < len(sys.argv) and not sys.argv[i + 1].startswith('-'):
                 i += 1  # Skip the text value
+        elif arg == "--loop":
+            # Skip --loop (handled with --playsong)
+            pass
         else:
             filtered_args.append(arg)
         i += 1
