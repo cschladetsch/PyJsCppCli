@@ -1,5 +1,7 @@
 # Claude CLI
 
+![Claude CLI Demo2](Demo2.gif)
+
 ![Claude CLI Demo](Resources/Demo.gif)
 
 Command-line interface for interacting with Claude AI models.
