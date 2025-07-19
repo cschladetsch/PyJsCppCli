@@ -21,7 +21,9 @@ THEMES = {
             "info": Colors.INFO,
             "header": Colors.HEADER,
             "code": Colors.CODE,
-            "muted": Colors.MUTED
+            "muted": Colors.MUTED,
+            "user": Colors.BRIGHT_GREEN,
+            "assistant": Colors.BRIGHT_BLUE
         },
         "markdown": {
             "style": "dark",
@@ -40,7 +42,9 @@ THEMES = {
             "info": Colors.CYAN,
             "header": Colors.BOLD + Colors.WHITE,
             "code": Colors.BRIGHT_BLACK,
-            "muted": Colors.BRIGHT_BLACK
+            "muted": Colors.BRIGHT_BLACK,
+            "user": Colors.GREEN,
+            "assistant": Colors.CYAN
         },
         "markdown": {
             "style": "notty",
@@ -59,7 +63,9 @@ THEMES = {
             "info": Colors.BRIGHT_BLUE,
             "header": Colors.BOLD + Colors.BRIGHT_MAGENTA,
             "code": Colors.PURPLE,
-            "muted": Colors.DIM + Colors.WHITE
+            "muted": Colors.DIM + Colors.WHITE,
+            "user": Colors.LIME,
+            "assistant": Colors.BRIGHT_CYAN
         },
         "markdown": {
             "style": "pink",
@@ -78,7 +84,9 @@ THEMES = {
             "info": Colors.BLUE,
             "header": Colors.BOLD + Colors.WHITE,
             "code": Colors.CYAN,
-            "muted": Colors.BRIGHT_BLACK
+            "muted": Colors.BRIGHT_BLACK,
+            "user": Colors.GREEN,
+            "assistant": Colors.WHITE
         },
         "markdown": {
             "style": "dark",

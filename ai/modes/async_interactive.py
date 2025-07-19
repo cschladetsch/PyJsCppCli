@@ -11,6 +11,8 @@ from prompt_toolkit.history import FileHistory
 
 from ..api.async_client import AsyncClaudeClient
 from ..utils.output_formatter import OutputFormatter, print_error, print_success, print_info
+from ..utils.colors import Colors
+from ..utils.theme_config import theme_config
 from ..utils.io import (
     load_conversation_state,
     save_conversation_state,
@@ -141,11 +143,14 @@ class AsyncInteractiveMode:
         interactions = self.interactions[-limit:] if limit else self.interactions
         
         for i, interaction in enumerate(interactions, 1):
-            print(f"\n--- Exchange {i} ---")
-            print(f"User: {interaction.query}")
-            print(f"Assistant: {interaction.response[:200]}...")
-            if len(interaction.response) > 200:
-                print("(truncated)")
+            user_color = theme_config.get_color("user")
+            assistant_color = theme_config.get_color("assistant")
+            user_short = interaction.query[:50] + "..." if len(interaction.query) > 50 else interaction.query
+            assistant_short = interaction.response[:50] + "..." if len(interaction.response) > 50 else interaction.response
+            
+            print(f"{Colors.BRIGHT_CYAN}{i}.{Colors.RESET} {user_color}User:{Colors.RESET} {user_short}")
+            print(f"   {assistant_color}Assistant:{Colors.RESET} {assistant_short}")
+            print()
                 
     async def clear_conversation(self):
         """Clear conversation history"""

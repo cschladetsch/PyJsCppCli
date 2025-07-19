@@ -17,6 +17,7 @@ from ..utils.output_formatter import (
     OutputFormatter, print_error, print_warning, 
     print_success, print_info, print_response
 )
+from ..utils.theme_config import theme_config
 from ..utils.io import (
     load_conversation_state, 
     load_conversation_state_with_timeout,
@@ -88,9 +89,11 @@ class InteractiveMode:
             
         for i, interaction in enumerate(interactions_to_show, 1):
             user_short = interaction.query[:50] + "..." if len(interaction.query) > 50 else interaction.query
-            print(f"{i}. User: {user_short}")
+            user_color = theme_config.get_color("user")
+            assistant_color = theme_config.get_color("assistant")
+            print(f"{Colors.BRIGHT_CYAN}{i}.{Colors.RESET} {user_color}User:{Colors.RESET} {user_short}")
             assistant_short = interaction.response[:50] + "..." if len(interaction.response) > 50 else interaction.response
-            print(f"   Claude: {assistant_short}")
+            print(f"   {assistant_color}Claude:{Colors.RESET} {assistant_short}")
             print()
 
     def clear_conversation(self):
