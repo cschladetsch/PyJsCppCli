@@ -1,6 +1,6 @@
 # Claude CLI
 
-![Claude CLI Demo2](Demo2.gif)
+![Claude CLI Demo2](Demo3.gif)
 
 ![Claude CLI Demo](Resources/Demo.gif)
 
