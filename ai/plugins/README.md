@@ -1,6 +1,6 @@
 # Plugins Module
 
-Plugin system for extending PyClaudeCli functionality with variable system integration.
+Plugin system for extending AI CLI functionality with variable system integration.
 
 ## Files
 

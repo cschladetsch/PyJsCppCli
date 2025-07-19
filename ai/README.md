@@ -1,6 +1,6 @@
 # AI Module
 
-Core module for the PyClaudeCli application providing a command-line interface to Claude AI with advanced features including variable system, plugin architecture, and C++ integration.
+Core module for the AI CLI application providing a command-line interface to AI models with advanced features including variable system, plugin architecture, and C++ integration.
 
 ## Structure
 
@@ -12,7 +12,7 @@ Core module for the PyClaudeCli application providing a command-line interface t
 
 ## Subdirectories
 
-- `api/` - Claude API client implementations (sync and async)
+- `api/` - AI model API client implementations (sync and async)
 - `bindings/` - **C++ API bindings for cross-language integration**
 - `modes/` - Different interaction modes (interactive, async interactive)
 - `plugins/` - Extensible plugin system with decorators
@@ -28,7 +28,7 @@ Core module for the PyClaudeCli application providing a command-line interface t
 
 ### Variable System
 - **Simple syntax**: `name=John`, then use `name` directly in text
-- **Persistent storage**: Variables saved to `~/.config/claude/variables.json`
+- **Persistent storage**: Variables saved to `~/.config/ai-cli/variables.json`
 - **JSON support**: Arrays, objects, booleans, null values automatically parsed
 - **Cross-session**: Variables persist between CLI restarts
 - **80+ test coverage**: Comprehensive test suite for reliability

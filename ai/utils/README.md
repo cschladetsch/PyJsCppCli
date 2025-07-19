@@ -1,6 +1,6 @@
 # Utils Module
 
-Comprehensive utility functions and helpers for PyClaudeCli, providing core functionality including the advanced variable system, UI components, and system integration.
+Comprehensive utility functions and helpers for AI CLI, providing core functionality including the advanced variable system, UI components, and system integration.
 
 ## Files
 
@@ -40,7 +40,7 @@ The crown jewel of the utils module - a comprehensive variable management system
 - **Simple Assignment**: `name=John` syntax for setting variables
 - **Direct Usage**: Use `name` directly in text (no $ prefix needed)
 - **JSON Parsing**: Automatic parsing of arrays, objects, booleans, null values
-- **Persistence**: Variables stored in `~/.config/claude/variables.json`
+- **Persistence**: Variables stored in `~/.config/ai-cli/variables.json`
 - **Cross-Session**: Variables persist between CLI restarts
 - **Interactive Integration**: Seamless integration with interactive mode
 
@@ -75,7 +75,7 @@ variables = vm.list_variables()
 ### Configuration System
 - **Hierarchical config loading**: System → User → Local
 - **YAML and JSON support**: Flexible configuration formats
-- **Environment variable override**: `CLAUDE_CONFIG_PATH`
+- **Environment variable override**: `AI_CONFIG_PATH`
 - **Default templates**: Auto-generated on first run
 
 ### UI Components
@@ -116,9 +116,9 @@ from ai.utils.config import get_config
 
 # Load user configuration
 config = get_config()
-model = config.get("default_model", "claude-3-sonnet")
+model = config.get("default_model", "gpt-4")
 ```
 
 ## Description
 
-This module provides the foundation for PyClaudeCli's functionality, offering robust utilities for configuration management, user interface, file operations, and the innovative variable system that enables persistent context across CLI sessions. All components are designed with security, performance, and user experience in mind.
+This module provides the foundation for AI CLI's functionality, offering robust utilities for configuration management, user interface, file operations, and the innovative variable system that enables persistent context across CLI sessions. All components are designed with security, performance, and user experience in mind.

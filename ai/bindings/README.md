@@ -1,6 +1,6 @@
 # Bindings Directory
 
-C++ API bindings for cross-language integration with the PyClaudeCli variable system.
+C++ API bindings for cross-language integration with the AI CLI variable system.
 
 ## Files
 
@@ -97,7 +97,7 @@ make variable_api_test     # Build example
 ### Integration with Python
 
 The C++ API seamlessly integrates with the Python variable system:
-1. **Shared Storage**: Uses same `~/.config/claude/variables.json` file
+1. **Shared Storage**: Uses same `~/.config/ai-cli/variables.json` file
 2. **Consistent Behavior**: Same variable access patterns as Python
 3. **Live Updates**: Changes in C++ are immediately visible in Python and vice versa
 4. **Type Preservation**: JSON types maintained across language boundaries
@@ -119,8 +119,8 @@ Comprehensive testing ensures reliability:
 
 ## Use Cases
 
-- **Native Applications**: Integrate PyClaudeCli variables into C++ apps
+- **Native Applications**: Integrate AI CLI variables into C++ apps
 - **Performance Critical**: Fast variable access from compiled code
-- **Legacy Integration**: Connect existing C++ systems to PyClaudeCli
+- **Legacy Integration**: Connect existing C++ systems to AI CLI
 - **Cross-Language**: Share data between Python and C++ components
 - **Embedded Systems**: Lightweight variable access for resource-constrained environments

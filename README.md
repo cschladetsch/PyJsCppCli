@@ -10,7 +10,7 @@ Command-line interface for interacting with AI models.
 
 ## Overview
 
-This CLI aapp provides a seamless, terminal-based interface to interact with various models. It combines the power of AI's advanced reasoning capabilities with the efficiency of a command-line workflow, perfect for developers, researchers, and power users.
+This CLI app provides a seamless, terminal-based interface to interact with various AI models. It combines the power of advanced AI reasoning capabilities with the efficiency of a command-line workflow, perfect for developers, researchers, and power users.
 
 ## Features
 
@@ -34,7 +34,7 @@ This CLI aapp provides a seamless, terminal-based interface to interact with var
 ### Prerequisites
 
 - Python 3.8+
-- Anthropic API key
+- AI API key (supports multiple providers)
 - sox (optional, for startup music)
   - macOS: `brew install sox`
   - Ubuntu/Debian: `sudo apt-get install sox`
@@ -47,16 +47,16 @@ This CLI aapp provides a seamless, terminal-based interface to interact with var
 # Clone the repository
 # You have already done this
 
-# Set up your API key: eg:
-echo "your-anthropic-api-key" > ~/.claude_token
-# Or set environment variable: export CLAUDE_API_KEY="your-anthropic-api-key"
-# Or set environment variable: export AI_ENGINE_API_KEY="your-x-api-key"
+# Set up your API key:
+echo "your-api-key" > ~/.ai_token
+# Or set environment variable: export AI_API_KEY="your-api-key"
+# Or for specific providers: export ANTHROPIC_API_KEY="your-anthropic-key"
 
 # Build and test everything
 ./b    # Builds C++ components and runs all tests
 
 # Run the CLI (dependencies will be auto-installed on first run)
-python3 main.py "Hello Ai!"
+python3 main.py "Hello AI!"
 ```
 
 The application will automatically install required dependencies on first run if they're not already present.
@@ -68,18 +68,18 @@ To use the `ask` command from anywhere in your terminal, add an alias to your sh
 #### For Zsh (`.zshrc`)
 
 ```bash
-echo "alias ask=~/local/repos/PyCPyJsCppCli/main.py" >> ~/.zshrc
+echo "alias ask=~/local/repos/PyClaudeCli/main.py" >> ~/.zshrc
 source ~/.zshrc
 ```
 
 #### For Bash (`.bashrc`)
 
 ```bash
-echo "alias ask=~/local/repos/PPyJsCppCli/main.py" >> ~/.bashrc
+echo "alias ask=~/local/repos/PyClaudeCli/main.py" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-Note: Adjust the path to match where you cloned the repository. The example above assumes the repository is in `~/local/repos/PyJsCppCli/`.
+Note: Adjust the path to match where you cloned the repository. The example above assumes the repository is in `~/local/repos/PyClaudeCli/`.
 
 After setting up the alias, you can use the `ask` command from any directory.
 
@@ -98,8 +98,8 @@ ask [options] [query]
 | `--help`, `-h` | Show help message and exit |
 | `--version`, `-v` | Show version information |
 | `--reset` | Reset configuration to defaults |
-| `--init-config` | Create default config files in ~/.config/claude/ |
-| `--model MODEL` | Specify model to use (e.g., claude-3-opus) |
+| `--init-config` | Create default config files in ~/.config/ai-cli/ |
+| `--model MODEL` | Specify AI model to use |
 | `--no-spinner` | Disable loading spinner animation |
 | `--json` | Output response in JSON format |
 | `--config PATH` | Specify custom config file path |
@@ -119,7 +119,7 @@ Launch the interactive mode by running the command without arguments:
 ask
 ```
 
-This opens a prompt where you can chat with Ai continuously. The prompt is displayed as a magenta lambda symbol (λ).
+This opens a prompt where you can chat with AI continuously. The prompt is displayed as a magenta lambda symbol (λ).
 
 #### Available Commands in Interactive Mode
 
@@ -179,7 +179,7 @@ For quick, one-off queries without entering interactive mode:
 ask "What is the capital of France?"
 
 # Use a specific model
-ask --model claude-3-opus "Explain quantum computing"
+ask --model gpt-4 "Explain quantum computing"
 
 # Get JSON output
 ask --json "List 5 prime numbers"
@@ -216,9 +216,9 @@ ask --help
 
 ## File Handling
 
-CLI intelligently handles different file types:
+The CLI intelligently handles different file types:
 
-- **Text Files** (markdown, code, txt, etc.): Content is extracted and included directly in the message to Ai
+- **Text Files** (markdown, code, txt, etc.): Content is extracted and included directly in the message to AI
 - **Image Files** (jpeg, png, gif, webp): Sent as attachments via the AI API
 - **Unsupported Files**: Warning message is displayed, and file is skipped
 
@@ -230,17 +230,20 @@ You can provide your AI API key in either of two ways:
 
 1. **Environment Variable**:
    ```bash
-   export CLAUDE_API_KEY="your-api-key-here"
+   export AI_API_KEY="your-api-key-here"
+   # Or for specific providers:
+   export ANTHROPIC_API_KEY="your-anthropic-key"
+   export OPENAI_API_KEY="your-openai-key"
    ```
 
 2. **Token File**:
    ```bash
-   echo "your-api-key-here" > ~/.claude_token
+   echo "your-api-key-here" > ~/.ai_token
    ```
 
 ### Configuration Directory
 
-CLI uses `~/.config/claude/` for user customization. To create default configuration files:
+The CLI uses `~/.config/ai-cli/` for user customization. To create default configuration files:
 
 ```bash
 ask --init-config
@@ -250,24 +253,24 @@ This creates the following files:
 
 | File | Purpose |
 |------|---------|
-| `~/.config/claude/system` | Custom system prompt |
-| `~/.config/claude/conversations.json` | Conversation history (auto-managed) |
-| `~/.config/claude/variables.json` | Persistent variables |
-| `~/.config/claude/aliases.json` | Command aliases |
-| `~/.config/claude/models.json` | Model preferences and settings |
-| `~/.config/claude/templates.json` | Response templates |
+| `~/.config/ai-cli/system` | Custom system prompt |
+| `~/.config/ai-cli/conversations.json` | Conversation history (auto-managed) |
+| `~/.config/ai-cli/variables.json` | Persistent variables |
+| `~/.config/ai-cli/aliases.json` | Command aliases |
+| `~/.config/ai-cli/models.json` | Model preferences and settings |
+| `~/.config/ai-cli/templates.json` | Response templates |
 
 #### Custom System Prompt
 
-Edit `~/.config/claude/system` to customize AI's behavior:
+Edit `~/.config/ai-cli/system` to customize AI's behavior:
 
 ```bash
-echo "You are a helpful coding assistant specializing in Python" > ~/.config/claude/system
+echo "You are a helpful coding assistant specializing in Python" > ~/.config/ai-cli/system
 ```
 
 #### Model Preferences
 
-Edit `~/.config/claude/models.json` to configure:
+Edit `~/.config/ai-cli/models.json` to configure:
 - Default model
 - Conversation load timeout (default: 3.0 seconds)
 - Temperature and max tokens
@@ -275,7 +278,7 @@ Edit `~/.config/claude/models.json` to configure:
 Example:
 ```json
 {
-  "default": "claude-3-sonnet-20240229",
+  "default": "gpt-4",
   "conversation_load_timeout": 5.0,
   "startup_music": true,
   "preferences": {
@@ -289,9 +292,9 @@ Example:
 
 The CLI plays a full 4/4 bar musical phrase on startup. This can be toggled:
 - Via command line: `ask --music`
-- Via config: Set `"startup_music": false` in `~/.config/claude/models.json`
+- Via config: Set `"startup_music": false` in `~/.config/ai-cli/models.json`
 
-Music history is stored in `~/.config/claude/music.json` (trimmed to 3KB).
+Music history is stored in `~/.config/ai-cli/music.json` (trimmed to 3KB).
 Patterns include arpeggios, scales, and rhythmic variations in various keys.
 
 **Note for WSL2 users:** The CLI will attempt to play audio through Windows PowerShell. If you don't hear sound:
@@ -307,18 +310,18 @@ The CLI maintains several files:
 
 | File | Purpose |
 |------|---------|
-| `~/.claude_token` | API token (if not using environment variable) |
+| `~/.ai_token` | API token (if not using environment variable) |
 | `~/.ask_history` | Command history |
 | `~/.ask_uploads` | Temporary cache for uploaded files |
-| `~/.config/claude/` | User configuration directory |
-| `~/.config/claude/conversations.json` | Conversation state |
-| `~/.config/claude/system` | Custom system prompt |
-| `~/.config/claude/aliases.json` | Command aliases |
-| `~/.config/claude/models.json` | Model preferences |
-| `~/.config/claude/templates.json` | Response templates |
-| `~/.config/claude/music.json` | Music play history |
+| `~/.config/ai-cli/` | User configuration directory |
+| `~/.config/ai-cli/conversations.json` | Conversation state |
+| `~/.config/ai-cli/system` | Custom system prompt |
+| `~/.config/ai-cli/aliases.json` | Command aliases |
+| `~/.config/ai-cli/models.json` | Model preferences |
+| `~/.config/ai-cli/templates.json` | Response templates |
+| `~/.config/ai-cli/music.json` | Music play history |
 
-Note: The `~/.ask_*` files are in the home directory for easy access, while configuration files are organized under `~/.config/claude/` following XDG standards.
+Note: The `~/.ask_*` files are in the home directory for easy access, while configuration files are organized under `~/.config/ai-cli/` following XDG standards.
 
 ## Development & Testing
 
@@ -413,14 +416,14 @@ The Ask CLI follows a layered architecture with clear separation of concerns:
 - **Entry Points**: Multiple ways to launch the application
 - **CLI Layer**: Command parsing and routing
 - **Interaction Modes**: Interactive, async, and command-line modes
-- **API Layer**: AI API integration with connection pooling
+- **API Layer**: AI provider API integration with connection pooling
 - **Plugin System**: Extensible architecture for custom functionality
 - **Utilities**: Configuration, validation, logging, and streaming support
 
 ## Project Structure
 
 ```
-py # Async interactive mode
+ai/                          # AI integration
 │   ├── bindings/             # C++ API bindings
 │   │   ├── variable_api.cpp  # C++ variable interface
 │   │   └── CMakeLists.txt    # C++ build configuration
@@ -479,10 +482,10 @@ git commit --no-verify -m "Your commit message"
 
 ### API Key Not Found
 
-If you see "Token file not found and 'CLAUDE_API_KEY' environment variable is not set":
+If you see "Token file not found and API key environment variable is not set":
 
-1. Create a token file: `echo "your-api-key" > ~/.claude_token`
-2. Or set the environment variable: `export CLAUDE_API_KEY="your-api-key"`
+1. Create a token file: `echo "your-api-key" > ~/.ai_token`
+2. Or set the environment variable: `export AI_API_KEY="your-api-key"`
 
 ### File Upload Issues
 

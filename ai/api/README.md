@@ -1,6 +1,6 @@
 # API Module
 
-Handles communication with Claude API through both synchronous and asynchronous clients, with integrated variable system support and advanced features.
+Handles communication with AI model APIs through both synchronous and asynchronous clients, with integrated variable system support and advanced features.
 
 ## Files
 
@@ -10,10 +10,10 @@ Handles communication with Claude API through both synchronous and asynchronous 
 
 ## Usage
 
-The API module provides both synchronous and asynchronous clients for interacting with Claude's API endpoints. All API interactions support the persistent variable system for enhanced conversation continuity.
+The API module provides both synchronous and asynchronous clients for interacting with AI model API endpoints. All API interactions support the persistent variable system for enhanced conversation continuity.
 
 ### Synchronous Client (client.py)
-- Uses official Anthropic Python SDK
+- Uses AI provider SDKs (e.g., Anthropic Python SDK)
 - Supports file uploads (text and images)
 - Handles conversation history and context
 - Automatic retry logic for API errors
@@ -27,8 +27,8 @@ The API module provides both synchronous and asynchronous clients for interactin
 ## Features
 
 ### API Key Management
-- Reads from environment variable `CLAUDE_API_KEY`
-- Falls back to `~/.claude_token` file
+- Reads from environment variable `AI_API_KEY` or provider-specific keys
+- Falls back to `~/.ai_token` file
 - Secure token handling with validation
 
 ### Message Formatting
@@ -46,16 +46,16 @@ The API module provides both synchronous and asynchronous clients for interactin
 ## Variable System Integration
 
 ### Client Features
-Both API clients can process messages containing variables before sending to Claude:
+Both API clients can process messages containing variables before sending to the AI model:
 - **Variable Interpolation**: Replace variable references in prompts
 - **Session Continuity**: Maintain context across API calls
 - **Persistent State**: Variables survive client restarts
 
 ### Implementation Example
 ```python
-from ai.api import ClaudeClient
+from ai.api import AIClient
 
-client = ClaudeClient()
+client = AIClient()
 response, interactions = client.generate_response(
     query="Tell me about {topic}",  # Variables are interpolated
     interactions=conversation_history,

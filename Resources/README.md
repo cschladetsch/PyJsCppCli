@@ -1,6 +1,6 @@
 # Resources Directory
 
-Resource files for PyClaudeCli documentation, assets, and generated diagrams.
+Resource files for AI CLI documentation, assets, and generated diagrams.
 
 ## Files
 
@@ -34,4 +34,4 @@ make diagrams          # Convert .dot files to PNG in Resources/
 
 ## Description
 
-This directory contains visual assets, documentation resources, utility scripts, and auto-generated diagrams used for PyClaudeCli documentation and presentations. It serves as the central location for all visual documentation elements.
+This directory contains visual assets, documentation resources, utility scripts, and auto-generated diagrams used for AI CLI documentation and presentations. It serves as the central location for all visual documentation elements.

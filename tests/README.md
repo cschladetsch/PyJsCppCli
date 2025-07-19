@@ -1,6 +1,6 @@
 # Tests Module
 
-Comprehensive test suite for PyClaudeCli with 100+ tests covering all functionality, including 80 tests for the variable system alone.
+Comprehensive test suite for AI CLI with 100+ tests covering all functionality, including 80 tests for the variable system alone.
 
 ## Structure
 

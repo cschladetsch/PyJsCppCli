@@ -1,6 +1,6 @@
 # Scripts Directory
 
-Shared utilities and common functions for PyClaudeCli shell scripts.
+Shared utilities and common functions for AI CLI shell scripts.
 
 ## Files
 

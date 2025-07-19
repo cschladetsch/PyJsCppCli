@@ -1,6 +1,6 @@
 # DefaultConfig Directory
 
-Default configuration files for PyClaudeCli with variable system support.
+Default configuration files for AI CLI with variable system support.
 
 ## Files
 
@@ -11,23 +11,23 @@ Default configuration files for PyClaudeCli with variable system support.
 
 ## Description
 
-This directory contains the default configuration files that define the behavior and capabilities of PyClaudeCli. These files can be customized to modify aliases, available models, system prompts, and response templates.
+This directory contains the default configuration files that define the behavior and capabilities of the AI CLI. These files can be customized to modify aliases, available models, system prompts, and response templates.
 
 ## Configuration Locations
 
-When PyClaudeCli runs, it creates user-specific configuration in:
-- `~/.config/claude/` - User configuration directory
-- `~/.config/claude/variables.json` - **Persistent variable storage**
-- `~/.config/claude/conversations.json` - Conversation history
-- `~/.config/claude/system` - Custom system prompt
-- `~/.config/claude/aliases.json` - Custom aliases
-- `~/.config/claude/models.json` - Model preferences
-- `~/.config/claude/templates.json` - Response templates
+When the AI CLI runs, it creates user-specific configuration in:
+- `~/.config/ai-cli/` - User configuration directory
+- `~/.config/ai-cli/variables.json` - **Persistent variable storage**
+- `~/.config/ai-cli/conversations.json` - Conversation history
+- `~/.config/ai-cli/system` - Custom system prompt
+- `~/.config/ai-cli/aliases.json` - Custom aliases
+- `~/.config/ai-cli/models.json` - Model preferences
+- `~/.config/ai-cli/templates.json` - Response templates
 
 ## Variable System
 
 The variable system automatically creates and manages:
-- **Storage**: `~/.config/claude/variables.json`
+- **Storage**: `~/.config/ai-cli/variables.json`
 - **Format**: JSON with variable name/value pairs
 - **Access**: Available in interactive mode via `vars` command
 - **Persistence**: Variables survive CLI restarts and system reboots

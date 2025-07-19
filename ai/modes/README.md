@@ -10,7 +10,7 @@ Different interaction modes for the CLI with integrated variable system support.
 
 ## Description
 
-This module provides different ways to interact with Claude through the CLI, supporting both synchronous and asynchronous conversation modes. Both modes include full integration with the persistent variable system.
+This module provides different ways to interact with AI models through the CLI, supporting both synchronous and asynchronous conversation modes. Both modes include full integration with the persistent variable system.
 
 ## Variable System Integration
 
@@ -24,7 +24,7 @@ The synchronous interactive mode includes comprehensive variable support:
 
 #### Features
 - **Automatic Processing**: All user input processed for variable assignments and interpolation
-- **Persistent Storage**: Variables saved to `~/.config/claude/variables.json`
+- **Persistent Storage**: Variables saved to `~/.config/ai-cli/variables.json`
 - **Real-time Updates**: Variables immediately available after assignment
 - **Help Integration**: Variable commands included in help system
 
@@ -58,7 +58,7 @@ The asynchronous mode also supports the variable system with the same functional
 2. **Variable Processing**: `process_variables()` called from `ai.utils.variables`
 3. **Assignment Detection**: Check for `var=value` patterns
 4. **Interpolation**: Replace variable names with values in text
-5. **Command Routing**: Route to appropriate handler (variables, help, Claude AI, etc.)
+5. **Command Routing**: Route to appropriate handler (variables, help, AI model, etc.)
 
 ### Integration Points
 - **Process Input**: Variable processing integrated into main input handler
