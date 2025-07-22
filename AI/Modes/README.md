@@ -69,7 +69,7 @@ The asynchronous mode also supports the variable system with the same functional
 ### Technical Implementation
 ```python
 # In both interactive modes:
-from ..utils.variables import process_input as process_variables
+from ..Utils.variables import process_input as process_variables
 
 def process_input(self, user_prompt):
     # Process variables first

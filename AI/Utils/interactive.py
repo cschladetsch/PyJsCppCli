@@ -10,7 +10,7 @@ from prompt_toolkit.formatted_text import ANSI
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings
 
-from ..api.client import ClaudeClient
+from ..Api.client import ClaudeClient
 from ..constants import DEFAULT_SYSTEM_PROMPT, HISTORY_FILE, UPLOAD_CACHE_DIR
 from .colors import Colors
 from .io import (
@@ -33,7 +33,7 @@ def setup_key_bindings():
 
 def get_prompt_message():
     """Return simple prompt"""
-    return ANSI(f"{Colors.GREEN}>{Colors.RESET} ")
+    return ANSI(f"{Colors.BLUE}λ{Colors.RESET} ")
 
 
 class InteractiveMode:

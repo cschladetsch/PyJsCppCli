@@ -13,9 +13,9 @@ from typing import Any, Dict, List, Optional
 
 import aiohttp
 
-from ..utils.config import get_config
-from ..utils.exceptions import APIError, NetworkError, RateLimitError
-from ..utils.logging import get_logger
+from ..Utils.config import get_config
+from ..Utils.exceptions import APIError, NetworkError, RateLimitError
+from ..Utils.logging import get_logger
 
 logger = get_logger(__name__)
 

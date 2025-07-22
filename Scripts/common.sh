@@ -109,7 +109,7 @@ run_safe() {
 
 # Check if we're in the project root
 check_project_root() {
-    if [[ ! -f "AI/utils/variables.py" ]] || [[ ! -f "CMakeLists.txt" ]]; then
+    if [[ ! -f "AI/Utils/variables.py" ]] || [[ ! -f "CMakeLists.txt" ]]; then
         log_error "Must be run from PyClaudeCli project root directory"
         exit 1
     fi

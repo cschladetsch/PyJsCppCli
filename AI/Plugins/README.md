@@ -24,7 +24,7 @@ Plugins can leverage the variable system for:
 
 ### Plugin Development
 ```python
-from ..utils.variables import VariableManager
+from ..Utils.variables import VariableManager
 
 class MyPlugin(BasePlugin):
     def __init__(self):

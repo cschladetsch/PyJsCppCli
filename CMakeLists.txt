@@ -19,6 +19,11 @@ endif()
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Set binary output directories
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin)
+
 # Find Doxygen
 find_package(Doxygen)
 
@@ -27,7 +32,7 @@ if(DOXYGEN_FOUND)
     find_program(DOT_EXECUTABLE dot)
     
     # Set input and output files
-    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
+    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxygen/Doxyfile)
     set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
     # Request to configure the file
@@ -69,13 +74,13 @@ else (DOXYGEN_FOUND)
 endif (DOXYGEN_FOUND)
 
 # Add subdirectories
-add_subdirectory(AI/bindings)
-add_subdirectory(Tests/cpp)
+add_subdirectory(AI/Bindings)
+add_subdirectory(Tests/Cpp)
 
 # Add custom target for all tests
 add_custom_target(test_all
-    COMMAND python3 -m pytest Tests/unit/test_variables.py -v
-    COMMAND python3 -m pytest Tests/integration/test_variable_integration.py -v
+    COMMAND python3 -m pytest Tests/Unit/test_variables.py -v
+    COMMAND python3 -m pytest Tests/Integration/test_variable_integration.py -v
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Running all Python tests"
     VERBATIM)

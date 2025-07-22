@@ -6,7 +6,7 @@ from anthropic import Anthropic
 
 from ..constants import DEFAULT_MAX_TOKENS, DEFAULT_MODEL, DEFAULT_SYSTEM_PROMPT
 from ..models import Interaction
-from ..utils.io import format_file_for_upload, read_token
+from ..Utils.io import format_file_for_upload, read_token
 
 
 class ClaudeClient:

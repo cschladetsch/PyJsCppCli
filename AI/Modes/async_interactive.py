@@ -10,24 +10,24 @@ from prompt_toolkit.eventloop import use_asyncio_event_loop
 from prompt_toolkit.formatted_text import ANSI
 from prompt_toolkit.history import FileHistory
 
-from ..api.async_client import AsyncClaudeClient
+from ..Api.async_client import AsyncClaudeClient
 from ..constants import DEFAULT_SYSTEM_PROMPT, HISTORY_FILE
 from ..models import Interaction
-from ..utils.colors import Colors
-from ..utils.io import (
+from ..Utils.colors import Colors
+from ..Utils.io import (
     append_to_conversation_log,
     load_conversation_state,
     prepare_files_for_upload,
     resolve_file_paths,
     save_conversation_state,
 )
-from ..utils.output_formatter import (
+from ..Utils.output_formatter import (
     OutputFormatter,
     print_error,
     print_info,
     print_success,
 )
-from ..utils.theme_config import theme_config
+from ..Utils.theme_config import theme_config
 
 
 class AsyncInteractiveMode:
@@ -53,7 +53,7 @@ class AsyncInteractiveMode:
 
     def _get_prompt(self) -> ANSI:
         """Get formatted prompt"""
-        return ANSI(OutputFormatter.format_prompt("> "))
+        return ANSI(OutputFormatter.format_prompt("λ "))
 
     async def handle_query(self, query: str) -> bool:
         """Handle a user query. Returns False to exit."""
@@ -106,7 +106,7 @@ class AsyncInteractiveMode:
 
             # Generate MIDI from query and response
             try:
-                from ..utils.midi_music import MidiMusicGenerator
+                from ..Utils.midi_music import MidiMusicGenerator
 
                 MidiMusicGenerator.generate_and_save(query, full_response)
             except Exception:

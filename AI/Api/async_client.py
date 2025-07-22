@@ -9,7 +9,7 @@ import aiohttp
 
 from ..constants import DEFAULT_MAX_TOKENS, DEFAULT_MODEL, DEFAULT_SYSTEM_PROMPT
 from ..models import Interaction
-from ..utils.io import get_api_key
+from ..Utils.io import get_api_key
 
 
 class AsyncClaudeClient:

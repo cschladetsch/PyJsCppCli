@@ -14,8 +14,8 @@ from typing import Any, AsyncGenerator, Callable, Dict, List, Optional
 
 import aiohttp
 
-from ..utils.exceptions import APIError, NetworkError
-from ..utils.logging import get_logger
+from ..Utils.exceptions import APIError, NetworkError
+from ..Utils.logging import get_logger
 
 logger = get_logger(__name__)
 

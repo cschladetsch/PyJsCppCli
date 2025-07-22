@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add test executable
-add_executable(TestVariableApi test_VariableApi.cpp)
+add_executable(TestVariableApi TestVariableApi.cpp)
 
 # Set compiler flags
 target_compile_options(TestVariableApi PRIVATE -Wall -Wextra)

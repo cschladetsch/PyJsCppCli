@@ -11,30 +11,30 @@ from prompt_toolkit.formatted_text import ANSI
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings
 
-from ..api.client import ClaudeClient
+from ..Api.client import ClaudeClient
 from ..constants import (
     DEFAULT_SYSTEM_PROMPT,
     HISTORY_FILE,
     RESPONSE_INTROS,
     UPLOAD_CACHE_DIR,
 )
-from ..utils.colors import Colors
-from ..utils.config_loader import ConfigLoader
-from ..utils.io import (
+from ..Utils.colors import Colors
+from ..Utils.config_loader import ConfigLoader
+from ..Utils.io import (
     append_to_conversation_log,
     load_conversation_state_with_timeout,
     prepare_files_for_upload,
     resolve_file_paths,
     save_conversation_state,
 )
-from ..utils.output_formatter import (
+from ..Utils.output_formatter import (
     print_error,
     print_info,
     print_response,
 )
-from ..utils.spinner import Spinner
-from ..utils.theme_config import theme_config
-from ..utils.variables import process_input as process_variables
+from ..Utils.spinner import Spinner
+from ..Utils.theme_config import theme_config
+from ..Utils.variables import process_input as process_variables
 
 
 def setup_key_bindings():
@@ -48,7 +48,7 @@ def setup_key_bindings():
 
 def get_prompt_message():
     """Return simple prompt"""
-    return ANSI(f"{Colors.MAGENTA}λ {Colors.RESET}")
+    return ANSI(f"{Colors.BLUE}λ {Colors.RESET}")
 
 
 class InteractiveMode:
@@ -240,7 +240,7 @@ class InteractiveMode:
             print("  exit   - Exit the program")
             return True
         if user_prompt.lower() == "vars":
-            from ..utils.variables import get_variable_manager
+            from ..Utils.variables import get_variable_manager
 
             variables = get_variable_manager().list_variables()
             if variables:

@@ -11,8 +11,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Type
 
-from ..utils.config import get_config
-from ..utils.logging import get_logger
+from ..Utils.config import get_config
+from ..Utils.logging import get_logger
 from .base import (
     BasePlugin,
     CommandPlugin,
