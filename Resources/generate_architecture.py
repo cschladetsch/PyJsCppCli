@@ -64,7 +64,7 @@ class CodeAnalyzer:
         """Analyze all Python files in the codebase."""
         for file_path in self.root_path.rglob("*.py"):
             # Skip test files and setup files
-            if any(part in str(file_path) for part in ['test_', 'tests/', 'setup.py', '__pycache__']):
+            if any(part in str(file_path) for part in ['test_', 'Tests/', 'setup.py', '__pycache__']):
                 continue
             self.analyze_file(file_path)
 
@@ -101,7 +101,7 @@ def generate_dot_file(analyzer: CodeAnalyzer) -> str:
         fontsize=14;
         
         main_py [label="main.py\\nPrimary Entry Point", fillcolor=palegreen, shape=ellipse];
-        main_module [label="ai/__main__.py\\nModule Entry Point", fillcolor=palegreen, shape=ellipse];
+        main_module [label="AI/__main__.py\\nModule Entry Point", fillcolor=palegreen, shape=ellipse];
     }
     
     // Core CLI Components
@@ -112,9 +112,9 @@ def generate_dot_file(analyzer: CodeAnalyzer) -> str:
         fillcolor=lightblue;
         fontsize=14;
         
-        cli_handler [label="ai/cli.py\\nCLI Handler\\n• Argument parsing\\n• Command routing\\n• Lifecycle management", fillcolor=lightblue];
-        constants [label="ai/constants.py\\nConfiguration\\n• API settings\\n• Default values", fillcolor=lightblue];
-        models [label="ai/models.py\\nData Models\\n• Interaction class\\n• Serialization", fillcolor=lightblue];
+        cli_handler [label="AI/cli.py\\nCLI Handler\\n• Argument parsing\\n• Command routing\\n• Lifecycle management", fillcolor=lightblue];
+        constants [label="AI/constants.py\\nConfiguration\\n• API settings\\n• Default values", fillcolor=lightblue];
+        models [label="AI/models.py\\nData Models\\n• Interaction class\\n• Serialization", fillcolor=lightblue];
     }
     
     // Interaction Modes
@@ -125,8 +125,8 @@ def generate_dot_file(analyzer: CodeAnalyzer) -> str:
         fillcolor=lightyellow;
         fontsize=14;
         
-        interactive [label="ai/modes/interactive.py\\nInteractive Mode\\n• Prompt toolkit UI\\n• Vim keybindings\\n• File uploads", fillcolor=gold];
-        async_interactive [label="ai/modes/async_interactive.py\\nAsync Interactive\\n• Non-blocking UI\\n• Concurrent ops", fillcolor=gold];
+        interactive [label="AI/modes/interactive.py\\nInteractive Mode\\n• Prompt toolkit UI\\n• Vim keybindings\\n• File uploads", fillcolor=gold];
+        async_interactive [label="AI/modes/async_interactive.py\\nAsync Interactive\\n• Non-blocking UI\\n• Concurrent ops", fillcolor=gold];
     }
     
     // API Layer
@@ -137,8 +137,8 @@ def generate_dot_file(analyzer: CodeAnalyzer) -> str:
         fillcolor=lightpink;
         fontsize=14;
         
-        api_client [label="ai/api/client.py\\nClaude API Client\\n• Authentication\\n• Request handling\\n• Retry logic", fillcolor=pink];
-        async_client [label="ai/api/async_client.py\\nAsync API Client\\n• Async operations\\n• Streaming support", fillcolor=pink];
+        api_client [label="AI/api/client.py\\nClaude API Client\\n• Authentication\\n• Request handling\\n• Retry logic", fillcolor=pink];
+        async_client [label="AI/api/async_client.py\\nAsync API Client\\n• Async operations\\n• Streaming support", fillcolor=pink];
     }
     
     // Plugin System
@@ -163,25 +163,25 @@ def generate_dot_file(analyzer: CodeAnalyzer) -> str:
         
         subgraph cluster_io {
             label="I/O & Storage";
-            io_utils [label="ai/utils/io.py\\n• File operations\\n• Token management\\n• Conversation persist", fillcolor=khaki];
-            config [label="ai/utils/config.py\\n• Settings management\\n• Environment vars", fillcolor=khaki];
+            io_utils [label="AI/utils/io.py\\n• File operations\\n• Token management\\n• Conversation persist", fillcolor=khaki];
+            config [label="AI/utils/config.py\\n• Settings management\\n• Environment vars", fillcolor=khaki];
         }
         
         subgraph cluster_ui {
             label="UI Components";
-            colors [label="ai/utils/colors.py\\nANSI colors", fillcolor=khaki];
-            spinner [label="ai/utils/spinner.py\\nProgress animation", fillcolor=khaki];
-            output_formatter [label="ai/utils/output_formatter.py\\nOutput formatting", fillcolor=khaki];
-            markdown_renderer [label="ai/utils/markdown_renderer.py\\nMarkdown rendering", fillcolor=khaki];
+            colors [label="AI/utils/colors.py\\nANSI colors", fillcolor=khaki];
+            spinner [label="AI/utils/spinner.py\\nProgress animation", fillcolor=khaki];
+            output_formatter [label="AI/utils/output_formatter.py\\nOutput formatting", fillcolor=khaki];
+            markdown_renderer [label="AI/utils/markdown_renderer.py\\nMarkdown rendering", fillcolor=khaki];
         }
         
         subgraph cluster_core_utils {
             label="Core Utilities";
-            validation [label="ai/utils/validation.py\\nInput validation", fillcolor=khaki];
-            exceptions [label="ai/utils/exceptions.py\\nError handling", fillcolor=khaki];
-            logging [label="ai/utils/logging.py\\nLogging system", fillcolor=khaki];
-            streaming [label="ai/utils/streaming.py\\nStream processing", fillcolor=khaki];
-            connection_pool [label="ai/utils/connection_pool.py\\nConnection pooling", fillcolor=khaki];
+            validation [label="AI/utils/validation.py\\nInput validation", fillcolor=khaki];
+            exceptions [label="AI/utils/exceptions.py\\nError handling", fillcolor=khaki];
+            logging [label="AI/utils/logging.py\\nLogging system", fillcolor=khaki];
+            streaming [label="AI/utils/streaming.py\\nStream processing", fillcolor=khaki];
+            connection_pool [label="AI/utils/connection_pool.py\\nConnection pooling", fillcolor=khaki];
         }
     }
     
@@ -353,7 +353,7 @@ def main():
     # Display some statistics
     print("\n📊 Codebase Statistics:")
     print(f"   - Entry points: 2")
-    print(f"   - Core modules: {len([f for f in analyzer.imports if 'ai/' in f and 'test' not in f])}")
+    print(f"   - Core modules: {len([f for f in analyzer.imports if 'AI/' in f and 'test' not in f])}")
     print(f"   - Utility modules: {len([f for f in analyzer.imports if 'utils/' in f])}")
     print(f"   - Total lines of code: ~{sum(1 for _ in root_dir.rglob('*.py') if 'test' not in str(_)) * 100} (estimated)")
 

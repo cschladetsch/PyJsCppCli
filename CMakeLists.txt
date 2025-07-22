@@ -69,16 +69,16 @@ else (DOXYGEN_FOUND)
 endif (DOXYGEN_FOUND)
 
 # Add subdirectories
-add_subdirectory(ai/bindings)
-add_subdirectory(tests/cpp)
+add_subdirectory(AI/bindings)
+add_subdirectory(Tests/cpp)
 
 # Add custom target for all tests
 add_custom_target(test_all
-    COMMAND python3 -m pytest tests/unit/test_variables.py -v
-    COMMAND python3 -m pytest tests/integration/test_variable_integration.py -v
+    COMMAND python3 -m pytest Tests/unit/test_variables.py -v
+    COMMAND python3 -m pytest Tests/integration/test_variable_integration.py -v
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Running all Python tests"
     VERBATIM)
 
 # Add dependency to ensure C++ tests are built before running
-add_dependencies(test_all test_variable_api)
+add_dependencies(test_all TestVariableApi)

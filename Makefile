@@ -74,4 +74,4 @@ run:
 	python -m ai.cli
 
 run-async:
-	python -m ai.modes.async_interactive
+	python -m AI.Modes.async_interactive

@@ -23,3 +23,15 @@ var/
 .venv
 venv/
 ENV/
+test_env/
+test_venv/
+
+# Build artifacts
+build/
+
+# Doxygen generated documentation
+Doxygen/html/
+
+# Test output
+test_output.log
+*.log

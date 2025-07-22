@@ -123,9 +123,9 @@ if __name__ == "__main__":
         sys.exit(1)
     
     # Import after dependencies are installed
-    from ai.cli import main
-    from ai.utils.config_loader import ConfigLoader
-    from ai.utils.music import MusicPlayer
+    from AI.cli import main
+    from AI.Utils.config_loader import ConfigLoader
+    from AI.Utils.music import MusicPlayer
     from pathlib import Path
     
     # Check if this is first run (config directory doesn't exist)
