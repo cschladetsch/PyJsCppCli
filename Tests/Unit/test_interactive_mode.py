@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
-from AI.Modes.interactive import InteractiveMode
-from AI.models import Interaction
+from ask.Modes.interactive import InteractiveMode
+from ask.models import Interaction
 
 
 class TestInteractiveMode:
@@ -13,7 +13,7 @@ class TestInteractiveMode:
     @pytest.fixture
     def interactive_mode(self, mock_api_key):
         """Create an InteractiveMode instance"""
-        with patch('AI.Modes.interactive.ClaudeClient'):
+        with patch('ask.Modes.interactive.ClaudeClient'):
             return InteractiveMode()
     
     def test_initialization(self, interactive_mode):
@@ -22,7 +22,7 @@ class TestInteractiveMode:
         assert interactive_mode.client is not None
         assert isinstance(interactive_mode.interactions, list)
     
-    @patch('AI.Modes.interactive.PromptSession')
+    @patch('ask.Modes.interactive.PromptSession')
     def test_command_parsing_exit(self, mock_prompt_session, interactive_mode):
         """Test exit command detection"""
         # Test various exit commands
@@ -117,7 +117,7 @@ class TestInteractiveMode:
             Interaction(query="test", response="response")
         ]
         
-        with patch('AI.Modes.interactive.save_conversation_state') as mock_save:
+        with patch('ask.Modes.interactive.save_conversation_state') as mock_save:
             with patch('builtins.print') as mock_print:
                 interactive_mode.handle_clear_command()
                 
@@ -127,8 +127,8 @@ class TestInteractiveMode:
                 output = ' '.join(str(call) for call in mock_print.call_args_list)
                 assert "cleared" in output.lower()
     
-    @patch('AI.Modes.interactive.resolve_file_paths')
-    @patch('AI.Modes.interactive.prepare_files_for_upload')
+    @patch('ask.Modes.interactive.resolve_file_paths')
+    @patch('ask.Modes.interactive.prepare_files_for_upload')
     def test_upload_command_single_file(self, mock_prepare, mock_resolve, interactive_mode):
         """Test upload command with single file"""
         mock_resolve.return_value = [Path("/test/file.txt")]
@@ -143,7 +143,7 @@ class TestInteractiveMode:
             output = ' '.join(str(call) for call in mock_print.call_args_list)
             assert "uploaded" in output.lower()
     
-    @patch('AI.Modes.interactive.resolve_file_paths')
+    @patch('ask.Modes.interactive.resolve_file_paths')
     def test_upload_command_recursive(self, mock_resolve, interactive_mode):
         """Test upload command with recursive flag"""
         mock_resolve.return_value = [
@@ -151,7 +151,7 @@ class TestInteractiveMode:
             Path("/test/dir/file2.txt")
         ]
         
-        with patch('AI.Modes.interactive.prepare_files_for_upload'):
+        with patch('ask.Modes.interactive.prepare_files_for_upload'):
             interactive_mode.handle_upload_command(["--recursive", "/test/dir"])
             
             mock_resolve.assert_called_with(["/test/dir"], recursive=True)
@@ -164,7 +164,7 @@ class TestInteractiveMode:
             output = ' '.join(str(call) for call in mock_print.call_args_list)
             assert "usage" in output.lower()
     
-    @patch('AI.Modes.interactive.PromptSession')
+    @patch('ask.Modes.interactive.PromptSession')
     def test_run_loop_exit(self, mock_prompt_session_class, interactive_mode):
         """Test main run loop with exit command"""
         mock_session = Mock()
@@ -183,7 +183,7 @@ class TestInteractiveMode:
         assert mock_session.prompt.call_count == 2
         assert interactive_mode.client.generate_response.call_count == 1
     
-    @patch('AI.Modes.interactive.PromptSession')
+    @patch('ask.Modes.interactive.PromptSession')
     def test_run_loop_keyboard_interrupt(self, mock_prompt_session_class, interactive_mode):
         """Test handling keyboard interrupt in run loop"""
         mock_session = Mock()
@@ -205,8 +205,8 @@ class TestInteractiveMode:
             [Interaction(query=query, response="Python is a programming language")]
         )
         
-        with patch('AI.Modes.interactive.save_conversation_state'):
-            with patch('AI.Modes.interactive.append_to_conversation_log'):
+        with patch('ask.Modes.interactive.save_conversation_state'):
+            with patch('ask.Modes.interactive.append_to_conversation_log'):
                 with patch('builtins.print'):
                     result = interactive_mode._process_query(query)
         

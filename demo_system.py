@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Demonstrate the PyClaudeCli system after refactoring."""
 
-from AI.Utils.variables import VariableManager
-from AI.Modes.interactive import InteractiveMode
-from AI.Api.client import ClaudeClient
+from ask.Utils.variables import VariableManager
+from ask.Modes.interactive import InteractiveMode
+from ask.Api.client import ClaudeClient
 
 def main():
     print("=== PyClaudeCli System Demo ===\n")
@@ -40,11 +40,11 @@ def main():
     # Test imports
     print("\nImport Test:")
     try:
-        from AI.Utils.colors import Colors
+        from ask.Utils.colors import Colors
         print("  ✅ Colors module imported")
-        from AI.Utils.config_loader import ConfigLoader
+        from ask.Utils.config_loader import ConfigLoader
         print("  ✅ ConfigLoader module imported")
-        from AI.Utils.markdown_renderer import MarkdownRenderer
+        from ask.Utils.markdown_renderer import MarkdownRenderer
         print("  ✅ MarkdownRenderer module imported")
         print("\n✅ All systems operational!")
     except Exception as e:

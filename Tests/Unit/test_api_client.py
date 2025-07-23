@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import Mock, patch, AsyncMock
 import json
 import httpx
-from AI.Api.client import ClaudeClient
+from ask.Api.client import ClaudeClient
 
 
 class TestClaudeClient:

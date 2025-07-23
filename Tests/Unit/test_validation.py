@@ -5,7 +5,7 @@ Tests for validation utilities
 import pytest
 import tempfile
 from pathlib import Path
-from AI.Utils.validation import (
+from ask.Utils.validation import (
     validate_input_length,
     sanitize_input,
     validate_file_path,
@@ -15,7 +15,7 @@ from AI.Utils.validation import (
     validate_api_key,
     validate_command_input
 )
-from AI.Utils.exceptions import ValidationError, FileError
+from ask.Utils.exceptions import ValidationError, FileError
 
 
 class TestInputValidation:

@@ -137,7 +137,8 @@ def install_requirements(install_dir):
         pip_path = os.path.join(install_dir, ".venv", "bin", "pip")
     
     # Install required packages
-    packages = ["anthropic>=0.44.0", "prompt_toolkit>=3.0.39", "pyperclip>=1.8.2"]
+    packages = ["anthropic>=0.44.0", "prompt_toolkit>=3.0.39", "pyperclip>=1.8.2", 
+                "pygame>=2.5.0", "pyyaml>=6.0", "aiohttp>=3.8.0", "aiofiles>=23.0.0"]
     for package in packages:
         print_info(f"Installing {package}...")
         result = run_command([pip_path, "install", package])
@@ -260,8 +261,8 @@ UPLOAD_CACHE_DIR = os.path.expanduser("~/.ask_uploads")
 TOKEN_FILE = os.path.expanduser("~/.ask_token")
 
 # API configuration
-#DEFAULT_MODEL = "claude-3-5-sonnet-20241022"
-DEFAULT_MODEL = "claude-opus-4-20250514
+##DEFAULT_MODEL = "claude-3-5-sonnet-20241022"
+DEFAULT_MODEL = "claude-opus-4-20250514"
 DEFAULT_MAX_TOKENS = 1024
 DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant."
 

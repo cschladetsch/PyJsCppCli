@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Main entry point for the AI CLI
+Main entry point for the Ask CLI
 """
 
 import sys
@@ -113,7 +113,7 @@ def check_and_install_sox():
 
 if __name__ == "__main__":
     # Update build time
-    build_info_path = os.path.join(os.path.dirname(__file__), 'ai', 'build_info.py')
+    build_info_path = os.path.join(os.path.dirname(__file__), 'ask', 'build_info.py')
     with open(build_info_path, 'w') as f:
         f.write('"""Build information for PyClaudeCli"""\n\n')
         f.write(f'BUILD_DATE = "{datetime.datetime.now().strftime("%Y-%m-%d")}"\n')
@@ -123,9 +123,9 @@ if __name__ == "__main__":
         sys.exit(1)
     
     # Import after dependencies are installed
-    from AI.cli import main
-    from AI.Utils.config_loader import ConfigLoader
-    from AI.Utils.music import MusicPlayer
+    from ask.cli import main
+    from ask.utils.config_loader import ConfigLoader
+    from ask.utils.music import MusicPlayer
     from pathlib import Path
     
     # Check if this is first run (config directory doesn't exist)

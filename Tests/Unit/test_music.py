@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import patch, Mock, mock_open
 import json
 from pathlib import Path
-from AI.Utils.music import MusicPlayer
+from ask.Utils.music import MusicPlayer
 
 
 class TestMusicPlayer:
@@ -13,7 +13,7 @@ class TestMusicPlayer:
     @pytest.fixture
     def music_player(self):
         """Create a MusicPlayer instance"""
-        with patch('AI.Utils.music.subprocess.run'):
+        with patch('ask.Utils.music.subprocess.run'):
             return MusicPlayer()
     
     def test_music_player_initialization(self, music_player):
@@ -33,21 +33,21 @@ class TestMusicPlayer:
                 assert isinstance(note[0], (int, float))  # frequency
                 assert isinstance(note[1], int)  # duration
     
-    @patch('AI.Utils.music.subprocess.run')
-    @patch('AI.Utils.music.os.path.exists', return_value=True)
+    @patch('ask.Utils.music.subprocess.run')
+    @patch('ask.Utils.music.os.path.exists', return_value=True)
     def test_play_music_windows(self, mock_exists, mock_subprocess, music_player):
         """Test playing music on Windows"""
-        with patch('AI.Utils.music.sys.platform', 'win32'):
+        with patch('ask.Utils.music.sys.platform', 'win32'):
             music_player.play_music()
             
             # Should attempt to play music
             assert mock_subprocess.called
     
-    @patch('AI.Utils.music.subprocess.run')
-    @patch('AI.Utils.music.shutil.which', return_value='/usr/bin/sox')
+    @patch('ask.Utils.music.subprocess.run')
+    @patch('ask.Utils.music.shutil.which', return_value='/usr/bin/sox')
     def test_play_music_with_sox(self, mock_which, mock_subprocess, music_player):
         """Test playing music with sox"""
-        with patch('AI.Utils.music.sys.platform', 'linux'):
+        with patch('ask.Utils.music.sys.platform', 'linux'):
             music_player.play_music()
             
             # Should use sox to play music
@@ -55,7 +55,7 @@ class TestMusicPlayer:
             call_args = mock_subprocess.call_args
             assert 'sox' in call_args[0][0][0]
     
-    @patch('AI.Utils.music.subprocess.run')
+    @patch('ask.Utils.music.subprocess.run')
     def test_play_music_volume_control(self, mock_subprocess, music_player):
         """Test volume control in music playing"""
         volume = 0.5

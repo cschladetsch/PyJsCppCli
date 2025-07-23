@@ -11,8 +11,8 @@ from unittest.mock import patch, MagicMock
 # Add the project root to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from AI.Modes.interactive import InteractiveMode
-from AI.Utils.variables import get_variable_manager, VariableManager
+from ask.Modes.interactive import InteractiveMode
+from ask.Utils.variables import get_variable_manager, VariableManager
 
 
 class TestVariableIntegration(unittest.TestCase):
@@ -35,8 +35,8 @@ class TestVariableIntegration(unittest.TestCase):
         if os.path.exists(self.temp_path):
             os.unlink(self.temp_path)
     
-    @patch('AI.Modes.interactive.ClaudeClient')
-    @patch('AI.Utils.variables._variable_manager')
+    @patch('ask.Modes.interactive.ClaudeClient')
+    @patch('ask.Utils.variables._variable_manager')
     def test_interactive_variable_assignment(self, mock_vm, mock_client):
         """Test variable assignment through interactive mode"""
         mock_vm.process_input.return_value = ("Variable 'test' set to: value", True)
@@ -51,8 +51,8 @@ class TestVariableIntegration(unittest.TestCase):
         self.assertTrue(result)
         mock_vm.process_input.assert_called_once_with("test=value")
     
-    @patch('AI.Modes.interactive.ClaudeClient')
-    @patch('AI.Utils.variables._variable_manager')
+    @patch('ask.Modes.interactive.ClaudeClient')
+    @patch('ask.Utils.variables._variable_manager')
     def test_interactive_variable_interpolation(self, mock_vm, mock_client):
         """Test variable interpolation through interactive mode"""
         mock_vm.process_input.return_value = ("Hello John", False)
@@ -64,10 +64,10 @@ class TestVariableIntegration(unittest.TestCase):
         interactive = InteractiveMode()
         
         # Test variable interpolation
-        with patch('AI.Modes.interactive.Spinner'), \
-             patch('AI.Modes.interactive.print_response'), \
-             patch('AI.Modes.interactive.save_conversation_state'), \
-             patch('AI.Modes.interactive.append_to_conversation_log'):
+        with patch('ask.Modes.interactive.Spinner'), \
+             patch('ask.Modes.interactive.print_response'), \
+             patch('ask.Modes.interactive.save_conversation_state'), \
+             patch('ask.Modes.interactive.append_to_conversation_log'):
             
             result = interactive.process_input("Hello name")
         
@@ -80,8 +80,8 @@ class TestVariableIntegration(unittest.TestCase):
         call_args = mock_client_instance.generate_response.call_args[0]
         self.assertEqual(call_args[0], "Hello John")  # First argument should be the interpolated text
     
-    @patch('AI.Modes.interactive.ClaudeClient')
-    @patch('AI.Utils.variables._variable_manager')
+    @patch('ask.Modes.interactive.ClaudeClient')
+    @patch('ask.Utils.variables._variable_manager')
     def test_interactive_vars_command(self, mock_vm, mock_client):
         """Test the 'vars' command in interactive mode"""
         mock_vm.list_variables.return_value = {"test": "value", "name": "John"}
@@ -101,8 +101,8 @@ class TestVariableIntegration(unittest.TestCase):
         print_calls = [call[0][0] for call in mock_print.call_args_list]
         self.assertIn("Stored variables:", print_calls)
     
-    @patch('AI.Modes.interactive.ClaudeClient')
-    @patch('AI.Utils.variables._variable_manager')
+    @patch('ask.Modes.interactive.ClaudeClient')
+    @patch('ask.Utils.variables._variable_manager')
     def test_interactive_vars_command_empty(self, mock_vm, mock_client):
         """Test the 'vars' command when no variables exist"""
         mock_vm.list_variables.return_value = {}

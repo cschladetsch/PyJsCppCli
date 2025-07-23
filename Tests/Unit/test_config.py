@@ -7,7 +7,7 @@ import tempfile
 import json
 import yaml
 from pathlib import Path
-from AI.Utils.config import (
+from ask.Utils.config import (
     APIConfig,
     UIConfig,
     LoggingConfig,

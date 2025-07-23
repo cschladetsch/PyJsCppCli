@@ -5,9 +5,9 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch, Mock
 import json
-from AI.cli import main
-from AI.Modes.interactive import InteractiveMode
-from AI.models import Interaction
+from ask.cli import main
+from ask.Modes.interactive import InteractiveMode
+from ask.models import Interaction
 
 
 class TestFullConversation:
@@ -17,7 +17,7 @@ class TestFullConversation:
     def test_single_query_workflow(self, temp_home, mock_api_key):
         """Test a complete single query workflow"""
         with patch('sys.argv', ['ask', 'What is Python?']):
-            with patch('AI.Api.client.httpx.post') as mock_post:
+            with patch('ask.Api.client.httpx.post') as mock_post:
                 # Mock API response
                 mock_response = Mock()
                 mock_response.status_code = 200
@@ -58,7 +58,7 @@ class TestFullConversation:
         with patch('prompt_toolkit.PromptSession.prompt') as mock_prompt:
             mock_prompt.side_effect = queries
             
-            with patch('AI.Api.client.httpx.post') as mock_post:
+            with patch('ask.Api.client.httpx.post') as mock_post:
                 # Mock API responses
                 responses = [
                     {"content": [{"type": "text", "text": "Hello! How can I help?"}]},
@@ -86,7 +86,7 @@ class TestFullConversation:
         """Test that conversations persist across sessions"""
         # First session
         with patch('sys.argv', ['ask', 'First question']):
-            with patch('AI.Api.client.httpx.post') as mock_post:
+            with patch('ask.Api.client.httpx.post') as mock_post:
                 mock_response = Mock()
                 mock_response.status_code = 200
                 mock_response.json.return_value = {
@@ -99,7 +99,7 @@ class TestFullConversation:
         
         # Second session
         with patch('sys.argv', ['ask', 'Second question']):
-            with patch('AI.Api.client.httpx.post') as mock_post:
+            with patch('ask.Api.client.httpx.post') as mock_post:
                 mock_response = Mock()
                 mock_response.status_code = 200
                 mock_response.json.return_value = {
@@ -147,7 +147,7 @@ class TestFullConversation:
         test_file = test_files["text"]
         
         with patch('sys.argv', ['ask', 'upload', str(test_file)]):
-            with patch('AI.Api.client.httpx.post') as mock_post:
+            with patch('ask.Api.client.httpx.post') as mock_post:
                 mock_response = Mock()
                 mock_response.status_code = 200
                 mock_response.json.return_value = {
@@ -169,7 +169,7 @@ class TestFullConversation:
     def test_error_recovery_workflow(self, temp_home, mock_api_key):
         """Test error recovery in conversation"""
         with patch('sys.argv', ['ask', 'Test query']):
-            with patch('AI.Api.client.httpx.post') as mock_post:
+            with patch('ask.Api.client.httpx.post') as mock_post:
                 # First call fails, second succeeds
                 mock_response_fail = Mock()
                 mock_response_fail.status_code = 500
@@ -193,7 +193,7 @@ class TestFullConversation:
     def test_conversation_log_creation(self, temp_home, mock_api_key):
         """Test markdown conversation log creation"""
         with patch('sys.argv', ['ask', 'Log this conversation']):
-            with patch('AI.Api.client.httpx.post') as mock_post:
+            with patch('ask.Api.client.httpx.post') as mock_post:
                 mock_response = Mock()
                 mock_response.status_code = 200
                 mock_response.json.return_value = {

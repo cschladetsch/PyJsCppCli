@@ -4,7 +4,7 @@ import pytest
 import json
 from pathlib import Path
 from unittest.mock import patch, mock_open, Mock
-from AI.Utils.io import (
+from ask.Utils.io import (
     load_conversation_state,
     save_conversation_state,
     append_to_conversation_log,
@@ -12,7 +12,7 @@ from AI.Utils.io import (
     prepare_files_for_upload,
     get_api_key
 )
-from AI.models import Interaction
+from ask.models import Interaction
 
 
 class TestIOUtils:
@@ -174,7 +174,7 @@ class TestIOUtils:
         assert "test.py" in contents[1]
         assert "def hello():" in contents[1]
     
-    @patch('AI.Utils.io.base64.b64encode')
+    @patch('ask.Utils.io.base64.b64encode')
     def test_prepare_files_for_upload_image_files(self, mock_b64, tmp_path):
         """Test preparing image files for upload"""
         # Create fake image file
