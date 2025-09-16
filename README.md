@@ -1,8 +1,9 @@
 # AI CLI
 
-![CLI Demo2](Demo3.gif)
+![CLI Demo 1](Resources/Demo.gif)
+![CLI Demo 2](Resources/Demo2.gif)
+![CLI Demo 3](Demo3.gif)
 
-![CLI Demo](Resources/Demo.gif)
 
 Command-line interface for interacting with AI models.
 
