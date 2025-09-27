@@ -74,7 +74,8 @@ else (DOXYGEN_FOUND)
 endif (DOXYGEN_FOUND)
 
 # Add subdirectories
-add_subdirectory(AI/Bindings)
+add_subdirectory(src)
+add_subdirectory(ask/bindings)
 add_subdirectory(Tests/Cpp)
 
 # Add custom target for all tests

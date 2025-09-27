@@ -1,0 +1,20 @@
+#pragma once
+
+#define AI_CLI_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define AI_CLI_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define AI_CLI_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define AI_CLI_VERSION "@PROJECT_VERSION@"
+
+#define AI_CLI_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+#define AI_CLI_COMPILER "@CMAKE_CXX_COMPILER_ID@"
+#define AI_CLI_COMPILER_VERSION "@CMAKE_CXX_COMPILER_VERSION@"
+
+#define AI_CLI_BUILD_DATE "@BUILD_DATE@"
+#define AI_CLI_BUILD_TIME "@BUILD_TIME@"
+
+namespace build_info {
+    constexpr const char* version = AI_CLI_VERSION;
+    constexpr const char* build_type = AI_CLI_BUILD_TYPE;
+    constexpr const char* compiler = AI_CLI_COMPILER;
+    constexpr const char* compiler_version = AI_CLI_COMPILER_VERSION;
+}

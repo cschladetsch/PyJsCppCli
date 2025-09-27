@@ -1,0 +1,83 @@
+{
+  "apis": {
+    "anthropic": {
+      "name": "Anthropic Claude API",
+      "base_url": "https://api.anthropic.com",
+      "version": "v1",
+      "endpoints": {
+        "messages": "/v1/messages",
+        "models": "/v1/models"
+      },
+      "auth": {
+        "type": "header",
+        "header_name": "x-api-key",
+        "env_var": "ANTHROPIC_API_KEY"
+      },
+      "default_model": "claude-3-sonnet-20240229",
+      "max_tokens": 4096,
+      "timeout": 30000
+    },
+    "openai": {
+      "name": "OpenAI API",
+      "base_url": "https://api.openai.com",
+      "version": "v1",
+      "endpoints": {
+        "chat": "/v1/chat/completions",
+        "models": "/v1/models",
+        "embeddings": "/v1/embeddings"
+      },
+      "auth": {
+        "type": "bearer",
+        "env_var": "OPENAI_API_KEY"
+      },
+      "default_model": "gpt-4",
+      "max_tokens": 4096,
+      "timeout": 30000
+    },
+    "gemini": {
+      "name": "Google Gemini API",
+      "base_url": "https://generativelanguage.googleapis.com",
+      "version": "v1beta",
+      "endpoints": {
+        "generate": "/v1beta/models/gemini-pro:generateContent"
+      },
+      "auth": {
+        "type": "query_param",
+        "param_name": "key",
+        "env_var": "GEMINI_API_KEY"
+      },
+      "default_model": "gemini-pro",
+      "max_tokens": 4096,
+      "timeout": 30000
+    },
+    "cohere": {
+      "name": "Cohere API",
+      "base_url": "https://api.cohere.ai",
+      "version": "v1",
+      "endpoints": {
+        "generate": "/v1/generate",
+        "chat": "/v1/chat",
+        "embed": "/v1/embed"
+      },
+      "auth": {
+        "type": "bearer",
+        "env_var": "COHERE_API_KEY"
+      },
+      "default_model": "command",
+      "max_tokens": 4096,
+      "timeout": 30000
+    }
+  },
+  "connection_pool": {
+    "max_connections": 10,
+    "keep_alive": true,
+    "verify_ssl": true,
+    "retry_attempts": 3,
+    "retry_delay": 1000
+  },
+  "logging": {
+    "level": "INFO",
+    "log_requests": false,
+    "log_responses": false
+  }
+}
