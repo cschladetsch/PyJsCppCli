@@ -48,7 +48,7 @@ def setup_key_bindings():
 
 def get_prompt_message():
     """Return simple prompt"""
-    return ANSI(f"{Colors.BLUE}λ {Colors.RESET}")
+    return ANSI(f"{Colors.BRIGHT_GREEN}λ {Colors.RESET}")
 
 
 class InteractiveMode:
