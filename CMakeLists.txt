@@ -74,7 +74,6 @@ else (DOXYGEN_FOUND)
 endif (DOXYGEN_FOUND)
 
 # Add subdirectories
-add_subdirectory(src)
 add_subdirectory(ask/bindings)
 add_subdirectory(Tests/Cpp)
 

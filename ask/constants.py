@@ -20,7 +20,7 @@ LEGACY_CONVERSATION_STATE_FILE = os.path.expanduser("~/.claude_conversation_stat
 LEGACY_TOKEN_FILE = os.path.expanduser("~/.ask_token")
 
 # API configuration
-DEFAULT_MODEL = "claude-3-5-sonnet-20241022"
+DEFAULT_MODEL = "claude-sonnet-4-6"
 DEFAULT_MAX_TOKENS = 1024
 DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant."
 

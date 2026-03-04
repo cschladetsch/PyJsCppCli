@@ -19,8 +19,8 @@ fi
 
 # Check if any source files are newer than build artifacts
 if [[ -d "build" ]]; then
-    if is_newer "AI/utils/variables.py" "build/Makefile" || \
-       is_newer "AI/bindings/VariableApi.cpp" "build/Makefile" || \
+    if is_newer "ask/utils/variables.py" "build/Makefile" || \
+       is_newer "ask/bindings/VariableApi.cpp" "build/Makefile" || \
        is_newer "CMakeLists.txt" "build/Makefile"; then
         log_info "Source files updated, rebuilding..."
         NEED_BUILD=true
@@ -39,9 +39,9 @@ if command_exists python3; then
     python3 -c "
 import sys
 sys.path.append('.')
-from AI.Utils.variables import VariableManager
-from AI.Modes.interactive import InteractiveMode
-from AI.Api.client import ClaudeClient
+from ask.utils.variables import VariableManager
+from ask.modes.interactive import InteractiveMode
+from ask.api.client import ClaudeClient
 
 print('\n🚀 PyClaudeCli Variable System Loaded')
 print('\nAvailable imports:')

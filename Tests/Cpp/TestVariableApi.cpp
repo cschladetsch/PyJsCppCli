@@ -19,7 +19,7 @@
 
 // Prevent multiple main functions
 #define SKIP_MAIN
-#include "../../AI/Bindings/VariableApi.cpp"
+#include "../../ask/bindings/VariableApi.cpp"
 #undef SKIP_MAIN
 
 /**

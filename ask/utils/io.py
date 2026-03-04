@@ -24,10 +24,13 @@ from ..models import Interaction
 def read_token():
     """
     Reads the API key from environment variable or token files.
-    Checks in order: environment variable, new token file, legacy token file.
+    Checks in order: CLAUDE_API_KEY, ANTHROPIC_API_KEY, new token file, legacy token file.
     """
     if "CLAUDE_API_KEY" in os.environ:
         return os.environ["CLAUDE_API_KEY"]
+
+    if "ANTHROPIC_API_KEY" in os.environ:
+        return os.environ["ANTHROPIC_API_KEY"]
 
     # Try new location first
     if os.path.exists(TOKEN_FILE):

@@ -12,7 +12,7 @@ import sys
 # Add the project root to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from ask.Utils.variables import VariableManager
+from ask.utils.variables import VariableManager
 
 
 class TestVariableManager(unittest.TestCase):
