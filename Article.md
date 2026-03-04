@@ -158,13 +158,20 @@ git diff HEAD~1 | ask - "Review this diff for error handling issues"
 
 ## MIDI generation (yes, really)
 
-Each query generates a short MIDI sequence, appended to a running `~/.config/claude/music.mid` file. The mood — major or minor key, tempo, bar length — is derived from keywords in the query and response text. Technical questions play in F major. Errors resolve to A minor. Successful creative responses get G major.
+Each query generates a short MIDI sequence and appends it to `~/.config/claude/music.mid`. After a long session you have a piece of music that reflects the emotional arc of the work — technical deep-dives in F major, errors resolving to A minor, breakthroughs back to C major.
 
-```bash
-ask --playsong          # Play the accumulated song
-ask --playsong --loop   # Loop it
-ask --clear-music       # Start fresh
-```
+### Mood mapping
+
+The query and response text gets scanned for keywords to pick a scale:
+
+| Keywords | Scale | Character |
+|----------|-------|-----------|
+| happy, great, awesome | C major | bright |
+| fast, quick, energy | D major | energetic |
+| mystery, puzzle, unknown | E minor | mysterious |
+| technical, code, function | F major | focused |
+| creative, design, art | G major | open |
+| error response | A minor | tense |
 
 ```mermaid
 flowchart LR
@@ -181,7 +188,22 @@ flowchart LR
     K --> L[Append to music.mid]
 ```
 
-It's a curiosity more than a feature, but it makes a long session feel oddly musical. The MIDI is generated in pure Python with no dependencies — just raw binary written according to the MIDI spec.
+### Tempo and rhythm
+
+Tempo is derived from a hash of the input text, so the same query always produces the same tempo — it's deterministic, not random. Bar length is chosen from 3, 5, or 9 beats, also hash-derived. The odd time signatures (5/4, 9/8) are a deliberate choice: they feel less mechanical than straight 4/4.
+
+### Implementation
+
+The MIDI is written in pure Python with no dependencies — just `struct.pack` writing bytes according to the MIDI 1.0 spec. A MIDI file is a surprisingly simple format once you strip away the tooling: a header chunk declaring the tempo and time signature, followed by track chunks containing note-on/note-off events with delta-time offsets.
+
+Each session appends to the same file up to a 500KB cap, at which point the oldest bars are dropped. The file accumulates across sessions until you explicitly clear it.
+
+```bash
+ask --playsong          # Play the accumulated song
+ask --playsong --loop   # Loop it
+ask --gen-midi "text"   # Generate from arbitrary text
+ask --clear-music       # Start fresh
+```
 
 ## The C++ layer
 

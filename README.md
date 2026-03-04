@@ -129,6 +129,10 @@ Requires: CMake 3.10+, GCC 13+ or Clang 15+, libcurl, nlohmann-json.
 sudo apt install build-essential cmake libcurl4-openssl-dev nlohmann-json3-dev
 ```
 
+## Further reading
+
+[Article.md](Article.md) — a deeper look at the design, including variable interpolation, file upload handling, MIDI generation, and the C++ layer.
+
 ## License
 
 MIT
