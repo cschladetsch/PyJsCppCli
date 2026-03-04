@@ -28,6 +28,7 @@ test_venv/
 
 # Build artifacts
 build/
+Bin/
 
 # Doxygen generated documentation
 Doxygen/html/
