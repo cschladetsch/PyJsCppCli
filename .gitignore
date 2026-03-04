@@ -31,6 +31,10 @@ build/
 
 # Doxygen generated documentation
 Doxygen/html/
+html/
+
+# Runtime config (may contain local overrides)
+config.local
 
 # Test output
 test_output.log
